@@ -15,3 +15,6 @@
 
 /llms-full.txt
   Content-Type: text/plain; charset=utf-8
+
+https://:preview.devlanes.run/*
+  X-Robots-Tag: noindex

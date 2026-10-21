@@ -2,6 +2,15 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "website",
   "compatibility_date": "2026-10-20",
+  "workers_dev": true,
+  "preview_urls": true,
+  "routes": [
+    {
+      "pattern": "devlanes.run",
+      "custom_domain": true,
+      "previews_enabled": true
+    }
+  ],
   "previews": {},
   "assets": {
     "directory": "./dist",
