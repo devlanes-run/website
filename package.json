@@ -2,12 +2,13 @@
   "name": "@devlanes/website",
   "version": "0.0.0",
   "private": true,
-  "description": "DevLanes website",
+  "description": "The devlanes.run website",
   "homepage": "https://devlanes.run",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/devlanes-run/website.git"
   },
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "build": "astro build",

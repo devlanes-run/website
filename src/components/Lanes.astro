@@ -1,6 +1,6 @@
 <section id="lanes" class="feature" aria-labelledby="lanes-title">
   <div class="section-heading copy">
-    <h2 id="lanes-title">One project. Several running copies.</h2>
+    <h2 id="lanes-title">Run several copies of your project</h2>
     <p>
       A lane groups the services and configuration for one running stack. Use separate worktrees,
       another checkout, or the same checkout with different settings.
@@ -8,10 +8,10 @@
   </div>
   <div class="lane-details">
     <article class="copy">
-      <h3>Ports that don't collide.</h3>
+      <h3>Ports and hostnames</h3>
       <p>
-        Each lane gets its own port range and local hostnames. Run checkout next to main without
-        editing a pile of <code>.env</code> files.
+        Each lane gets a port range and local hostnames. Run the checkout branch alongside main
+        without assigning ports in <code>.env</code> files.
       </p>
       <code class="example">
         main :20000
@@ -20,10 +20,10 @@
       </code>
     </article>
     <article class="copy">
-      <h3>Shared infra. Separate data.</h3>
+      <h3>Per-lane databases</h3>
       <p>
-        Reuse infrastructure such as Postgres while giving each lane its own database. Try a
-        migration without changing main's data.
+        Lanes can share a Postgres server while using separate databases. Test a migration in one
+        lane without changing main's data.
       </p>
       <code class="example">
         postgres / myapp_main
@@ -32,10 +32,10 @@
       </code>
     </article>
     <article class="copy">
-      <h3>Your stack, described once.</h3>
+      <h3>Project configuration</h3>
       <p>
-        A project configuration describes services, environment variables and lifecycle tasks. Each
-        lane gets the values it needs.
+        Define services and setup tasks in <code>devlanes.yaml</code>. Environment variables use
+        each lane's ports and database names.
       </p>
       <code class="example">
         devlanes.yaml

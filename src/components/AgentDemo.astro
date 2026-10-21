@@ -7,7 +7,7 @@ const scenes = [
     title: 'Start a lane',
     prompt: 'Start the checkout branch so I can test it.',
     command: '$ devlanes up --lane feat/checkout',
-    output: 'lane 1 ready · web :21000 · api :21001 · db myapp_lane1',
+    output: 'lane 1 ready / web :21000 / api :21001 / db myapp_lane1',
     reply:
       'The checkout stack is running alongside main. Open https://myapp-1.localhost on your laptop to try it.'
   },
@@ -16,14 +16,13 @@ const scenes = [
     prompt: 'Submitting the form returns a 500. Find out why.',
     command: '$ devlanes logs api --lane 1',
     output: 'error: column "orders.coupon_code" does not exist',
-    reply:
-      'The API expects a column that this database is missing. I can add the migration and retry in lane 1.'
+    reply: 'The orders table is missing coupon_code. I will add the migration and retry in lane 1.'
   },
   {
     title: 'Clean up',
     prompt: 'Looks good. Clean up this lane.',
     command: '$ devlanes lane clean feat/checkout',
-    output: 'stopped 3 services · removed myapp_lane1 · released ports',
+    output: 'stopped 3 services / removed myapp_lane1 / released ports',
     reply: 'The checkout lane is gone. Main is still running at https://myapp.localhost.'
   }
 ];
@@ -31,18 +30,12 @@ const scenes = [
 
 <section id="agents" class="feature split agent-section" aria-labelledby="agents-title">
   <div class="copy">
-    <h2 id="agents-title">
-      Your agent starts it. <br />
-      You try it.
-    </h2>
+    <h2 id="agents-title">Give your agent a lane</h2>
     <p>
-      Give an agent a lane for its work. It can start the services, inspect logs and hand you a
-      local URL to test.
+      An agent can start a stack for its changes and give you a localhost URL to test. It uses the
+      same commands you use to inspect logs or stop services.
     </p>
-    <p>
-      The planned daemon keeps the stack running beyond a single terminal session. You and your
-      agent see the same processes.
-    </p>
+    <p>The daemon keeps services running when a terminal session ends.</p>
     <p class="small">
       A lane groups processes and data. The machine or container running them defines the security
       boundary.
