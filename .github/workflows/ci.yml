@@ -6,6 +6,8 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, closed]
   workflow_dispatch:
+  repository_dispatch:
+    types: [devlanes-release]
 
 permissions:
   contents: read
@@ -42,6 +44,8 @@ jobs:
 
       - name: Build
         run: pnpm build
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Install Chromium
         run: pnpm exec playwright install --with-deps chromium

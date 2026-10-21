@@ -13,3 +13,6 @@ playwright/.cache/
 coverage/
 *.log
 .DS_Store
+/public/v1/schema.json
+/public/v1/user-schema.json
+/public/install.sh
