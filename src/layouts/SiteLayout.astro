@@ -10,10 +10,9 @@ import '../styles/global.scss';
 
 const title = 'devlanes | Sandboxes for your agents. localhost for you.';
 const description =
-  'Run multiple development stacks locally or on a remote machine and access them through localhost. devlanes is in early development.';
+  'Run multiple development stacks locally or on a remote machine and access them through localhost.';
 const socialTitle = 'Sandboxes for your agents. localhost for you.';
-const socialDescription =
-  'Parallel development stacks with local access. devlanes is in early development.';
+const socialDescription = 'Parallel development stacks with local access.';
 const structuredData = {
   '@context': 'https://schema.org',
   '@graph': [
@@ -33,7 +32,7 @@ const structuredData = {
       url: 'https://devlanes.run/',
       applicationCategory: 'DeveloperApplication',
       description:
-        'devlanes manages development stacks on local and remote machines. It is in early development and is not ready to use.',
+        'devlanes manages development stacks on local and remote machines, with separate ports and data for each lane.',
       sameAs: 'https://github.com/devlanes-run/devlanes'
     }
   ]
@@ -64,7 +63,7 @@ const structuredData = {
     <meta property="og:image:height" content="1120" />
     <meta
       property="og:image:alt"
-      content="devlanes: Sandboxes for your agents. localhost for you. A preview of parallel development stacks."
+      content="devlanes: Sandboxes for your agents. localhost for you. Parallel development stacks."
     />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={socialTitle} />
@@ -106,12 +105,6 @@ const structuredData = {
       Skip to content
     </a>
     <Road />
-    <div class="announcement">
-      devlanes is in early development and is not ready to use yet.{' '}
-      <a href="https://github.com/devlanes-run/devlanes" target="_blank" rel="noopener noreferrer">
-        View on GitHub
-      </a>
-    </div>
     <div class="page">
       <Header />
       <main id="main">

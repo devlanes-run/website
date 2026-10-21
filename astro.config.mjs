@@ -15,7 +15,7 @@ export default defineConfig({
     slop({
       siteName: 'devlanes',
       siteDescription:
-        'devlanes runs development stacks locally or on remote machines with localhost access. It is in early development and is not ready to use.',
+        'devlanes runs development stacks locally or on remote machines with localhost access.',
       injectAlternateLink: false
     }),
     compress({ CSS: true, Image: true, JavaScript: true, SVG: true, HTML: true })

@@ -5,7 +5,8 @@ test('generated crawler documents and assets are available', async ({ request })
   expect(markdown.ok()).toBe(true);
   const content = await markdown.text();
   expect(content).toContain('Sandboxes for your agents. localhost for you.');
-  expect(content).toContain('not ready to use');
+  expect(content).not.toContain('not ready to use');
+  expect(content).toContain('npm install -g devlanes');
   expect(content).toContain('same checkout');
   expect(content).not.toContain('astro-slop: fetch');
   const llms = await request.get('/llms.txt');

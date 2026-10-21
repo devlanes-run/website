@@ -1,0 +1,66 @@
+---
+const methods = [
+  { id: 'brew', label: 'Homebrew', command: 'brew install devlanes-run/tap/devlanes' },
+  {
+    id: 'script',
+    label: 'Shell script',
+    command:
+      'curl -fsSL https://raw.githubusercontent.com/devlanes-run/devlanes/main/install.sh | sh'
+  },
+  { id: 'npm', label: 'npm', command: 'npm install -g devlanes' },
+  {
+    id: 'cargo',
+    label: 'cargo binstall',
+    command: 'cargo binstall --git https://github.com/devlanes-run/devlanes devlanes'
+  }
+];
+---
+
+<div class="install" id="install" aria-label="Install devlanes">
+  <div class="install-controls" hidden>
+    <div class="install-platforms" role="group" aria-label="Operating system">
+      <button type="button" data-os="macos" aria-pressed="true">
+        macOS
+      </button>
+      <button type="button" data-os="linux" aria-pressed="false">
+        Linux
+      </button>
+    </div>
+    <div class="install-methods" role="group" aria-label="Install method">
+      {methods.map(({ id, label }) => (
+        <button
+          type="button"
+          data-method={id}
+          aria-pressed={id === 'brew'}
+          aria-controls={`install-${id}`}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  </div>
+  {methods.map(({ id, label, command }) => (
+    <div class="install-panel" id={`install-${id}`} data-install-panel={id}>
+      <h3 class="install-fallback-label">{label}</h3>
+      <div class="install-command">
+        <span class="install-prompt" aria-hidden="true">
+          $
+        </span>
+        <code>{command}</code>
+        <button
+          type="button"
+          class="install-copy"
+          aria-label={`Copy ${label} install command`}
+          hidden
+        >
+          Copy
+        </button>
+      </div>
+    </div>
+  ))}
+  <p class="install-status" role="status" aria-live="polite"></p>
+</div>
+
+<script>
+  import '../scripts/install';
+</script>

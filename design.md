@@ -6,7 +6,7 @@ The headline is "Sandboxes for your agents. localhost for you." Use it in the he
 
 A lane is a running stack with its own ports and data. It may use a worktree, another checkout or the same checkout. The host machine or container defines its security boundary.
 
-Use `myapp` and `my-vps` in examples. Agent conversations use a generic agent and model. Describe concrete operations in plain sentences. Keep the development notice and mockup labels until the product is available.
+Use `myapp` and `my-vps` in examples. Agent conversations use a generic agent and model. Describe operations in the present tense. The team-only landing page uses the intended product experience, including installation, without development notices or mockup labels.
 
 ## Colour and typography
 
@@ -53,4 +53,3 @@ Served assets are in `public/assets/`. Source generators remain in the brand rep
 ## Interaction
 
 Provide visible keyboard focus and a skip link. Theme selection persists when storage is available. Example buttons expose their selected state and associated panel. The page remains readable without JavaScript.
-

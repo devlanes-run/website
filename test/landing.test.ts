@@ -4,14 +4,15 @@ test.beforeEach(async ({ page }) => {
   await page.route('https://metrics.arthur.one/**', (route) => route.fulfill({ body: '' }));
 });
 
-test('pre-release content, themes and agent examples', async ({ page }) => {
+test('product content, themes and agent examples', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
     'Sandboxes for your agents. localhost for you.'
   );
-  await expect(page.locator('.announcement')).toContainText('not ready to use yet');
+  await expect(page.locator('.announcement')).toHaveCount(0);
+  await expect(page.locator('.preview-label')).toHaveCount(0);
   await expect(page.locator('.site-header #motion')).toHaveCount(0);
   await expect(page.locator('#theme svg')).toHaveCount(2);
   await expect(page.locator('.github-link svg')).toHaveCount(1);
@@ -97,8 +98,9 @@ test('mobile has no page-wide overflow and remains usable without JavaScript', a
   await staticPage.goto('http://127.0.0.1:4321/');
   await expect(staticPage.getByRole('heading', { level: 1 })).toBeVisible();
   await expect(
-    staticPage.getByRole('link', { name: 'Follow development', exact: true })
-  ).toHaveAttribute('href', 'https://github.com/devlanes-run/devlanes');
+    staticPage.getByRole('link', { name: 'Read the docs', exact: true })
+  ).toHaveAttribute('href', 'https://github.com/devlanes-run/devlanes/tree/main/docs');
+  await expect(staticPage.locator('#install-npm')).toContainText('npm install -g devlanes');
   await expect(staticPage.locator('#scene-0')).toBeVisible();
   await expect(staticPage.locator('#motion')).toBeHidden();
   await context.close();

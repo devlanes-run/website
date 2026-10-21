@@ -1,5 +1,6 @@
 ---
 import Terminal from './Terminal.astro';
+import Install from './Install.astro';
 
 const lanes = [
   { name: 'main', host: 'myapp.localhost', db: 'myapp_main' },
@@ -17,14 +18,15 @@ const lanes = [
     Run multiple copies of your development stack locally or on a remote machine, and access each
     through localhost.
   </p>
+  <Install />
   <div class="actions">
     <a
-      class="button primary"
-      href="https://github.com/devlanes-run/devlanes"
+      class="button"
+      href="https://github.com/devlanes-run/devlanes/tree/main/docs"
       target="_blank"
       rel="noopener noreferrer"
     >
-      Follow development
+      Read the docs
     </a>
     <a class="button" href="#lanes">
       About lanes
@@ -79,7 +81,5 @@ const lanes = [
       j/k move <span>enter open</span> <span>l logs</span> <span>tab monitor</span>
     </div>
   </Terminal>
-  <p class="caption">
-    Design preview. devlanes is not ready to use; commands and interfaces may change.
-  </p>
+  <p class="caption">Each lane has its own ports, hostnames and database.</p>
 </section>

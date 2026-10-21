@@ -1,15 +1,14 @@
 ---
 interface Props {
   title: string;
-  label?: string;
 }
-const { title, label = 'Design preview' } = Astro.props;
+const { title } = Astro.props;
 ---
 
 <div class="terminal">
   <div class="terminal-bar">
     <span class="terminal-dot" aria-hidden="true"></span>
-    <span>{title}</span> <span class="preview-label">{label}</span>
+    <span>{title}</span>
   </div>
   <slot />
 </div>

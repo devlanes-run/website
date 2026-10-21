@@ -1,0 +1,110 @@
+.install {
+  max-width: 800px;
+  margin: 28px auto 0;
+  padding: 16px 18px 0;
+  background: var(--surface);
+  text-align: left;
+  scroll-margin-top: 28px;
+
+  button {
+    font: 12px var(--mono);
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 8px 10px;
+  }
+
+  button[aria-pressed='true'] {
+    color: var(--ink);
+    border-color: var(--line);
+  }
+
+  &[data-enhanced] .install-fallback-label {
+    display: none;
+  }
+}
+
+.install-controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.install-platforms,
+.install-methods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.install-platforms button[aria-pressed='true'] {
+  background: var(--paint);
+  border-color: var(--paint);
+  color: #24231f;
+}
+
+.install-command {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #666158;
+  border-radius: 5px;
+  background: var(--terminal);
+  color: var(--terminal-ink);
+
+  code {
+    flex: 1;
+    min-width: 0;
+    font: 12px/1.8 var(--mono);
+    overflow-wrap: anywhere;
+    user-select: all;
+  }
+
+  .install-prompt {
+    color: var(--paint);
+    font: 12px var(--mono);
+  }
+
+  .install-copy {
+    align-self: center;
+    flex-shrink: 0;
+    color: var(--terminal-ink);
+    border-color: #666158;
+    background: var(--terminal-raised);
+  }
+}
+
+.install-status {
+  min-height: 24px;
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.install-fallback-label {
+  margin: 16px 0 8px;
+  font-size: 13px;
+}
+
+@media (max-width: 600px) {
+  .install {
+    padding: 12px 0 0;
+  }
+  .install-controls {
+    justify-content: center;
+  }
+  .install-methods {
+    justify-content: center;
+  }
+  .install-command {
+    padding: 12px;
+    gap: 8px;
+  }
+  .install button {
+    font-size: 11px;
+    padding: 7px 8px;
+  }
+}

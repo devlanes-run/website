@@ -6,20 +6,6 @@
   z-index: 1;
 }
 
-.announcement {
-  position: relative;
-  z-index: 1;
-  background: var(--paint);
-  color: #24231f;
-  text-align: center;
-  font-size: 14px;
-  padding: 10px 20px;
-
-  a {
-    margin-left: 12px;
-  }
-}
-
 .site-header {
   display: flex;
   align-items: center;
