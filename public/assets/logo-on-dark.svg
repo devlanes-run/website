@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 236 64">
+<rect x="8" y="16" width="32" height="8" rx="4" fill="#f5c542"/>
+<g opacity="1">
+<rect x="16" y="28" width="32" height="8" rx="4" fill="#c9c6bd"/>
+<rect x="24" y="40" width="32" height="8" rx="4" fill="#c9c6bd"/>
+</g>
+<text x="72" y="44" font-family="Overpass, 'D-DIN', 'DIN Alternate', 'Helvetica Neue', Arial, sans-serif" font-size="34" font-weight="700" fill="#f2f0ea" letter-spacing="-0.8">devlanes</text>
+</svg>

@@ -1,0 +1,85 @@
+---
+import Terminal from './Terminal.astro';
+
+const lanes = [
+  { name: 'main', host: 'myapp.localhost', db: 'myapp_main' },
+  { name: 'feat/checkout', host: 'myapp-1.localhost', db: 'myapp_lane1' },
+  { name: 'fix/login', host: 'myapp-2.localhost', db: 'myapp_lane2' },
+  { name: 'agent/perf', host: 'myapp-3.localhost', db: 'myapp_lane3' }
+];
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <h1 id="hero-title">
+    <span>Sandboxes for your agents.</span> <span>localhost for you.</span>
+  </h1>
+  <p class="intro">
+    Run your development stacks side by side, on your laptop or a remote machine. Give your agents
+    room to work. Open the result on localhost.
+  </p>
+  <div class="actions">
+    <a
+      class="button primary"
+      href="https://github.com/devlanes-run"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Follow development
+    </a>
+    <a class="button" href="#lanes">
+      Explore the idea
+    </a>
+  </div>
+  <Terminal title="devlanes / myapp">
+    <div class="terminal-summary">
+      <strong>my-vps</strong>
+      <span>4 lanes / shared postgres</span>
+      <span class="connection">connected over ssh</span>
+    </div>
+    <div
+      class="table-scroll"
+      role="region"
+      aria-label="Example running lanes, scroll horizontally for all columns"
+      tabindex="0"
+    >
+      <table class="lane-table">
+        <thead>
+          <tr>
+            <th>lane</th>
+            <th>checkout</th>
+            <th>web</th>
+            <th>api</th>
+            <th>worker</th>
+            <th>database</th>
+            <th>open locally</th>
+          </tr>
+        </thead>
+        <tbody>
+          {lanes.map((lane, index) => (
+            <tr>
+              <td>
+                <span class={`lane-mark lane-${index}`} />
+                {index}
+              </td>
+              <th scope="row">{lane.name}</th>
+              {['web', 'api', 'worker'].map((service, offset) => (
+                <td>
+                  <span class="status" aria-label={`${service} ready`} />:
+                  {20000 + index * 1000 + offset}
+                </td>
+              ))}
+              <td>{lane.db}</td>
+              <td>{lane.host}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div class="terminal-foot">
+      j/k move <span>enter open</span> <span>l logs</span> <span>tab monitor</span>
+    </div>
+  </Terminal>
+  <p class="caption">
+    Design preview. devlanes is not ready to use; commands and interfaces may change.
+  </p>
+</section>

@@ -1,0 +1,103 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-padding-top: 32px;
+}
+
+body {
+  margin: 0;
+  position: relative;
+  background: var(--surface);
+  color: var(--ink);
+  font:
+    18px/1.6 'Overpass',
+    sans-serif;
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 5px;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+  }
+}
+
+button[hidden],
+[hidden] {
+  display: none !important;
+}
+
+:focus-visible {
+  outline: 3px solid #a77900;
+  outline-offset: 5px;
+}
+
+::selection {
+  background: var(--paint);
+  color: #1a1917;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--mono);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+h1 {
+  font-size: clamp(30px, 3.5vw, 48px);
+  letter-spacing: -2px;
+  margin: 0 auto 26px;
+  max-width: 1100px;
+
+  span {
+    display: table;
+    background: var(--surface);
+    padding: 0 12px;
+    margin: auto;
+  }
+}
+
+h2 {
+  font-size: clamp(24px, 2.3vw, 31px);
+  letter-spacing: -1px;
+  margin: 0 0 22px;
+}
+
+h3 {
+  font-size: 17px;
+  letter-spacing: -0.4px;
+  margin: 0 0 16px;
+}
+
+p {
+  margin: 0 0 20px;
+}
+
+.skip-link {
+  position: fixed;
+  top: -100px;
+  left: 20px;
+  z-index: 10;
+  background: var(--paint);
+  color: #24231f;
+  padding: 10px;
+
+  &:focus {
+    top: 10px;
+  }
+}

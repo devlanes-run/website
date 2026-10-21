@@ -1,0 +1,124 @@
+---
+import '@fontsource/overpass/latin-400.css';
+import '@fontsource/overpass/latin-600.css';
+import '@fontsource/jetbrains-mono/latin-400.css';
+import '@fontsource/jetbrains-mono/latin-700.css';
+import Road from '../components/Road.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.scss';
+
+const title = 'devlanes | Sandboxes for your agents. localhost for you.';
+const description =
+  'Parallel development stacks, on your machine or a remote server. Give each lane its own ports and data, and open the app through localhost. In early development.';
+const socialTitle = 'Sandboxes for your agents. localhost for you.';
+const socialDescription =
+  'Parallel development stacks with local access. devlanes is in early development.';
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': 'https://devlanes.run/#website',
+      name: 'devlanes',
+      url: 'https://devlanes.run/',
+      description,
+      inLanguage: 'en',
+      sameAs: 'https://github.com/devlanes-run'
+    },
+    {
+      '@type': 'SoftwareApplication',
+      '@id': 'https://devlanes.run/#software',
+      name: 'devlanes',
+      url: 'https://devlanes.run/',
+      applicationCategory: 'DeveloperApplication',
+      description:
+        'devlanes is pre-release software in early development for parallel development stacks on a local machine or remote server. It is not ready to use yet.',
+      sameAs: 'https://github.com/devlanes-run'
+    }
+  ]
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f2f2ef" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://devlanes.run/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="text/markdown" href="/index.md" />
+    <link rel="help" type="text/plain" href="/llms.txt" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://devlanes.run/" />
+    <meta property="og:site_name" content="devlanes" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content={socialTitle} />
+    <meta property="og:description" content={socialDescription} />
+    <meta property="og:image" content="https://devlanes.run/social.png" />
+    <meta property="og:image:width" content="2560" />
+    <meta property="og:image:height" content="1120" />
+    <meta
+      property="og:image:alt"
+      content="devlanes: Sandboxes for your agents. localhost for you. A preview of parallel development stacks."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={socialTitle} />
+    <meta name="twitter:description" content={socialDescription} />
+    <meta name="twitter:image" content="https://devlanes.run/social.png" />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
+    <script is:inline>
+      (() => {
+        let theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        try {
+          const stored = localStorage.getItem('theme');
+          if (stored === 'dark' || stored === 'light') theme = stored;
+        } catch {}
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
+    <!-- Privacy-friendly analytics by Plausible -->
+    <script
+      is:inline
+      async
+      src="https://metrics.arthur.one/js/pa-3pDH1YhCzpfClRVGg57Ha.js"
+    ></script>
+    <script is:inline>
+      ((window.plausible =
+        window.plausible ||
+        function () {
+          (plausible.q = plausible.q || []).push(arguments);
+        }),
+        (plausible.init =
+          plausible.init ||
+          function (i) {
+            plausible.o = i || {};
+          }));
+      plausible.init();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">
+      Skip to content
+    </a>
+    <Road />
+    <div class="announcement">
+      In early development. Not ready to use yet.{' '}
+      <a href="https://github.com/devlanes-run" target="_blank" rel="noopener noreferrer">
+        Follow the progress on GitHub
+      </a>
+    </div>
+    <div class="page">
+      <Header />
+      <main id="main">
+        <slot />
+      </main>
+      <Footer />
+    </div>
+    <script src="../scripts/site.ts"></script>
+  </body>
+</html>

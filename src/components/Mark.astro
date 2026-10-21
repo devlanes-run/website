@@ -1,0 +1,9 @@
+---
+import { Icon } from 'astro-icon/components';
+interface Props {
+  size?: number;
+}
+const { size = 32 } = Astro.props;
+---
+
+<Icon name="devlanes" size={size} aria-hidden="true" />

@@ -1,0 +1,68 @@
+.monitor-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 28px;
+  padding: 24px;
+}
+
+.process-list {
+  border-right: 1px solid #494438;
+  padding-right: 24px;
+
+  p {
+    margin: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+}
+
+.selected {
+  color: #f5d47a;
+}
+
+.muted {
+  color: #b5afa2;
+}
+
+.resource {
+  margin-top: 30px;
+
+  small {
+    font-size: 10px;
+    color: #b5afa2;
+  }
+}
+
+.meter {
+  height: 5px;
+  background: #484338;
+  margin: 10px 0;
+
+  i {
+    display: block;
+    height: 100%;
+    width: 77.5%;
+    background: #c4a350;
+  }
+}
+
+.logs {
+  min-width: 0;
+  overflow: auto;
+  white-space: nowrap;
+
+  p {
+    margin-bottom: 12px;
+  }
+
+  time {
+    color: #b5afa2;
+    margin-right: 10px;
+  }
+}
+
+.log-note {
+  color: #c4a350;
+  margin-top: 32px;
+}

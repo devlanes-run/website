@@ -1,0 +1,27 @@
+$tablet-width: 1000px;
+$mobile-width: 720px;
+
+:root {
+  --surface: #f2f2ef;
+  --ink: #24231f;
+  --muted: #63615a;
+  --line: #d1cfc7;
+  --paint: #f5c542;
+  --road-line: #d5d3cb;
+  --road-centre: #d2ae43;
+  --terminal: #1a1917;
+  --terminal-raised: #272622;
+  --terminal-ink: #e8e6df;
+  --mono: 'JetBrains Mono', monospace;
+  color-scheme: light;
+
+  &[data-theme='dark'] {
+    --surface: #22211e;
+    --ink: #f2f0ea;
+    --muted: #b0ada3;
+    --line: #4c4941;
+    --road-line: #39372f;
+    --road-centre: #79672f;
+    color-scheme: dark;
+  }
+}

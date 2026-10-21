@@ -1,0 +1,60 @@
+---
+import Terminal from './Terminal.astro';
+---
+
+<section id="monitor" class="feature" aria-labelledby="monitor-title">
+  <div class="section-heading copy">
+    <h2 id="monitor-title">Keep an eye on every stack.</h2>
+    <p>
+      Inspect logs, stop a service and see resource use per lane from one terminal. A shared view
+      for the work you started and the processes your agents left running.
+    </p>
+  </div>
+  <Terminal title="devlanes / monitor">
+    <div class="monitor-grid">
+      <div class="process-list">
+        <span class="muted">lanes</span>
+        <p>
+          0 main <span>4.2 GB</span>
+        </p>
+        <p class="selected">
+          1 feat/checkout <span>3.1 GB</span>
+        </p>
+        <p>
+          2 fix/login <span>1.5 GB</span>
+        </p>
+        <p>
+          3 agent/perf <span>2.9 GB</span>
+        </p>
+        <div class="resource">
+          <span>lane 1 / memory</span>
+          <div class="meter">
+            <i />
+          </div>
+          <small>3.1 GB / 4 GB budget</small>
+        </div>
+      </div>
+      <div class="logs">
+        <p class="muted">api / lane 1 / :21001</p>
+        <p>
+          <time>12:04:01</time> Listening on 127.0.0.1:21001
+        </p>
+        <p>
+          <time>12:04:01</time> Database myapp_lane1 connected
+        </p>
+        <p>
+          <time>12:04:03</time> <span class="success">GET</span> /checkout{' '}
+          <span class="success">200</span>
+        </p>
+        <p>
+          <time>12:04:05</time> <span class="success">POST</span> /orders{' '}
+          <span class="success">201</span>
+        </p>
+        <p class="log-note">main is still running on :20001</p>
+      </div>
+    </div>
+    <div class="terminal-foot">
+      s start <span>x stop</span> <span>r restart</span> <span>/ filter</span>
+    </div>
+  </Terminal>
+</section>

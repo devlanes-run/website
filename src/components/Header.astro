@@ -1,0 +1,37 @@
+---
+import Mark from './Mark.astro';
+import { Icon } from 'astro-icon/components';
+---
+
+<header class="site-header">
+  <a class="brand" href="/" aria-label="devlanes home">
+    <Mark />
+    devlanes
+  </a>
+  <nav aria-label="Main navigation">
+    <a href="#remote">Remote</a>
+    <a href="#lanes">Lanes</a>
+    <a href="#agents">Agents</a>
+    <a
+      class="github-link"
+      href="https://github.com/devlanes-run"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <Icon name="mdi:github" size={18} aria-hidden="true" />
+      GitHub
+    </a>
+  </nav>
+  <div class="preferences">
+    <button
+      id="theme"
+      type="button"
+      aria-label="Switch to dark theme"
+      title="Switch to dark theme"
+      hidden
+    >
+      <Icon class="theme-moon" name="mdi:weather-night" size={20} aria-hidden="true" />
+      <Icon class="theme-sun" name="mdi:weather-sunny" size={20} aria-hidden="true" />
+    </button>
+  </div>
+</header>

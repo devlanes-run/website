@@ -1,0 +1,14 @@
+allowBuilds:
+  '@parcel/watcher': false
+  esbuild: true
+  workerd: true
+  sharp: true
+minimumReleaseAgeExclude:
+  - miniflare@5.20261019.1-beta
+  - sass@1.106.0
+  - wrangler@4.151.3
+# astro-slop's peer range predates Astro 7; the static build and generated-output
+# browser checks cover this combination, also used by the reference Astro site.
+peerDependencyRules:
+  allowedVersions:
+    'astro-slop>astro': '7'

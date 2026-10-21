@@ -1,0 +1,36 @@
+---
+const files = Object.keys(import.meta.glob('/public/assets/*.{svg,png}'))
+  .map((path) => path.replace('/public', ''))
+  .sort();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>devlanes brand assets</title>
+    <meta
+      name="description"
+      content="Download devlanes logos, favicons, file icons and banners in SVG and PNG."
+    />
+    <link rel="canonical" href="https://devlanes.run/assets/" />
+    <link rel="icon" href="/favicon.svg" />
+  </head>
+  <body>
+    <main>
+      <h1>devlanes brand assets</h1>
+      <p>
+        <a href="/">Back to devlanes</a>
+      </p>
+      <p>SVG and PNG versions of the current brand assets.</p>
+      <ul>
+        {files.map((file) => (
+          <li>
+            <a href={file}>{file.split('/').pop()}</a>
+          </li>
+        ))}
+      </ul>
+    </main>
+  </body>
+</html>

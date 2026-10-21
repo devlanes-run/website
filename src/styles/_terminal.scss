@@ -1,0 +1,179 @@
+.terminal {
+  background: var(--terminal);
+  color: var(--terminal-ink);
+  border: 1px solid #666158;
+  border-radius: 7px;
+  text-align: left;
+  overflow: hidden;
+  font: 12px/1.65 var(--mono);
+  min-width: 0;
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--surface) 88%, var(--paint));
+}
+
+.terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #47443d;
+  background: var(--terminal-raised);
+  font-size: 11px;
+  color: #c3beb2;
+}
+
+.terminal-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--paint);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.preview-label {
+  margin-left: auto;
+  color: #b5afa2;
+  font-size: 10px;
+}
+
+.terminal-summary {
+  display: flex;
+  gap: 20px;
+  padding: 15px 18px;
+  font-size: 11px;
+
+  strong {
+    color: var(--paint);
+  }
+}
+
+.connection {
+  margin-left: auto;
+  color: #9db89b;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  padding: 0 0 10px;
+}
+
+.lane-table {
+  border-collapse: collapse;
+  width: 100%;
+  white-space: nowrap;
+  font-size: 11px;
+
+  th,
+  td {
+    text-align: left;
+    padding: 13px 13px;
+    font-weight: 400;
+  }
+
+  thead {
+    color: #a9a396;
+    font-size: 10px;
+
+    th {
+      border-bottom: 1px solid #464239;
+    }
+  }
+
+  tbody {
+    tr:first-child {
+      background: #302a1c;
+    }
+
+    tr + tr {
+      border-top: 1px dashed #38352e;
+    }
+  }
+
+  td:last-child {
+    color: #c5bfae;
+  }
+}
+
+.lane-mark {
+  display: inline-block;
+  width: 13px;
+  height: 5px;
+  background: #c4a350;
+  border-radius: 3px;
+  vertical-align: middle;
+  margin-right: 9px;
+}
+
+.lane-1 {
+  background: #7c9fc6;
+}
+
+.lane-2 {
+  background: #a494be;
+}
+
+.lane-3 {
+  background: #78aaa7;
+}
+
+.status {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #91c59f;
+  margin-right: 5px;
+}
+
+.terminal-foot {
+  padding: 9px 16px;
+  color: #b1ab9e;
+  background: var(--terminal-raised);
+  font-size: 10px;
+  display: flex;
+  gap: 18px;
+}
+
+.terminal-content {
+  padding: 22px;
+}
+
+.command {
+  color: #f2f0ea;
+  overflow-wrap: anywhere;
+}
+
+.success {
+  color: #91c59f;
+}
+
+.route {
+  padding: 15px 0;
+  border-top: 1px dashed #4a453c;
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+
+  span,
+  small,
+  code {
+    display: block;
+  }
+
+  span {
+    color: #b9b2a4;
+    font-size: 10px;
+  }
+
+  code {
+    color: #f5d47a;
+    font: 12px var(--mono);
+    margin: 5px 0;
+    overflow-wrap: anywhere;
+  }
+
+  small {
+    color: #b5afa2;
+    font-size: 10px;
+  }
+}

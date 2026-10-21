@@ -1,0 +1,44 @@
+---
+import Terminal from './Terminal.astro';
+---
+
+<section id="remote" class="feature split" aria-labelledby="remote-title">
+  <div class="copy">
+    <h2 id="remote-title">
+      Develop on a server. <br />
+      Open it on localhost.
+    </h2>
+    <p>
+      Let the remote machine run the stack. Keep your browser, database client and desktop app on
+      the laptop in front of you.
+    </p>
+    <p>
+      devlanes is being built to connect them over SSH, with local HTTPS addresses for apps and TCP
+      access for services.
+    </p>
+    <a class="text-link" href="#agents">
+      See the agent workflow
+    </a>
+  </div>
+  <Terminal title="your laptop / remote connection">
+    <div class="terminal-content">
+      <p class="command">$ devlanes connect my-vps</p>
+      <p class="success">Connected to my-vps</p>
+      <div class="route">
+        <span>browser</span>
+        <code>https://myapp-1.localhost</code>
+        <small>my-vps / lane 1 / web :21000</small>
+      </div>
+      <div class="route">
+        <span>database client</span>
+        <code>127.0.0.1:5432/myapp_lane1</code>
+        <small>my-vps / shared postgres / lane 1 data</small>
+      </div>
+      <div class="route">
+        <span>local desktop app</span>
+        <code>https://api.myapp-1.localhost</code>
+        <small>local window / remote backend</small>
+      </div>
+    </div>
+  </Terminal>
+</section>
