@@ -1,28 +1,13 @@
+// Turns a source repository's Markdown into Starlight pages. scripts/sync.mjs decides which
+// repositories and refs are imported.
 import { execFile } from 'node:child_process';
-import { cp, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { dirname, extname, join, posix, relative, resolve } from 'node:path';
+import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { dirname, extname, join, posix, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 const run = promisify(execFile);
 const contentDir = fileURLToPath(new URL('../src/content/docs/', import.meta.url));
-
-/**
- * Repositories whose Markdown is published under the site's docs. Each source owns one
- * directory of the Starlight collection, so other repositories can be added later.
- */
-export const sources = [
-  {
-    repository: 'devlanes-run/devlanes',
-    ref: process.env.DEVLANES_DOCS_REF ?? 'main',
-    // Point at a local checkout to preview unpushed documentation.
-    local: process.env.DEVLANES_DOCS_DIR,
-    path: 'docs',
-    target: 'docs',
-    order: ['getting-started.md']
-  }
-];
 
 const markdownExtensions = new Set(['.md', '.mdx']);
 const imageExtensions = new Set(['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.avif']);
@@ -189,7 +174,10 @@ export function toStarlightPage(markdown, file, context) {
   if (!has('lastUpdated') && updated) fields.push(`lastUpdated: ${updated}`);
   if (!has('editUrl')) {
     const path = posix.join(source.path, file);
-    fields.push(`editUrl: https://github.com/${source.repository}/edit/${source.ref}/${path}`);
+    // Edits go to the development branch; the published ref is usually a release tag.
+    fields.push(
+      `editUrl: https://github.com/${source.repository}/edit/${source.editBranch}/${path}`
+    );
   }
   const index = source.order?.indexOf(file) ?? -1;
   if (!has('sidebar') && (index >= 0 || routeFor(source, file) === `/${source.target}/`)) {
@@ -227,89 +215,49 @@ export function parseLastUpdated(log, sourcePath) {
   return dates;
 }
 
-async function lastUpdated(repository, sourcePath) {
-  const { stdout } = await run(
-    'git',
-    ['-C', repository, 'log', '--format=%x1f%cI', '--name-only', '--', sourcePath],
-    { maxBuffer: 64 * 1024 * 1024 }
-  );
-  return parseLastUpdated(stdout, sourcePath);
-}
-
-async function checkout(source) {
-  if (source.local) {
-    const root = resolve(source.local);
-    try {
-      const git = (...args) =>
-        run('git', ['-C', root, ...args]).then(({ stdout }) => stdout.trim());
-      const top = await git('rev-parse', '--show-toplevel');
-      const sourcePath = relative(top, root).split('\\').join('/') || '.';
-      return {
-        root,
-        commit: await git('rev-parse', 'HEAD'),
-        updated: await lastUpdated(top, sourcePath),
-        cleanup: async () => {}
-      };
-    } catch {
-      // A plain directory has no history, so pages render without a last-updated date.
-      return { root, commit: source.ref, updated: new Map(), cleanup: async () => {} };
-    }
-  }
-  const directory = await mkdtemp(join(tmpdir(), 'devlanes-docs-'));
-  const url = `https://github.com/${source.repository}.git`;
-  // Full history without file contents: enough for per-file dates, while blobs are only
-  // downloaded for the sparse docs checkout.
-  const args = ['clone', '--quiet', '--filter=blob:none', '--sparse'];
-  await run('git', [...args, `--branch=${source.ref}`, url, directory]);
-  await run('git', ['-C', directory, 'sparse-checkout', 'set', source.path]);
-  const { stdout } = await run('git', ['-C', directory, 'rev-parse', 'HEAD']);
-  return {
-    root: join(directory, source.path),
-    commit: stdout.trim(),
-    updated: await lastUpdated(directory, source.path),
-    cleanup: () => rm(directory, { recursive: true, force: true })
-  };
-}
-
-async function syncSource(source) {
-  const { root, commit, updated, cleanup } = await checkout(source);
+/** Last-change dates of the files under `sourcePath`; empty when there is no Git history. */
+export async function historyDates(repositoryRoot, sourcePath) {
   try {
-    const target = join(contentDir, source.target);
-    await rm(target, { recursive: true, force: true });
-    const files = await listFiles(root);
-    const pages = new Map();
-    for (const file of files) {
-      if (markdownExtensions.has(extname(file).toLowerCase())) {
-        pages.set(file, await readFile(join(root, file), 'utf8'));
-      }
-    }
-    // Collected first, so links from published pages can point unpublished ones at GitHub.
-    const unpublished = new Set(
-      [...pages].filter(([, text]) => !isPublished(text)).map(([f]) => f)
+    const { stdout } = await run(
+      'git',
+      ['-C', repositoryRoot, 'log', '--format=%x1f%cI', '--name-only', '--', sourcePath],
+      { maxBuffer: 64 * 1024 * 1024 }
     );
-    const context = { source, commit, unpublished, updated };
-
-    for (const file of files) {
-      const markdown = pages.get(file);
-      if (markdown !== undefined && !unpublished.has(file)) {
-        const destination = join(target, outputPath(file));
-        await mkdir(dirname(destination), { recursive: true });
-        await writeFile(destination, toStarlightPage(markdown, file, context));
-      } else if (imageExtensions.has(extname(file).toLowerCase())) {
-        await mkdir(dirname(join(target, file)), { recursive: true });
-        await cp(join(root, file), join(target, file));
-      }
-    }
-    const published = pages.size - unpublished.size;
-    const skipped = unpublished.size ? `, skipped ${unpublished.size} with publish: false` : '';
-    console.log(
-      `Imported ${published} pages from ${source.repository}@${commit.slice(0, 12)}${skipped}.`
-    );
-  } finally {
-    await cleanup();
+    return parseLastUpdated(stdout, sourcePath);
+  } catch {
+    return new Map();
   }
 }
 
-if (import.meta.main) {
-  for (const source of sources) await syncSource(source);
+/**
+ * Writes the docs found in `root` (the source's docs directory) into the Starlight collection.
+ * `context` holds the `source` options, the built `commit` and the `updated` dates.
+ */
+export async function importDocs(root, context) {
+  const { source } = context;
+  const target = join(contentDir, source.target);
+  await rm(target, { recursive: true, force: true });
+  const files = await listFiles(root);
+  const pages = new Map();
+  for (const file of files) {
+    if (markdownExtensions.has(extname(file).toLowerCase())) {
+      pages.set(file, await readFile(join(root, file), 'utf8'));
+    }
+  }
+  // Collected first, so links from published pages can point unpublished ones at GitHub.
+  const unpublished = new Set([...pages].filter(([, text]) => !isPublished(text)).map(([f]) => f));
+  const pageContext = { ...context, unpublished };
+
+  for (const file of files) {
+    const markdown = pages.get(file);
+    if (markdown !== undefined && !unpublished.has(file)) {
+      const destination = join(target, outputPath(file));
+      await mkdir(dirname(destination), { recursive: true });
+      await writeFile(destination, toStarlightPage(markdown, file, pageContext));
+    } else if (imageExtensions.has(extname(file).toLowerCase())) {
+      await mkdir(dirname(join(target, file)), { recursive: true });
+      await cp(join(root, file), join(target, file));
+    }
+  }
+  return { published: pages.size - unpublished.size, skipped: unpublished.size };
 }

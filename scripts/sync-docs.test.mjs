@@ -10,7 +10,7 @@ import {
 
 const source = {
   repository: 'acme/tool',
-  ref: 'main',
+  editBranch: 'main',
   path: 'docs',
   target: 'docs',
   order: ['getting-started.md']

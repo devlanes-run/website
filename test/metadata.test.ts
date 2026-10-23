@@ -17,6 +17,14 @@ test('generated crawler documents and assets are available', async ({ request })
   const urls = await sitemap.text();
   expect(urls).toContain('https://devlanes.run/');
   expect(urls).toContain('https://devlanes.run/docs/');
+  for (const name of ['schema.json', 'user-schema.json']) {
+    const path = `/v1/${name}`;
+    const id = `https://devlanes.run${path}`;
+    const schema = await request.get(path);
+    expect(schema.ok(), path).toBe(true);
+    expect((await schema.json()).$id).toBe(id);
+  }
+  expect(await (await request.get('/install.sh')).text()).toMatch(/^#!/);
   const robots = await request.get('/robots.txt');
   expect(await robots.text()).toContain('Allow: /');
   expect((await request.get('/icons/1-stagger/favicon.svg')).status()).toBe(404);
