@@ -25,7 +25,8 @@
   --sl-nav-pad-x: var(--doc-pad);
   --sl-sidebar-width: 300px;
   --sl-sidebar-pad-x: 20px;
-  --sl-content-width: 720px;
+  --sl-content-width: 760px;
+  --doc-toc-width: 220px;
   --sl-content-pad-x: 40px;
   --sl-menu-button-size: 38px;
 
@@ -200,6 +201,38 @@ mobile-starlight-toc {
   color: var(--ink);
 }
 
+// Page actions under the title, styled like the header's buttons.
+.page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+
+  a,
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    background: var(--surface);
+    color: var(--muted);
+    font: 12px var(--mono);
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--ink);
+      color: var(--ink);
+    }
+  }
+
+  [hidden] {
+    display: none;
+  }
+}
+
 .pagination-links a {
   border: 1px solid var(--line);
   border-radius: 5px;
@@ -233,6 +266,22 @@ mobile-starlight-toc {
 
   .main-frame {
     padding-inline-end: var(--doc-gutter);
+  }
+
+  // Text starts next to the sidebar instead of floating in the middle of the column.
+  [data-has-sidebar] .main-pane {
+    --sl-content-margin-inline: 0 auto;
+  }
+}
+
+// A narrower page outline leaves the text column about 75 characters wide.
+@media (min-width: 72rem) {
+  .right-sidebar-container {
+    width: var(--doc-toc-width);
+  }
+
+  :root[data-has-sidebar][data-has-toc] .main-pane {
+    width: calc(100% - var(--doc-toc-width));
   }
 }
 

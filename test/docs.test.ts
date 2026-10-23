@@ -42,6 +42,27 @@ test('every docs page in the sidebar renders with a Markdown twin', async ({ pag
   expect(llms).toContain('(/index.md)');
 });
 
+test('page actions copy the Markdown twin and prompt assistants with its URL', async ({
+  page,
+  context
+}) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.goto('/docs/');
+  const actions = page.locator('.page-actions');
+  await expect(actions.getByRole('link', { name: 'View Markdown' })).toHaveAttribute(
+    'href',
+    '/docs.md'
+  );
+  await actions.getByRole('button', { name: 'Copy Markdown' }).click();
+  await expect(actions.getByRole('button')).toHaveText('Copied');
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toMatch(/^---\ntitle: /);
+  const prompt = encodeURIComponent('Read https://devlanes.run/docs.md');
+  await expect(actions.getByRole('link', { name: 'Ask Claude' })).toHaveAttribute(
+    'href',
+    new RegExp(`^https://claude\\.ai/new\\?q=${prompt}`)
+  );
+});
+
 test('search finds docs content', async ({ page }) => {
   await page.goto('/docs/');
   await page.getByRole('button', { name: 'Search' }).click();

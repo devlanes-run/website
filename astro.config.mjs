@@ -13,7 +13,18 @@ export default defineConfig({
   site: 'https://devlanes.run',
   output: 'static',
   integrations: [
-    icon({ include: { mdi: ['github', 'weather-sunny', 'weather-night'] } }),
+    icon({
+      include: {
+        mdi: [
+          'github',
+          'weather-sunny',
+          'weather-night',
+          'content-copy',
+          'language-markdown-outline',
+          'open-in-new'
+        ]
+      }
+    }),
     sitemap(),
     starlight({
       title: 'devlanes',
@@ -25,6 +36,7 @@ export default defineConfig({
       components: {
         Head: './src/components/docs/Head.astro',
         Header: './src/components/docs/Header.astro',
+        PageTitle: './src/components/docs/PageTitle.astro',
         ThemeProvider: './src/components/docs/ThemeProvider.astro',
         ThemeSelect: './src/components/docs/ThemeSelect.astro'
       },

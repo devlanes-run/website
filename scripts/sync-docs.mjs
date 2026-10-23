@@ -130,6 +130,17 @@ export function rewriteLinks(markdown, file, context) {
     .join('\n');
 }
 
+/** Whether the body has h2 or h3 headings, the levels Starlight lists in the page outline. */
+function hasSections(markdown) {
+  let fence = null;
+  for (const line of markdown.split('\n')) {
+    const marker = line.match(/^\s*(`{3,}|~{3,})/)?.[1];
+    if (marker && (!fence || marker.startsWith(fence))) fence = fence ? null : marker;
+    else if (!fence && /^#{2,3}\s/.test(line)) return true;
+  }
+  return false;
+}
+
 function plainText(markdown) {
   return markdown
     .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')
@@ -170,6 +181,8 @@ export function toStarlightPage(markdown, file, context) {
     const sentence = paragraph ? plainText(paragraph).match(/^.+?[.!?](\s|$)/)?.[0] : undefined;
     if (sentence) fields.push(`description: ${JSON.stringify(sentence.trim())}`);
   }
+  // A page outline with only "Overview" wastes the column next to the text.
+  if (!has('tableOfContents') && !hasSections(body)) fields.push('tableOfContents: false');
   const updated = context.updated?.get(file);
   if (!has('lastUpdated') && updated) fields.push(`lastUpdated: ${updated}`);
   if (!has('editUrl')) {

@@ -1,0 +1,42 @@
+---
+import Default from '@astrojs/starlight/components/PageTitle.astro';
+import { Icon } from 'astro-icon/components';
+
+const { id } = Astro.locals.starlightRoute;
+const markdown = id === '404' ? undefined : `/${id}.md`;
+const markdownUrl = markdown && new URL(markdown, Astro.site).href;
+const prompt = markdownUrl && `Read ${markdownUrl} and answer my questions about devlanes.`;
+const assistants = prompt
+  ? [
+      {
+        label: 'Ask ChatGPT',
+        href: `https://chatgpt.com/?hints=search&q=${encodeURIComponent(prompt)}`
+      },
+      { label: 'Ask Claude', href: `https://claude.ai/new?q=${encodeURIComponent(prompt)}` }
+    ]
+  : [];
+---
+
+<Default />
+{markdown && (
+  <div class="page-actions" data-pagefind-ignore>
+    <button type="button" data-copy-markdown={markdown} hidden>
+      <Icon name="mdi:content-copy" size={14} aria-hidden="true" />
+      <span aria-live="polite">Copy Markdown</span>
+    </button>
+    <a href={markdown}>
+      <Icon name="mdi:language-markdown-outline" size={14} aria-hidden="true" />
+      View Markdown
+    </a>
+    {assistants.map(({ label, href }) => (
+      <a href={href} target="_blank" rel="noopener noreferrer">
+        <Icon name="mdi:open-in-new" size={14} aria-hidden="true" />
+        {label}
+      </a>
+    ))}
+  </div>
+)}
+
+<script>
+  import '../../scripts/page-actions';
+</script>

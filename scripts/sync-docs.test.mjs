@@ -130,7 +130,7 @@ test('keeps existing frontmatter, minus the importer-only publish key', () => {
     'guides/infra.md',
     context
   );
-  assert.match(page, /^---\ntitle: Custom\ndescription: Kept\.\neditUrl: /);
+  assert.match(page, /^---\ntitle: Custom\ndescription: Kept\.\ntableOfContents: false\neditUrl: /);
   assert.doesNotMatch(page, /publish:/);
   assert.match(page, /# Later heading/);
   assert.doesNotMatch(page, /sidebar:/);
