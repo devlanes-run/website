@@ -1,0 +1,14 @@
+---
+// Shared by the landing page and the docs, so one stored preference applies to both.
+---
+
+<script is:inline>
+  (() => {
+    let theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    try {
+      const stored = localStorage.getItem('theme');
+      if (stored === 'dark' || stored === 'light') theme = stored;
+    } catch {}
+    document.documentElement.dataset.theme = theme;
+  })();
+</script>

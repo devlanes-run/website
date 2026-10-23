@@ -14,7 +14,9 @@ test('generated crawler documents and assets are available', async ({ request })
   const full = await request.get('/llms-full.txt');
   expect(await full.text()).toContain('security boundary');
   const sitemap = await request.get('/sitemap-0.xml');
-  expect(await sitemap.text()).toContain('https://devlanes.run/');
+  const urls = await sitemap.text();
+  expect(urls).toContain('https://devlanes.run/');
+  expect(urls).toContain('https://devlanes.run/docs/');
   const robots = await request.get('/robots.txt');
   expect(await robots.text()).toContain('Allow: /');
   expect((await request.get('/icons/1-stagger/favicon.svg')).status()).toBe(404);

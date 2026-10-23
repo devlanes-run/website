@@ -38,6 +38,14 @@ Each process group contains matching `web`, `api` and `worker` symbols. Symbols 
 
 The footer contains a pause button. Honour reduced-motion preferences and stop animation frames while paused or when the tab is hidden. Agent examples change only when selected.
 
+## Docs
+
+Starlight renders `/docs/` with the landing page's header, fonts, colours and theme preference. The header component, theme script, fonts and Plausible snippet are shared, so a change applies to both. Page titles use the section heading size; body text is 18px Overpass; navigation, sidebars and the table of contents use 13px JetBrains Mono. The current page is highlighted in paint yellow. Code blocks use the dark terminal style in both themes. The road stays on the landing page so long pages remain readable.
+
+The Markdown comes from the source repositories listed in `scripts/sync-docs.mjs` and is not committed here. Each build checks out the configured branch, turns the first heading into the page title, links other pages to their routes and other files to GitHub at the built commit. Set `DEVLANES_DOCS_DIR` to a local `docs/` directory to preview unpushed changes.
+
+Pagefind indexes the docs at build time. Every docs page has a Markdown twin at its URL plus `.md`, which `astro-slop` lists in `llms.txt` and `llms-full.txt` beside the landing page.
+
 ## Assets
 
 The mark has three rounded bars staggered right. The top bar is yellow; the lower bars are neutral. Preserve its proportions.

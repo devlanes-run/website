@@ -7,7 +7,8 @@ on:
     types: [opened, synchronize, reopened, closed]
   workflow_dispatch:
   repository_dispatch:
-    types: [devlanes-release]
+    # devlanes-docs lets source repositories rebuild the site when their docs change.
+    types: [devlanes-release, devlanes-docs]
 
 permissions:
   contents: read

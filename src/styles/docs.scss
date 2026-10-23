@@ -1,0 +1,273 @@
+@use 'tokens';
+@use 'header';
+
+// Starlight variables mapped to the landing page tokens. These rules are unlayered, so they
+// take precedence over Starlight's cascade layers.
+:root {
+  --doc-gutter: max(0px, calc((100vw - 1200px) / 2));
+  --doc-pad: 40px;
+
+  --sl-font: 'Overpass', sans-serif;
+  --sl-font-mono: var(--mono);
+  --sl-text-body: 18px;
+  --sl-text-body-sm: 15px;
+  --sl-text-code: 13px;
+  --sl-text-code-sm: 12px;
+  --sl-text-h1: clamp(24px, 2.3vw, 31px);
+  --sl-text-h2: 22px;
+  --sl-text-h3: 17px;
+  --sl-text-h4: 15px;
+  --sl-text-h5: 14px;
+  --sl-line-height: 1.6;
+  --sl-line-height-headings: 1.25;
+
+  --sl-nav-height: 90px;
+  --sl-nav-pad-x: var(--doc-pad);
+  --sl-sidebar-width: 300px;
+  --sl-sidebar-pad-x: 20px;
+  --sl-content-width: 720px;
+  --sl-content-pad-x: 40px;
+  --sl-menu-button-size: 38px;
+
+  --sl-color-bg: var(--surface);
+  --sl-color-bg-nav: var(--surface);
+  --sl-color-bg-sidebar: var(--surface);
+  --sl-color-hairline: var(--line);
+  --sl-color-hairline-light: var(--line);
+  --sl-color-hairline-shade: var(--line);
+  --sl-color-text: var(--ink);
+  --sl-color-text-invert: #24231f;
+  --sl-color-accent-low: color-mix(in srgb, var(--paint) 22%, var(--surface));
+  --sl-color-accent: var(--paint);
+  --sl-color-bg-accent: var(--paint);
+  --sl-color-bg-inline-code: color-mix(in srgb, var(--line) 45%, var(--surface));
+
+  // Light theme, matching the landing page's default tokens.
+  --sl-color-white: var(--ink);
+  --sl-color-gray-1: #2f2e29;
+  --sl-color-gray-2: #3d3b36;
+  --sl-color-gray-3: var(--muted);
+  --sl-color-gray-4: #8a877e;
+  --sl-color-gray-5: var(--line);
+  --sl-color-gray-6: #e6e5df;
+  --sl-color-gray-7: #ecebe6;
+  --sl-color-black: var(--surface);
+  --sl-color-accent-high: #6f5200;
+  --sl-color-text-accent: #6f5200;
+
+  &[data-theme='dark'] {
+    --sl-color-gray-1: #e3e0d8;
+    --sl-color-gray-2: #c9c6bd;
+    --sl-color-gray-4: #7f7c73;
+    --sl-color-gray-6: #2c2b27;
+    --sl-color-gray-7: #282724;
+    --sl-color-accent-high: #f5d47a;
+    --sl-color-text-accent: #f5d47a;
+  }
+}
+
+::selection {
+  background: var(--paint);
+  color: #1a1917;
+}
+
+:focus-visible {
+  outline: 3px solid #a77900;
+  outline-offset: 3px;
+}
+
+// Header: Starlight's frame keeps it fixed; the shared component supplies the content.
+:root .page > header.header {
+  padding: 0 calc(var(--doc-gutter) + var(--doc-pad));
+  border-bottom: 1px solid var(--line);
+}
+
+// The frame draws the bottom border; an opaque header would cover it.
+.page > header.header .site-header {
+  background: transparent;
+}
+
+// Group labels come from directory names in the source repositories.
+.sidebar-content summary .large {
+  display: inline-block;
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
+}
+
+site-search button[data-open-modal] {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  width: auto;
+  max-width: none;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface);
+  color: var(--muted);
+  font: 12px var(--mono);
+
+  &:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+
+  kbd {
+    font: 11px var(--mono);
+    background: transparent;
+  }
+}
+
+// Content: the landing page type scale, with monospace headings.
+.sl-markdown-content,
+.content-panel {
+  :is(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--mono);
+    font-weight: 700;
+    color: var(--ink);
+  }
+}
+
+h1#_top {
+  font-family: var(--mono);
+  letter-spacing: -1px;
+}
+
+.sl-markdown-content {
+  h2 {
+    letter-spacing: -0.6px;
+  }
+
+  h3 {
+    letter-spacing: -0.4px;
+  }
+
+  a:not(:where(.not-content *)) {
+    color: var(--ink);
+    text-decoration-color: var(--paint);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 5px;
+
+    &:hover {
+      text-decoration-color: currentColor;
+    }
+  }
+
+  :not(pre) > code {
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 0.82em;
+  }
+
+  table {
+    font-size: 15px;
+  }
+
+  th {
+    font: 700 12px var(--mono);
+    color: var(--muted);
+  }
+}
+
+.sl-markdown-content .expressive-code {
+  margin-block: 1.5rem;
+}
+
+// Navigation: the header's monospace style carried into the sidebars.
+.sidebar-content,
+starlight-toc,
+mobile-starlight-toc {
+  font-family: var(--mono);
+
+  a,
+  summary,
+  .large {
+    font-size: 13px;
+  }
+
+  a[aria-current='page'] {
+    background: var(--paint);
+    color: #24231f;
+    border-radius: 4px;
+  }
+}
+
+.sidebar-content .large {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.pagination-links a {
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  box-shadow: none;
+
+  &:hover {
+    border-color: var(--ink);
+  }
+}
+
+.sl-menu-button {
+  border: 1px solid var(--line) !important;
+  border-radius: 5px !important;
+  background: var(--surface) !important;
+  color: var(--ink) !important;
+  box-shadow: none !important;
+}
+
+@media (min-width: 50rem) {
+  :root[data-has-sidebar] {
+    --sl-content-inline-start: calc(var(--doc-gutter) + var(--sl-sidebar-width));
+  }
+
+  .sidebar-pane {
+    inset-inline-start: var(--doc-gutter) !important;
+  }
+
+  .sidebar-content {
+    padding-inline-start: var(--doc-pad);
+  }
+
+  .main-frame {
+    padding-inline-end: var(--doc-gutter);
+  }
+}
+
+// Heights of the shared header at each breakpoint, so the frame matches the landing page.
+@media (max-width: tokens.$tablet-width) {
+  :root {
+    --sl-nav-height: 126px;
+  }
+}
+
+@media (max-width: 50rem) {
+  // The sidebar toggle sits beside the theme button on the header's first row.
+  [data-has-sidebar] .site-header .preferences {
+    margin-right: calc(var(--sl-menu-button-size) + 8px);
+  }
+
+  .sl-menu-button {
+    top: 26px !important;
+    inset-inline-end: var(--doc-pad) !important;
+  }
+}
+
+@media (max-width: tokens.$mobile-width) {
+  :root {
+    --doc-pad: 20px;
+    --sl-nav-height: 114px;
+    --sl-content-pad-x: 20px;
+    --sl-text-body: 17px;
+  }
+
+  .sl-menu-button {
+    top: 20px !important;
+  }
+
+  [data-has-sidebar] .site-header .preferences {
+    margin-right: calc(var(--sl-menu-button-size) + 5px);
+  }
+}
