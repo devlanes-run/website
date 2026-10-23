@@ -75,7 +75,8 @@ jobs:
         run: |
           output="$(pnpm exec wrangler preview --name "$PREVIEW_NAME" --json)"
           printf '%s\n' "$output"
-          preview_url="$(printf '%s' "$output" | jq -er '.preview.urls[0]')"
+          # Wrangler prints upload progress before the JSON document.
+          preview_url="$(printf '%s\n' "$output" | sed -n '/^{/,$p' | jq -er '.preview.urls[0]')"
           echo "url=$preview_url" >> "$GITHUB_OUTPUT"
           echo "Preview: $preview_url" >> "$GITHUB_STEP_SUMMARY"
 
