@@ -1,17 +1,6 @@
 @use 'tokens';
 
 @media (max-width: tokens.$tablet-width) {
-  .site-header {
-    flex-wrap: wrap;
-    gap: 18px;
-
-    nav {
-      order: 3;
-      flex-basis: 100%;
-      justify-content: center;
-    }
-  }
-
   .split {
     gap: 32px;
   }
@@ -40,28 +29,6 @@
 
   .page {
     padding: 0 20px;
-  }
-
-  .site-header {
-    padding: 20px 0;
-  }
-
-  .brand {
-    font-size: 17px;
-  }
-
-  .preferences {
-    gap: 5px;
-
-    button {
-      font-size: 10px;
-      padding: 7px;
-    }
-  }
-
-  .site-header nav {
-    gap: 26px;
-    font-size: 12px;
   }
 
   .hero {

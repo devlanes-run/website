@@ -6,55 +6,6 @@
   z-index: 1;
 }
 
-.site-header {
-  display: flex;
-  align-items: center;
-  gap: 30px;
-  padding: 26px 0;
-  font: 13px var(--mono);
-  background: var(--surface);
-
-  .brand {
-    margin-right: auto;
-  }
-}
-
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-  font: 700 19px var(--mono);
-  white-space: nowrap;
-}
-
-nav {
-  display: flex;
-  gap: 24px;
-
-  a {
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-}
-
-.preferences {
-  display: flex;
-  gap: 8px;
-
-  button {
-    font: 12px var(--mono);
-    border: 1px solid var(--line);
-    border-radius: 5px;
-    background: var(--surface);
-    color: var(--ink);
-    padding: 8px 10px;
-  }
-}
-
 footer {
   display: flex;
   flex-wrap: wrap;
@@ -72,31 +23,6 @@ footer {
 
   > a:last-child {
     margin-left: auto;
-  }
-}
-.github-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-}
-
-#theme {
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  padding: 0;
-}
-
-.theme-sun {
-  display: none;
-}
-[data-theme='dark'] {
-  .theme-sun {
-    display: block;
-  }
-  .theme-moon {
-    display: none;
   }
 }
 

@@ -7,7 +7,9 @@ on:
     types: [opened, synchronize, reopened, closed]
   workflow_dispatch:
   repository_dispatch:
-    types: [devlanes-release]
+    # Sent by a source repository after publishing a release, with its repository and tag.
+    # devlanes-release is the event the current devlanes release workflow still sends.
+    types: [source-release, devlanes-release]
 
 permissions:
   contents: read
@@ -46,6 +48,8 @@ jobs:
         run: pnpm build
         env:
           GH_TOKEN: ${{ github.token }}
+          DISPATCH_REPOSITORY: ${{ github.event.client_payload.repository }}
+          DISPATCH_TAG: ${{ github.event.client_payload.tag }}
 
       - name: Install Chromium
         run: pnpm exec playwright install --with-deps chromium
@@ -74,7 +78,8 @@ jobs:
         run: |
           output="$(pnpm exec wrangler preview --name "$PREVIEW_NAME" --json)"
           printf '%s\n' "$output"
-          preview_url="$(printf '%s' "$output" | jq -er '.preview.urls[0]')"
+          # Wrangler prints upload progress before the JSON document.
+          preview_url="$(printf '%s\n' "$output" | sed -n '/^{/,$p' | jq -er '.preview.urls[0]')"
           echo "url=$preview_url" >> "$GITHUB_OUTPUT"
           echo "Preview: $preview_url" >> "$GITHUB_STEP_SUMMARY"
 

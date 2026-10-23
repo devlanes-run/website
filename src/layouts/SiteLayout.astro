@@ -1,11 +1,10 @@
 ---
-import '@fontsource/overpass/latin-400.css';
-import '@fontsource/overpass/latin-600.css';
-import '@fontsource/jetbrains-mono/latin-400.css';
-import '@fontsource/jetbrains-mono/latin-700.css';
-import Road from '../components/Road.astro';
-import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import Analytics from '../components/head/Analytics.astro';
+import Fonts from '../components/head/Fonts.astro';
+import ThemeInit from '../components/head/ThemeInit.astro';
+import Road from '../components/Road.astro';
 import '../styles/global.scss';
 
 const title = 'devlanes | Sandboxes for your agents. localhost for you.';
@@ -70,35 +69,9 @@ const structuredData = {
     <meta name="twitter:description" content={socialDescription} />
     <meta name="twitter:image" content="https://devlanes.run/social.png" />
     <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
-    <script is:inline>
-      (() => {
-        let theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        try {
-          const stored = localStorage.getItem('theme');
-          if (stored === 'dark' || stored === 'light') theme = stored;
-        } catch {}
-        document.documentElement.dataset.theme = theme;
-      })();
-    </script>
-    <!-- Privacy-friendly analytics by Plausible -->
-    <script
-      is:inline
-      async
-      src="https://metrics.arthur.one/js/pa-3pDH1YhCzpfClRVGg57Ha.js"
-    ></script>
-    <script is:inline>
-      ((window.plausible =
-        window.plausible ||
-        function () {
-          (plausible.q = plausible.q || []).push(arguments);
-        }),
-        (plausible.init =
-          plausible.init ||
-          function (i) {
-            plausible.o = i || {};
-          }));
-      plausible.init();
-    </script>
+    <ThemeInit />
+    <Analytics />
+    <Fonts />
   </head>
   <body>
     <a class="skip-link" href="#main">
@@ -112,6 +85,5 @@ const structuredData = {
       </main>
       <Footer />
     </div>
-    <script src="../scripts/site.ts"></script>
   </body>
 </html>

@@ -38,6 +38,18 @@ Each process group contains matching `web`, `api` and `worker` symbols. Symbols 
 
 The footer contains a pause button. Honour reduced-motion preferences and stop animation frames while paused or when the tab is hidden. Agent examples change only when selected.
 
+## Docs
+
+Starlight renders `/docs/` with the landing page's header, fonts, colours and theme preference. The header component, theme script, fonts and Plausible snippet are shared, so a change applies to both. Page titles use the section heading size; body text is 18px Overpass; navigation, sidebars and the table of contents use 13px JetBrains Mono. The current page is highlighted in paint yellow. Code blocks use the dark terminal style in both themes. The road stays on the landing page so long pages remain readable.
+
+The Markdown comes from the source repositories listed in `scripts/sync.mjs` and is not committed here. Each build checks out the latest stable release tag of every source once, and takes the docs, the JSON Schemas served at `/v1/` and `/install.sh` from that same tag. A source repository triggers the build after a release with a `source-release` dispatch carrying its `repository` and `tag`; the build refuses a tag that is no longer the latest release. The importer turns the first heading into the page title, links other pages to their routes and other files to GitHub at the built commit. For previews, `DEVLANES_REF` builds another branch or tag, and `DEVLANES_DIR` uses a local checkout of the repository.
+
+Each page shows when it last changed, from the newest commit that touched its source file. The import clones the source history without file contents, so the dates match the repository rather than the build.
+
+A source file with `publish: false` in its frontmatter stays on GitHub only; links to it open the file there. Other Starlight frontmatter, such as `sidebar.order`, `sidebar.hidden` or `pagefind: false`, passes through. Images inside the source directory referenced with Markdown image syntax are optimized by Astro. Images in raw HTML or outside the directory load from GitHub at the built commit.
+
+Pagefind indexes the docs at build time. Every docs page has a Markdown twin at its URL plus `.md`, which `astro-slop` lists in `llms.txt` and `llms-full.txt` beside the landing page.
+
 ## Assets
 
 The mark has three rounded bars staggered right. The top bar is yellow; the lower bars are neutral. Preserve its proportions.

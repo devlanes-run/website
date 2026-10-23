@@ -1,6 +1,11 @@
 ---
-import Mark from './Mark.astro';
 import { Icon } from 'astro-icon/components';
+import Mark from './Mark.astro';
+
+interface Props {
+  current?: 'docs';
+}
+const { current } = Astro.props;
 ---
 
 <header class="site-header">
@@ -9,9 +14,12 @@ import { Icon } from 'astro-icon/components';
     devlanes
   </a>
   <nav aria-label="Main navigation">
-    <a href="#remote">Remote</a>
-    <a href="#lanes">Lanes</a>
-    <a href="#agents">Agents</a>
+    <a href="/#remote">Remote</a>
+    <a href="/#lanes">Lanes</a>
+    <a href="/#agents">Agents</a>
+    <a href="/docs/" aria-current={current === 'docs' ? 'page' : undefined}>
+      Docs
+    </a>
     <a
       class="github-link"
       href="https://github.com/devlanes-run/devlanes"
@@ -23,6 +31,7 @@ import { Icon } from 'astro-icon/components';
     </a>
   </nav>
   <div class="preferences">
+    <slot name="search" />
     <button
       id="theme"
       type="button"
@@ -35,3 +44,7 @@ import { Icon } from 'astro-icon/components';
     </button>
   </div>
 </header>
+
+<script>
+  import '../scripts/theme';
+</script>
