@@ -50,24 +50,78 @@ function outputPath(file) {
   return posix.join(parsed.dir, `${name}${parsed.ext}`);
 }
 
-function rewriteTarget(target, file, source, commit) {
+/** Frontmatter block of a Markdown file, or an empty string. */
+function frontmatterOf(markdown) {
+  return markdown.replace(/\r\n/g, '\n').match(/^---\n([\s\S]*?)\n---\n/)?.[1] ?? '';
+}
+
+/** Pages opt out of the website with `publish: false`; they stay readable on GitHub. */
+export function isPublished(markdown) {
+  return !/^publish:\s*false\s*(#.*)?$/m.test(frontmatterOf(markdown));
+}
+
+/**
+ * Resolves one link or image target.
+ * - Published pages link to their site route; unpublished ones to GitHub.
+ * - Markdown images inside the source stay relative, so Astro copies and optimizes them.
+ * - Other images use raw GitHub URLs, because only Markdown image syntax is processed by Astro
+ *   and files outside the source are not part of the checkout.
+ * - Any other file opens on GitHub. Every GitHub URL is pinned to the built commit.
+ */
+function rewriteTarget(target, file, context, kind) {
   if (/^([a-z][a-z\d+.-]*:|#|\/)/i.test(target)) return target;
-  const [path = '', hash] = target.split('#');
+  const { source, commit, unpublished } = context;
+  const [rawPath = '', hash] = target.split('#');
+  let path = rawPath;
+  try {
+    path = decodeURI(rawPath);
+  } catch {
+    // Keep malformed escapes as written.
+  }
   const fromRoot = posix.normalize(posix.join(source.path, posix.dirname(file), path));
   if (fromRoot.startsWith('..')) return target;
   const suffix = hash ? `#${hash}` : '';
   const inSource = fromRoot === source.path || fromRoot.startsWith(`${source.path}/`);
+  const relativePath = posix.relative(source.path, fromRoot);
   const extension = posix.extname(fromRoot).toLowerCase();
-  if (inSource && markdownExtensions.has(extension)) {
-    return routeFor(source, posix.relative(source.path, fromRoot)) + suffix;
+  const repositoryPath = `${source.repository}/${commit}/${encodeURI(fromRoot)}`;
+
+  if (imageExtensions.has(extension)) {
+    if (inSource && kind === 'markdown-image') return target;
+    return `https://raw.githubusercontent.com/${repositoryPath}`;
   }
-  if (inSource && imageExtensions.has(extension)) return target;
-  // Code, examples and files outside the docs stay on GitHub, pinned to the built commit.
-  return `https://github.com/${source.repository}/blob/${commit}/${fromRoot}${suffix}`;
+  if (inSource && markdownExtensions.has(extension) && !unpublished?.has(relativePath)) {
+    return routeFor(source, relativePath) + suffix;
+  }
+  return `https://github.com/${source.repository}/blob/${commit}/${encodeURI(fromRoot)}${suffix}`;
 }
 
-/** Rewrites link targets outside code spans and fenced code blocks. */
-export function rewriteLinks(markdown, file, source, commit) {
+/** Finds where the `[` matching the `]` at `close` starts, honouring nested brackets. */
+function openingBracket(text, close) {
+  let depth = 0;
+  for (let index = close; index >= 0; index -= 1) {
+    if (text[index] === ']') depth += 1;
+    else if (text[index] === '[' && --depth === 0) return index;
+  }
+  return -1;
+}
+
+function rewriteInline(text, file, context) {
+  const links = text.replace(/\]\(([^)\s]+)/g, (_match, target, offset) => {
+    const open = openingBracket(text, offset);
+    const kind = open > 0 && text[open - 1] === '!' ? 'markdown-image' : 'link';
+    return `](${rewriteTarget(target, file, context, kind)}`;
+  });
+  // Raw HTML is not processed by Astro, so its images always use absolute URLs.
+  return links.replace(
+    /\b(src|href)=(["'])([^"']+)\2/g,
+    (_, attribute, quote, target) =>
+      `${attribute}=${quote}${rewriteTarget(target, file, context, 'html')}${quote}`
+  );
+}
+
+/** Rewrites link and image targets outside code spans and fenced code blocks. */
+export function rewriteLinks(markdown, file, context) {
   let fence = null;
   return markdown
     .split('\n')
@@ -81,18 +135,11 @@ export function rewriteLinks(markdown, file, source, commit) {
       const definition = line.match(/^(\s*\[[^\]]+\]:\s*)(\S+)(.*)$/);
       if (definition) {
         const [, prefix, target, rest] = definition;
-        return prefix + rewriteTarget(target, file, source, commit) + rest;
+        return prefix + rewriteTarget(target, file, context, 'definition') + rest;
       }
       return line
         .split(/(`+[^`]*`+)/)
-        .map((part, index) =>
-          index % 2
-            ? part
-            : part.replace(
-                /(\]\()([^)\s]+)/g,
-                (_, open, target) => open + rewriteTarget(target, file, source, commit)
-              )
-        )
+        .map((part, index) => (index % 2 ? part : rewriteInline(part, file, context)))
         .join('');
     })
     .join('\n');
@@ -110,12 +157,14 @@ function plainText(markdown) {
  * Turns repository Markdown into a Starlight page: the first H1 becomes the title, the first
  * paragraph the description, and links point at site routes or the source on GitHub.
  */
-export function toStarlightPage(markdown, file, source, commit) {
+export function toStarlightPage(markdown, file, context) {
+  const { source } = context;
   let frontmatter = '';
   let body = markdown.replace(/\r\n/g, '\n');
   const existing = body.match(/^---\n([\s\S]*?)\n---\n/);
   if (existing) {
-    frontmatter = existing[1] ?? '';
+    // `publish` only steers the importer; Starlight's schema does not know it.
+    frontmatter = (existing[1] ?? '').replace(/^publish:.*(\n|$)/m, '').trim();
     body = body.slice(existing[0].length);
   }
 
@@ -146,7 +195,7 @@ export function toStarlightPage(markdown, file, source, commit) {
   }
 
   const header = [frontmatter, ...fields].filter(Boolean).join('\n');
-  return `---\n${header}\n---\n\n${rewriteLinks(body, file, source, commit).trimStart()}`;
+  return `---\n${header}\n---\n\n${rewriteLinks(body, file, context).trimStart()}`;
 }
 
 async function listFiles(root, directory = root) {
@@ -186,21 +235,35 @@ async function syncSource(source) {
   try {
     const target = join(contentDir, source.target);
     await rm(target, { recursive: true, force: true });
-    let pages = 0;
-    for (const file of await listFiles(root)) {
-      const extension = extname(file).toLowerCase();
-      if (markdownExtensions.has(extension)) {
+    const files = await listFiles(root);
+    const pages = new Map();
+    for (const file of files) {
+      if (markdownExtensions.has(extname(file).toLowerCase())) {
+        pages.set(file, await readFile(join(root, file), 'utf8'));
+      }
+    }
+    // Collected first, so links from published pages can point unpublished ones at GitHub.
+    const unpublished = new Set(
+      [...pages].filter(([, text]) => !isPublished(text)).map(([f]) => f)
+    );
+    const context = { source, commit, unpublished };
+
+    for (const file of files) {
+      const markdown = pages.get(file);
+      if (markdown !== undefined && !unpublished.has(file)) {
         const destination = join(target, outputPath(file));
         await mkdir(dirname(destination), { recursive: true });
-        const markdown = await readFile(join(root, file), 'utf8');
-        await writeFile(destination, toStarlightPage(markdown, file, source, commit));
-        pages += 1;
-      } else if (imageExtensions.has(extension)) {
+        await writeFile(destination, toStarlightPage(markdown, file, context));
+      } else if (imageExtensions.has(extname(file).toLowerCase())) {
         await mkdir(dirname(join(target, file)), { recursive: true });
         await cp(join(root, file), join(target, file));
       }
     }
-    console.log(`Imported ${pages} pages from ${source.repository}@${commit.slice(0, 12)}.`);
+    const published = pages.size - unpublished.size;
+    const skipped = unpublished.size ? `, skipped ${unpublished.size} with publish: false` : '';
+    console.log(
+      `Imported ${published} pages from ${source.repository}@${commit.slice(0, 12)}${skipped}.`
+    );
   } finally {
     await cleanup();
   }
