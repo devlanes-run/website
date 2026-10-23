@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { isPublished, rewriteLinks, routeFor, toStarlightPage } from './sync-docs.mjs';
+import {
+  isPublished,
+  parseLastUpdated,
+  rewriteLinks,
+  routeFor,
+  toStarlightPage
+} from './sync-docs.mjs';
 
 const source = {
   repository: 'acme/tool',
@@ -61,6 +67,29 @@ test('keeps Markdown images in the docs for Astro and serves the rest from GitHu
       `[diagram]: ${raw}/docs/images/flow.png`
     ].join('\n')
   );
+});
+
+test('takes each page date from the newest commit that touched it', () => {
+  const log = [
+    '\x1f2026-10-20T10:00:00-03:00',
+    '',
+    'docs/getting-started.md',
+    'src/main.rs',
+    '\x1f2026-09-01T09:00:00Z',
+    '',
+    'docs/getting-started.md',
+    'docs/guides/infra.md',
+    ''
+  ].join('\n');
+  assert.deepEqual(Object.fromEntries(parseLastUpdated(log, 'docs')), {
+    'getting-started.md': '2026-10-20T10:00:00-03:00',
+    'guides/infra.md': '2026-09-01T09:00:00Z'
+  });
+  const page = toStarlightPage('# Infra\n', 'guides/infra.md', {
+    ...context,
+    updated: new Map([['guides/infra.md', '2026-09-01T09:00:00Z']])
+  });
+  assert.match(page, /^lastUpdated: 2026-09-01T09:00:00Z$/m);
 });
 
 test('only publish: false hides a page', () => {

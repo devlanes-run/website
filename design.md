@@ -44,6 +44,8 @@ Starlight renders `/docs/` with the landing page's header, fonts, colours and th
 
 The Markdown comes from the source repositories listed in `scripts/sync-docs.mjs` and is not committed here. Each build checks out the configured branch, turns the first heading into the page title, links other pages to their routes and other files to GitHub at the built commit. Set `DEVLANES_DOCS_DIR` to a local `docs/` directory to preview unpushed changes.
 
+Each page shows when it last changed, from the newest commit that touched its source file. The import clones the source history without file contents, so the dates match the repository rather than the build.
+
 A source file with `publish: false` in its frontmatter stays on GitHub only; links to it open the file there. Other Starlight frontmatter, such as `sidebar.order`, `sidebar.hidden` or `pagefind: false`, passes through. Images inside the source directory referenced with Markdown image syntax are optimized by Astro. Images in raw HTML or outside the directory load from GitHub at the built commit.
 
 Pagefind indexes the docs at build time. Every docs page has a Markdown twin at its URL plus `.md`, which `astro-slop` lists in `llms.txt` and `llms-full.txt` beside the landing page.

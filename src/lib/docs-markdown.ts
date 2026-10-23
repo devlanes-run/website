@@ -28,6 +28,8 @@ export function docsMarkdown(entry: Entry, site: URL | undefined) {
   const { title, description } = entry.data;
   const frontmatter = [`title: ${JSON.stringify(title)}`, `url: ${new URL(`/${entry.id}/`, site)}`];
   if (description) frontmatter.push(`description: ${JSON.stringify(description)}`);
+  const { lastUpdated } = entry.data;
+  if (lastUpdated instanceof Date) frontmatter.push(`updated: ${lastUpdated.toISOString()}`);
   const body = [`# ${title}`, entry.body?.trim()].filter(Boolean).join('\n\n');
   return new Response(`---\n${frontmatter.join('\n')}\n---\n\n${body}\n`, {
     headers: { 'Content-Type': 'text/markdown; charset=utf-8' }

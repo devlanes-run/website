@@ -185,6 +185,8 @@ export function toStarlightPage(markdown, file, context) {
     const sentence = paragraph ? plainText(paragraph).match(/^.+?[.!?](\s|$)/)?.[0] : undefined;
     if (sentence) fields.push(`description: ${JSON.stringify(sentence.trim())}`);
   }
+  const updated = context.updated?.get(file);
+  if (!has('lastUpdated') && updated) fields.push(`lastUpdated: ${updated}`);
   if (!has('editUrl')) {
     const path = posix.join(source.path, file);
     fields.push(`editUrl: https://github.com/${source.repository}/edit/${source.ref}/${path}`);
@@ -209,29 +211,68 @@ async function listFiles(root, directory = root) {
   return files.flat().map((file) => file.split('\\').join('/'));
 }
 
+/**
+ * Maps each file under `sourcePath` to the ISO date of the newest commit that touched it, from
+ * `git log --format=%x1f%cI --name-only` output (newest commits first).
+ */
+export function parseLastUpdated(log, sourcePath) {
+  const dates = new Map();
+  for (const commit of log.split('\x1f').slice(1)) {
+    const [date, ...files] = commit.trim().split('\n');
+    for (const path of files) {
+      const file = posix.relative(sourcePath, path.trim());
+      if (date && file && !file.startsWith('..') && !dates.has(file)) dates.set(file, date);
+    }
+  }
+  return dates;
+}
+
+async function lastUpdated(repository, sourcePath) {
+  const { stdout } = await run(
+    'git',
+    ['-C', repository, 'log', '--format=%x1f%cI', '--name-only', '--', sourcePath],
+    { maxBuffer: 64 * 1024 * 1024 }
+  );
+  return parseLastUpdated(stdout, sourcePath);
+}
+
 async function checkout(source) {
   if (source.local) {
     const root = resolve(source.local);
-    const { stdout } = await run('git', ['-C', root, 'rev-parse', 'HEAD']).catch(() => ({
-      stdout: source.ref
-    }));
-    return { root, commit: stdout.trim(), cleanup: async () => {} };
+    try {
+      const git = (...args) =>
+        run('git', ['-C', root, ...args]).then(({ stdout }) => stdout.trim());
+      const top = await git('rev-parse', '--show-toplevel');
+      const sourcePath = relative(top, root).split('\\').join('/') || '.';
+      return {
+        root,
+        commit: await git('rev-parse', 'HEAD'),
+        updated: await lastUpdated(top, sourcePath),
+        cleanup: async () => {}
+      };
+    } catch {
+      // A plain directory has no history, so pages render without a last-updated date.
+      return { root, commit: source.ref, updated: new Map(), cleanup: async () => {} };
+    }
   }
   const directory = await mkdtemp(join(tmpdir(), 'devlanes-docs-'));
   const url = `https://github.com/${source.repository}.git`;
-  const args = ['clone', '--quiet', '--depth=1', '--filter=blob:none', '--sparse'];
+  // Full history without file contents: enough for per-file dates, while blobs are only
+  // downloaded for the sparse docs checkout.
+  const args = ['clone', '--quiet', '--filter=blob:none', '--sparse'];
   await run('git', [...args, `--branch=${source.ref}`, url, directory]);
   await run('git', ['-C', directory, 'sparse-checkout', 'set', source.path]);
   const { stdout } = await run('git', ['-C', directory, 'rev-parse', 'HEAD']);
   return {
     root: join(directory, source.path),
     commit: stdout.trim(),
+    updated: await lastUpdated(directory, source.path),
     cleanup: () => rm(directory, { recursive: true, force: true })
   };
 }
 
 async function syncSource(source) {
-  const { root, commit, cleanup } = await checkout(source);
+  const { root, commit, updated, cleanup } = await checkout(source);
   try {
     const target = join(contentDir, source.target);
     await rm(target, { recursive: true, force: true });
@@ -246,7 +287,7 @@ async function syncSource(source) {
     const unpublished = new Set(
       [...pages].filter(([, text]) => !isPublished(text)).map(([f]) => f)
     );
-    const context = { source, commit, unpublished };
+    const context = { source, commit, unpublished, updated };
 
     for (const file of files) {
       const markdown = pages.get(file);
