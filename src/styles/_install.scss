@@ -78,11 +78,41 @@
   }
 }
 
+.install-footer {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0 12px;
+  min-height: 30px;
+}
+
 .install-status {
-  min-height: 24px;
   margin: 6px 0 0;
   font-size: 12px;
   color: var(--muted);
+}
+
+// Also overrides the pressed style of the selector buttons, so it stays a quiet link.
+.install .install-channel[aria-pressed] {
+  margin: 2px 0 0 auto;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0.8;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 4px;
+
+  &:hover,
+  &:focus-visible {
+    opacity: 1;
+    color: var(--ink);
+    text-decoration-color: currentColor;
+  }
 }
 .install-fallback-label {
   margin: 16px 0 8px;

@@ -40,6 +40,32 @@ for (const { platform, method, shown, hidden } of systems) {
   });
 }
 
+test('switches the install scripts to next builds', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Linux', exact: true }).click();
+  const channel = page.getByRole('button', { name: 'Switch to next builds' });
+  await channel.click();
+  const next =
+    'curl -fsSL https://raw.githubusercontent.com/devlanes-run/devlanes/main/install.sh | DEVLANES_VERSION=next sh';
+  await expect(page.locator('#install-script code')).toHaveText(next);
+  await page.getByRole('button', { name: 'Copy Shell script install command' }).click();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(next);
+
+  await page.getByRole('button', { name: 'Windows', exact: true }).click();
+  await expect(page.locator('#install-powershell code')).toContainText(
+    "$env:DEVLANES_VERSION = 'next'"
+  );
+  // Package managers only install releases, so the switch disappears for them.
+  await page.getByRole('button', { name: 'npm', exact: true }).click();
+  await expect(page.locator('.install-channel')).toBeHidden();
+  await page.getByRole('button', { name: 'PowerShell', exact: true }).click();
+  await page.getByRole('button', { name: 'Switch to stable releases' }).click();
+  await expect(page.locator('#install-powershell code')).toHaveText(
+    'irm https://devlanes.run/install.ps1 | iex'
+  );
+});
+
 test('switching to Windows shows the PowerShell installer', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Windows', exact: true }).click();

@@ -11,14 +11,17 @@ const methods = [
     id: 'script',
     label: 'Shell script',
     os: ['linux', 'macos'],
-    command: 'curl -fsSL https://devlanes.run/install.sh | sh'
+    command: 'curl -fsSL https://devlanes.run/install.sh | sh',
+    // Next builds need the installer from main: released installers predate the channel.
+    next: 'curl -fsSL https://raw.githubusercontent.com/devlanes-run/devlanes/main/install.sh | DEVLANES_VERSION=next sh'
   },
   {
     id: 'powershell',
     label: 'PowerShell',
     os: ['windows'],
     prompt: 'PS>',
-    command: 'irm https://devlanes.run/install.ps1 | iex'
+    command: 'irm https://devlanes.run/install.ps1 | iex',
+    next: "$env:DEVLANES_VERSION = 'next'; irm https://raw.githubusercontent.com/devlanes-run/devlanes/main/install.ps1 | iex"
   },
   {
     id: 'npm',
@@ -63,14 +66,16 @@ const systems = [
       ))}
     </div>
   </div>
-  {methods.map(({ id, label, command, prompt = '$' }) => (
+  {methods.map(({ id, label, command, prompt = '$', next }) => (
     <div class="install-panel" id={`install-${id}`} data-install-panel={id}>
       <h3 class="install-fallback-label">{label}</h3>
       <div class="install-command">
         <span class="install-prompt" aria-hidden="true">
           {prompt}
         </span>
-        <code>{command}</code>
+        <code data-stable={next && command} data-next={next}>
+          {command}
+        </code>
         <button
           type="button"
           class="install-copy"
@@ -82,7 +87,12 @@ const systems = [
       </div>
     </div>
   ))}
-  <p class="install-status" role="status" aria-live="polite"></p>
+  <div class="install-footer">
+    <p class="install-status" role="status" aria-live="polite"></p>
+    <button type="button" class="install-channel" aria-pressed="false" hidden>
+      Switch to next builds
+    </button>
+  </div>
 </div>
 
 <script>

@@ -14,12 +14,32 @@ if (installer) {
   const supports = (button: HTMLButtonElement, os: string) =>
     (button.dataset.systems ?? '').split(' ').includes(os);
 
+  const channel = installer.querySelector<HTMLButtonElement>('.install-channel');
+  let next = false;
+
   function selectMethod(method: string) {
     for (const button of methods)
       button.setAttribute('aria-pressed', String(button.dataset.method === method));
     for (const panel of panels) panel.hidden = panel.dataset.installPanel !== method;
     if (status) status.textContent = '';
+    // Only the install scripts have a next channel; package managers stay on releases.
+    const panel = installer?.querySelector(`[data-install-panel="${method}"] code[data-next]`);
+    if (channel) channel.hidden = !panel;
   }
+
+  function setChannel(useNext: boolean) {
+    next = useNext;
+    for (const code of installer?.querySelectorAll<HTMLElement>('code[data-next]') ?? []) {
+      code.textContent = (next ? code.dataset.next : code.dataset.stable) ?? code.textContent;
+    }
+    if (channel) {
+      channel.textContent = next ? 'Switch to stable releases' : 'Switch to next builds';
+      channel.setAttribute('aria-pressed', String(next));
+    }
+    if (status) status.textContent = next ? 'Showing the latest build of main.' : '';
+  }
+
+  channel?.addEventListener('click', () => setChannel(!next));
 
   function selectPlatform(os: string) {
     for (const button of platforms)
