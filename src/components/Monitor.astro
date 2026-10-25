@@ -1,60 +1,116 @@
 ---
+// The TUI's monitor (M), following crates/tui/screens/monitor-* in the devlanes repository.
+import { lanes, total, type Unit } from '../data/demo';
 import Terminal from './Terminal.astro';
+
+const running = lanes.filter((lane) => lane.units.length);
+const count = running.reduce((sum, lane) => sum + lane.units.length, 0);
+const cpu = total(
+  running.flatMap((lane) => lane.units),
+  'cpu'
+);
+const mem = total(
+  running.flatMap((lane) => lane.units),
+  'mem'
+);
+const sorted = (units: Unit[]) => [...units].sort((a, b) => b.cpu - a.cpu);
+// Four cells per bar, like the TUI; the scale tops out at 40% CPU and 300 MiB.
+const bar = (value: number, max: number) => Math.max(1, Math.min(4, Math.round((value / max) * 4)));
+const spark = '▂▃▃▄▃▄▅▄▃▄▅▆▅▄▄▅▄▃▄▅';
 ---
 
 <section id="monitor" class="feature" aria-labelledby="monitor-title">
   <div class="section-heading copy">
     <h2 id="monitor-title">Manage services from one terminal</h2>
     <p>
-      View logs and resource use by lane, including services started by agents. Stop or restart a
-      service without switching terminals.
+      See CPU and memory per lane and unit, including what agents started. Open a unit to read its
+      output, type into it, stop it or restart it.
     </p>
   </div>
-  <Terminal title="devlanes / monitor">
-    <div class="monitor-grid">
-      <div class="process-list">
-        <span class="muted">lanes</span>
-        <p>
-          0 main <span>4.2 GB</span>
+  <Terminal title="devlanes / myapp">
+    <div class="tui">
+      <div class="tui-top">
+        <strong>devlanes</strong>
+        <span>1 myapp</span>
+        <span class="tui-keys">
+          <b>M</b> monitor <b>D</b> daemon
+        </span>
+      </div>
+      <div class="tui-usage">
+        <span>
+          <span class="tui-dim">cpu</span> <span class="state-ready">{spark}</span> {cpu.toFixed(0)}
+          %
+        </span>
+        <span>
+          <span class="tui-dim">mem</span> {(mem / 1024).toFixed(1)}G
+        </span>
+      </div>
+      <div class="tui-pane">
+        <p class="tui-title">
+          units {count} of {count} · by lane <span class="tui-dim">&lt;- cpu -&gt;</span>
         </p>
-        <p class="selected">
-          1 feat/checkout <span>3.1 GB</span>
-        </p>
-        <p>
-          2 fix/login <span>1.5 GB</span>
-        </p>
-        <p>
-          3 agent/perf <span>2.9 GB</span>
-        </p>
-        <div class="resource">
-          <span>lane 1 / memory</span>
-          <div class="meter">
-            <i />
-          </div>
-          <small>3.1 GB / 4 GB budget</small>
+        <div
+          class="table-scroll"
+          role="region"
+          aria-label="Units by lane, scroll horizontally for all columns"
+          tabindex="0"
+        >
+          <table class="monitor-table">
+            <thead>
+              <tr>
+                <th>name</th>
+                <th>state</th>
+                <th>cpu ▼</th>
+                <th>mem</th>
+                <th>uptime</th>
+              </tr>
+            </thead>
+            {running.map(({ index, branch, units }) => (
+              <tbody>
+                <tr class="monitor-lane">
+                  <th scope="rowgroup">
+                    ▾ myapp@{index} <span>{branch}</span>
+                  </th>
+                  <td />
+                  <td>{total(units, 'cpu').toFixed(1)}%</td>
+                  <td>{total(units, 'mem')}M</td>
+                  <td />
+                </tr>
+                {sorted(units).map((unit) => (
+                  <tr class={index === 3 && unit.name === 'api' ? 'tui-selected' : undefined}>
+                    <th scope="row">
+                      <span class={`state-${unit.state}`}>
+                        {unit.state === 'ready' ? '●' : '◉'}
+                      </span>{' '}
+                      {unit.name}
+                    </th>
+                    <td>{unit.state}</td>
+                    <td>
+                      {unit.cpu.toFixed(1)}%{' '}
+                      <span class="bar" aria-hidden="true">
+                        <i>{'■'.repeat(bar(unit.cpu, 40))}</i>
+                        {'■'.repeat(4 - bar(unit.cpu, 40))}
+                      </span>
+                    </td>
+                    <td>
+                      {unit.mem}M{' '}
+                      <span class="bar" aria-hidden="true">
+                        <i>{'■'.repeat(bar(unit.mem, 300))}</i>
+                        {'■'.repeat(4 - bar(unit.mem, 300))}
+                      </span>
+                    </td>
+                    <td>{unit.uptime}</td>
+                  </tr>
+                ))}
+              </tbody>
+            ))}
+          </table>
         </div>
       </div>
-      <div class="logs">
-        <p class="muted">api / lane 1 / :21001</p>
-        <p>
-          <time>12:04:01</time> Listening on 127.0.0.1:21001
-        </p>
-        <p>
-          <time>12:04:01</time> Database myapp_lane1 connected
-        </p>
-        <p>
-          <time>12:04:03</time> <span class="success">GET</span> /checkout{' '}
-          <span class="success">200</span>
-        </p>
-        <p>
-          <time>12:04:05</time> <span class="success">POST</span> /orders{' '}
-          <span class="success">201</span>
-        </p>
-        <p class="log-note">main is still running on :20001</p>
+      <div class="terminal-foot">
+        j k move <span>enter open unit</span> <span>&lt; &gt; sort</span> <span>/ filter</span>
+        <span>? all keys</span> <span>q quit</span>
       </div>
-    </div>
-    <div class="terminal-foot">
-      s start <span>x stop</span> <span>r restart</span> <span>/ filter</span>
     </div>
   </Terminal>
 </section>

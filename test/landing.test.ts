@@ -17,10 +17,13 @@ test('product content, themes and agent examples', async ({ page }) => {
   await expect(page.locator('#theme svg')).toHaveCount(2);
   await expect(page.locator('.github-link svg')).toHaveCount(1);
   await page.getByRole('button', { name: 'Read the logs' }).click();
-  await expect(page.locator('#scene-1')).toBeVisible();
-  await expect(page.locator('#scene-0')).toBeHidden();
+  await expect(page.locator('#agent-logs')).toBeVisible();
+  await expect(page.locator('#agent-start')).toBeHidden();
   await page.getByRole('button', { name: 'Clean up', exact: true }).click();
-  await expect(page.locator('#scene-2')).toContainText('Main is still running');
+  await expect(page.locator('#agent-clean')).toContainText('cleaned myapp@1');
+  await page.getByRole('button', { name: 'Run the tests', exact: true }).click();
+  await expect(page.locator('#agent-with')).toContainText('devlanes with');
+  await expect(page.locator('#agent-clean')).toBeHidden();
   await page.locator('#theme').click();
   const theme = await page.locator('html').getAttribute('data-theme');
   await page.reload();
@@ -101,7 +104,9 @@ test('mobile has no page-wide overflow and remains usable without JavaScript', a
     staticPage.getByRole('link', { name: 'Read the docs', exact: true })
   ).toHaveAttribute('href', 'https://github.com/devlanes-run/devlanes/tree/main/docs');
   await expect(staticPage.locator('#install-npm')).toContainText('npm install -g devlanes');
-  await expect(staticPage.locator('#scene-0')).toBeVisible();
+  await expect(staticPage.locator('#agent-start')).toBeVisible();
+  await expect(staticPage.locator('#agent-with')).toBeHidden();
+  await expect(staticPage.getByRole('group', { name: 'Agent workflow examples' })).toBeHidden();
   await expect(staticPage.locator('#motion')).toBeHidden();
   await context.close();
 });

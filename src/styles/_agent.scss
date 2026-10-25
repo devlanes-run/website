@@ -12,26 +12,47 @@
   }
 }
 
-.scene-controls {
+.agent-demo {
+  min-width: 0;
+}
+
+// Sits above the terminal, on the page, so it reads as a control rather than agent output.
+.example-tabs {
   display: flex;
-  gap: 5px;
-  padding: 0 16px 16px;
   flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  max-width: 100%;
+  margin-bottom: 14px;
+  padding: 4px 0;
+  background: var(--surface);
 
   button {
-    background: transparent;
-    color: #bdb7aa;
-    border: 1px solid #514b40;
-    padding: 7px 9px;
+    font: 12px var(--mono);
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--line);
     border-radius: 4px;
-    font: 10px var(--mono);
+    padding: 8px 10px;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--ink);
+    }
 
     &[aria-pressed='true'] {
-      background: #393326;
-      color: #f5d47a;
-      border-color: #a28b4b;
+      background: var(--paint);
+      border-color: var(--paint);
+      color: #24231f;
     }
   }
+}
+
+.example-tabs-label {
+  margin-right: 8px;
+  color: var(--muted);
+  font: 12px var(--mono);
 }
 
 .scene {
@@ -56,4 +77,10 @@
   color: #b5afa2;
   font-size: 11px;
   overflow-wrap: anywhere;
+}
+
+pre.output {
+  margin: 8px 0 16px;
+  font: 11px/1.65 var(--mono);
+  overflow-wrap: normal;
 }
