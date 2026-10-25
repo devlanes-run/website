@@ -1,5 +1,36 @@
 @use 'tokens';
 
+// Fixed heights, because the docs offset their fixed frame by the banner's height.
+:root {
+  --banner-height: 38px;
+}
+
+.beta-banner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--banner-height);
+  padding: 0 20px;
+  background: var(--paint);
+  color: #24231f;
+  font:
+    14px/1.3 'Overpass',
+    sans-serif;
+  text-align: center;
+
+  p {
+    margin: 0;
+  }
+
+  a {
+    margin-left: 12px;
+    color: inherit;
+    text-underline-offset: 3px;
+  }
+}
+
 // Shared by the landing page and the docs so both render the same header.
 .site-header {
   display: flex;
@@ -104,6 +135,19 @@
 }
 
 @media (max-width: tokens.$mobile-width) {
+  :root {
+    --banner-height: 52px;
+  }
+
+  .beta-banner {
+    font-size: 12px;
+
+    a {
+      display: block;
+      margin: 3px 0 0;
+    }
+  }
+
   .site-header {
     padding: 20px 0;
 
@@ -115,6 +159,13 @@
 
   .brand {
     font-size: 17px;
+  }
+
+  // Keeps the five navigation links on one line on 320px screens.
+  @media (max-width: 400px) {
+    .site-header nav {
+      gap: 12px;
+    }
   }
 
   .preferences {

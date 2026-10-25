@@ -1,8 +1,10 @@
 ---
 import Search from '@astrojs/starlight/components/Search.astro';
+import BetaBanner from '../BetaBanner.astro';
 import Header from '../Header.astro';
 ---
 
+<BetaBanner />
 <Header current="docs">
   <Search slot="search" />
 </Header>
