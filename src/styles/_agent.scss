@@ -12,8 +12,47 @@
   }
 }
 
-.agent-head + .terminal-tabs {
-  padding-top: 0;
+.agent-demo {
+  min-width: 0;
+}
+
+// Sits above the terminal, on the page, so it reads as a control rather than agent output.
+.example-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  max-width: 100%;
+  margin-bottom: 14px;
+  padding: 4px 0;
+  background: var(--surface);
+
+  button {
+    font: 12px var(--mono);
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 8px 10px;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--ink);
+    }
+
+    &[aria-pressed='true'] {
+      background: var(--paint);
+      border-color: var(--paint);
+      color: #24231f;
+    }
+  }
+}
+
+.example-tabs-label {
+  margin-right: 8px;
+  color: var(--muted);
+  font: 12px var(--mono);
 }
 
 .scene {

@@ -31,29 +31,6 @@
   flex-shrink: 0;
 }
 
-.terminal-tabs {
-  display: flex;
-  gap: 5px;
-  padding: 14px 16px;
-  flex-wrap: wrap;
-
-  button {
-    background: transparent;
-    color: #bdb7aa;
-    border: 1px solid #514b40;
-    padding: 7px 9px;
-    border-radius: 4px;
-    font: 10px var(--mono);
-    cursor: pointer;
-
-    &[aria-pressed='true'] {
-      background: #393326;
-      color: #f5d47a;
-      border-color: #a28b4b;
-    }
-  }
-}
-
 .terminal-line {
   margin: 0;
   padding: 14px 18px 4px;

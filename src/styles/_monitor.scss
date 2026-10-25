@@ -1,11 +1,11 @@
-// TUI screens: the lane view and the monitor. Rows mirror the real screens, drawn with
-// borders instead of box-drawing characters so they can reflow on narrow screens.
+// The TUI monitor. Rows mirror the real screen, drawn with borders instead of box-drawing
+// characters so they can reflow on narrow screens.
 .tui {
   font-size: 11px;
 }
 
 .tui-top,
-.tui-lanes {
+.tui-usage {
   display: flex;
   flex-wrap: wrap;
   gap: 4px 14px;
@@ -16,7 +16,11 @@
   }
 }
 
-.tui-lanes {
+.tui-top {
+  padding-top: 14px;
+}
+
+.tui-usage {
   padding-bottom: 10px;
 }
 
@@ -29,31 +33,15 @@
   }
 }
 
-.tui-current {
-  background: #f2f0ea;
-  color: var(--terminal);
-  padding: 0 4px;
-}
-
 .tui-dim {
   color: #a9a396;
-}
-
-.tui-panes {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.8fr);
-  gap: 8px;
-  padding: 0 14px 12px;
 }
 
 .tui-pane {
   border: 1px solid #5a554b;
   min-width: 0;
+  margin: 0 14px 12px;
   padding: 0 10px 10px;
-
-  #monitor-units & {
-    margin: 0 14px 12px;
-  }
 
   p {
     margin: 0;
@@ -72,29 +60,6 @@
   background: var(--terminal);
   width: fit-content;
   max-width: calc(100% + 8px);
-}
-
-.tui-output .tui-title {
-  width: auto;
-}
-
-.tui-hint {
-  margin-left: auto;
-}
-
-.tui-tree ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-
-  li {
-    padding: 0 6px;
-  }
-
-  .tui-dim {
-    display: flex;
-    justify-content: space-between;
-  }
 }
 
 .tui-selected {

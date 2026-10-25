@@ -1,7 +1,6 @@
 ---
 import Mark from './Mark.astro';
 import Terminal from './Terminal.astro';
-import TerminalTabs from './TerminalTabs.astro';
 
 // Commands and output follow devlanes' agent-mode output, which is what an agent reads.
 const scenes = [
@@ -61,33 +60,49 @@ const scenes = [
       boundary.
     </p>
   </div>
-  <Terminal title="agent session / myapp">
-    <div class="agent-head">
-      <Mark size={42} />
-      <div>
-        your agent<small>your AI model / ~/dev/myapp</small>
-      </div>
+  <div class="agent-demo">
+    <div
+      class="example-tabs"
+      role="group"
+      aria-label="Agent workflow examples"
+      data-tab-list
+      hidden
+    >
+      <span class="example-tabs-label">Examples</span>
+      {scenes.map(({ id, title }, index) => (
+        <button type="button" data-tab={id} aria-pressed={index === 0} aria-controls={id}>
+          {title}
+        </button>
+      ))}
     </div>
-    <TerminalTabs
-      label="Agent workflow examples"
-      tabs={scenes.map(({ id, title }) => ({ id, label: title }))}
-    />
-    {scenes.map((scene, index) => (
-      <div class="scene" id={scene.id} hidden={index !== 0}>
-        <p class="agent-prompt">{scene.prompt}</p>
-        <div class="scene-body">
-          <p class="command">{scene.command}</p>
-          <p class="output">
-            {scene.output.map((line, index) => (
-              <>
-                {index > 0 && <br />}
-                {line}
-              </>
-            ))}
-          </p>
-          <p>{scene.reply}</p>
+    <Terminal title="agent session / myapp">
+      <div class="agent-head">
+        <Mark size={42} />
+        <div>
+          your agent<small>your AI model / ~/dev/myapp</small>
         </div>
       </div>
-    ))}
-  </Terminal>
+      {scenes.map((scene, index) => (
+        <div class="scene" id={scene.id} hidden={index !== 0}>
+          <p class="agent-prompt">{scene.prompt}</p>
+          <div class="scene-body">
+            <p class="command">{scene.command}</p>
+            <p class="output">
+              {scene.output.map((line, index) => (
+                <>
+                  {index > 0 && <br />}
+                  {line}
+                </>
+              ))}
+            </p>
+            <p>{scene.reply}</p>
+          </div>
+        </div>
+      ))}
+    </Terminal>
+  </div>
 </section>
+
+<script>
+  import '../scripts/tabs';
+</script>

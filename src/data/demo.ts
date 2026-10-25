@@ -1,5 +1,5 @@
-// The demo project in the terminal mockups. Numbers follow devlanes' defaults: lane N owns
-// the 10-port block from 20000 + 10N, and units take offsets in alphabetical order.
+// The demo lanes in the status table and the monitor. Ports in the other examples follow
+// devlanes' defaults: lane N owns the block from 20000 + 10N, units in alphabetical order.
 export interface Unit {
   name: 'api' | 'web' | 'worker';
   state: 'ready' | 'running';
@@ -49,10 +49,6 @@ export const lanes: Lane[] = [
     units: [unit('api', 31.2, 288, '6m'), unit('web', 4, 131, '6m'), unit('worker', 3.2, 94, '6m')]
   }
 ];
-
-const offsets = { api: 0, web: 1, worker: 2 };
-
-export const port = (lane: number, name: Unit['name']) => 20000 + lane * 10 + offsets[name];
 
 export const domain = (lane: number) =>
   lane === 0 ? 'myapp.localhost' : `myapp-${lane}.localhost`;

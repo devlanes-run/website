@@ -30,7 +30,7 @@ The content width is 1200px, including 40px side padding. Mobile padding is 20px
 
 Text backgrounds are opaque so road markings cannot cross the copy. Terminal windows have a border, 7px corners and a narrow yellow-tinted surround. Buttons have 5px corners.
 
-Terminal examples show real devlanes commands and output, taken from the CLI snapshots (`crates/cli/tests/it/snapshots/`) and TUI screens (`crates/tui/screens/`) of the devlanes repository with the demo names substituted: project `myapp`, box `my-vps`, branches `main`, `feat/checkout`, `fix/login` and `agent/perf`. Examples may leave out lines and columns, but never show a command, flag, key or field that devlanes does not have. `src/data/demo.ts` holds the shared lanes, ports and resource figures. Tabs in a terminal window switch between panels with `TerminalTabs.astro`; the first panel is the one shown without JavaScript.
+Terminal examples show real devlanes commands and output, taken from the CLI snapshots (`crates/cli/tests/it/snapshots/`) and TUI screens (`crates/tui/screens/`) of the devlanes repository with the demo names substituted: project `myapp`, box `my-vps`, branches `main`, `feat/checkout`, `fix/login` and `agent/perf`. Examples may leave out lines and columns, but never show a command, flag, key or field that devlanes does not have. `src/data/demo.ts` holds the lanes and resource figures shared by the status table and the monitor. The agent examples are switched by buttons above the terminal, on the page background, so they read as page controls rather than agent output; without JavaScript the buttons are hidden and the first example shows.
 
 ## Road
 

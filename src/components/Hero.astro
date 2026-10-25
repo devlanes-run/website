@@ -1,9 +1,7 @@
 ---
 import { domain, lanes, total } from '../data/demo';
 import Install from './Install.astro';
-import LaneView from './LaneView.astro';
 import Terminal from './Terminal.astro';
-import TerminalTabs from './TerminalTabs.astro';
 ---
 
 <section class="hero" aria-labelledby="hero-title">
@@ -29,68 +27,56 @@ import TerminalTabs from './TerminalTabs.astro';
     </a>
   </div>
   <Terminal title="devlanes / myapp">
-    <TerminalTabs
-      label="Ways to see the lanes"
-      tabs={[
-        { id: 'hero-status', label: 'devlanes status' },
-        { id: 'hero-tui', label: 'devlanes (TUI)' }
-      ]}
-    />
-    <div id="hero-status">
-      <p class="terminal-line command">$ devlanes status</p>
-      <div
-        class="table-scroll"
-        role="region"
-        aria-label="Example lanes, scroll horizontally for all columns"
-        tabindex="0"
-      >
-        <table class="lane-table">
-          <caption>myapp</caption>
-          <thead>
+    <p class="terminal-line command">$ devlanes status</p>
+    <div
+      class="table-scroll"
+      role="region"
+      aria-label="Example lanes, scroll horizontally for all columns"
+      tabindex="0"
+    >
+      <table class="lane-table">
+        <caption>myapp</caption>
+        <thead>
+          <tr>
+            <th>LANE</th>
+            <th>BRANCH</th>
+            <th>STATE</th>
+            <th>SERVICES</th>
+            <th>CPU</th>
+            <th>MEM</th>
+            <th>URL</th>
+          </tr>
+        </thead>
+        <tbody>
+          {lanes.map(({ index, branch, units }) => (
             <tr>
-              <th>LANE</th>
-              <th>BRANCH</th>
-              <th>STATE</th>
-              <th>SERVICES</th>
-              <th>CPU</th>
-              <th>MEM</th>
-              <th>URL</th>
+              <td>
+                <span class={`lane-mark lane-${index}`} />
+                {index}
+              </td>
+              <th scope="row">{branch}</th>
+              {units.length ? (
+                <>
+                  <td class="state-ready">running</td>
+                  <td>
+                    {units.length}/{units.length}
+                  </td>
+                  <td>{total(units, 'cpu').toFixed(1)}%</td>
+                  <td>{total(units, 'mem').toFixed(1)} MiB</td>
+                </>
+              ) : (
+                <>
+                  <td class="tui-dim">idle</td>
+                  <td>–</td>
+                  <td>–</td>
+                  <td>–</td>
+                </>
+              )}
+              <td>https://{domain(index)}</td>
             </tr>
-          </thead>
-          <tbody>
-            {lanes.map(({ index, branch, units }) => (
-              <tr>
-                <td>
-                  <span class={`lane-mark lane-${index}`} />
-                  {index}
-                </td>
-                <th scope="row">{branch}</th>
-                {units.length ? (
-                  <>
-                    <td class="state-ready">running</td>
-                    <td>
-                      {units.length}/{units.length}
-                    </td>
-                    <td>{total(units, 'cpu').toFixed(1)}%</td>
-                    <td>{total(units, 'mem').toFixed(1)} MiB</td>
-                  </>
-                ) : (
-                  <>
-                    <td class="tui-dim">idle</td>
-                    <td>–</td>
-                    <td>–</td>
-                    <td>–</td>
-                  </>
-                )}
-                <td>https://{domain(index)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <div id="hero-tui" hidden>
-      <LaneView lane={1} unit="api" />
+          ))}
+        </tbody>
+      </table>
     </div>
   </Terminal>
   <p class="caption">Each lane has its own ports, hostnames and data.</p>
