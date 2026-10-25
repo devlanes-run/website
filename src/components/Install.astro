@@ -1,35 +1,60 @@
 ---
+// `os` lists the systems a method supports; the first method listed for a system is its default.
 const methods = [
-  { id: 'brew', label: 'Homebrew', command: 'brew install devlanes-run/tap/devlanes' },
+  {
+    id: 'brew',
+    label: 'Homebrew',
+    os: ['macos', 'linux'],
+    command: 'brew install devlanes-run/tap/devlanes'
+  },
   {
     id: 'script',
     label: 'Shell script',
+    os: ['linux', 'macos'],
     command: 'curl -fsSL https://devlanes.run/install.sh | sh'
   },
-  { id: 'npm', label: 'npm', command: 'npm install -g devlanes' },
+  {
+    id: 'powershell',
+    label: 'PowerShell',
+    os: ['windows'],
+    prompt: 'PS>',
+    command: 'irm https://devlanes.run/install.ps1 | iex'
+  },
+  {
+    id: 'npm',
+    label: 'npm',
+    os: ['macos', 'linux', 'windows'],
+    command: 'npm install -g devlanes'
+  },
   {
     id: 'cargo',
     label: 'cargo binstall',
+    os: ['macos', 'linux', 'windows'],
     command: 'cargo binstall --git https://github.com/devlanes-run/devlanes devlanes'
   }
+];
+const systems = [
+  { id: 'macos', label: 'macOS' },
+  { id: 'linux', label: 'Linux' },
+  { id: 'windows', label: 'Windows' }
 ];
 ---
 
 <div class="install" id="install" aria-label="Install devlanes">
   <div class="install-controls" hidden>
     <div class="install-platforms" role="group" aria-label="Operating system">
-      <button type="button" data-os="macos" aria-pressed="true">
-        macOS
-      </button>
-      <button type="button" data-os="linux" aria-pressed="false">
-        Linux
-      </button>
+      {systems.map(({ id, label }) => (
+        <button type="button" data-os={id} aria-pressed={id === 'macos'}>
+          {label}
+        </button>
+      ))}
     </div>
     <div class="install-methods" role="group" aria-label="Install method">
-      {methods.map(({ id, label }) => (
+      {methods.map(({ id, label, os }) => (
         <button
           type="button"
           data-method={id}
+          data-systems={os.join(' ')}
           aria-pressed={id === 'brew'}
           aria-controls={`install-${id}`}
         >
@@ -38,12 +63,12 @@ const methods = [
       ))}
     </div>
   </div>
-  {methods.map(({ id, label, command }) => (
+  {methods.map(({ id, label, command, prompt = '$' }) => (
     <div class="install-panel" id={`install-${id}`} data-install-panel={id}>
       <h3 class="install-fallback-label">{label}</h3>
       <div class="install-command">
         <span class="install-prompt" aria-hidden="true">
-          $
+          {prompt}
         </span>
         <code>{command}</code>
         <button

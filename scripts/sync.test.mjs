@@ -66,4 +66,6 @@ test('validates schemas and the installer before publishing them', () => {
   validateFile('install.sh', '#!/bin/sh\n');
   assert.throws(() => validateFile('schema.json', '{}'), /JSON Schema/);
   assert.throws(() => validateFile('install.sh', 'echo hi'), /shebang/);
+  validateFile('install.ps1', '# Installs devlanes for Windows\n& { }\n');
+  assert.throws(() => validateFile('install.ps1', '<!doctype html>'), /comment/);
 });

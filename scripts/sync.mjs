@@ -23,7 +23,9 @@ export const sources = [
     files: [
       ['crates/config/schema.json', 'v1/schema.json'],
       ['crates/config/user-schema.json', 'v1/user-schema.json'],
-      ['install.sh', 'install.sh']
+      ['install.sh', 'install.sh'],
+      // Optional until a release includes it: 0.3.0 and earlier have no Windows installer.
+      ['install.ps1', 'install.ps1', { optional: true }]
     ]
   }
 ];
@@ -69,6 +71,9 @@ export function validateFile(name, content) {
     if (!json.$schema || !json.$id) throw new Error(`${name} is not a JSON Schema with an $id`);
   } else if (name.endsWith('.sh') && !content.startsWith('#!')) {
     throw new Error(`${name} does not start with a shebang`);
+  } else if (name.endsWith('.ps1') && !/^\s*#/.test(content)) {
+    // The installer opens with its usage comment; anything else is not the script.
+    throw new Error(`${name} does not start with a comment`);
   }
 }
 
@@ -110,8 +115,18 @@ async function checkout(source, env = process.env) {
 async function syncSource(source) {
   const { root, ref, commit, cleanup } = await checkout(source);
   try {
-    for (const [from, to] of source.files) {
-      const content = await readFile(join(root, from), 'utf8');
+    const missing = [];
+    for (const [from, to, { optional = false } = {}] of source.files) {
+      let content;
+      try {
+        content = await readFile(join(root, from), 'utf8');
+      } catch (error) {
+        if (!optional || error.code !== 'ENOENT') throw error;
+        // A local build must not keep the file from a newer ref.
+        await rm(join(publicDir, to), { force: true });
+        missing.push(from);
+        continue;
+      }
       validateFile(from, content);
       await mkdir(dirname(join(publicDir, to)), { recursive: true });
       await writeFile(join(publicDir, to), content);
@@ -123,8 +138,10 @@ async function syncSource(source) {
       updated: await historyDates(root, docs.path)
     });
     const hidden = skipped ? `, ${skipped} with publish: false skipped` : '';
+    const copied = source.files.length - missing.length;
+    const absent = missing.length ? ` (not in this ref: ${missing.join(', ')})` : '';
     console.log(
-      `Synced ${repository}@${ref} (${commit.slice(0, 12)}): ${published} docs pages${hidden}, ${source.files.length} files.`
+      `Synced ${repository}@${ref} (${commit.slice(0, 12)}): ${published} docs pages${hidden}, ${copied} files${absent}.`
     );
   } finally {
     await cleanup();
