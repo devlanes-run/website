@@ -11,7 +11,7 @@ test('product content, themes and agent examples', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
     'Sandboxes for your agents. localhost for you.'
   );
-  await expect(page.locator('.announcement')).toHaveCount(0);
+  await expect(page.getByRole('note')).toContainText('not ready for production use');
   await expect(page.locator('.preview-label')).toHaveCount(0);
   await expect(page.locator('.site-header #motion')).toHaveCount(0);
   await expect(page.locator('#theme svg')).toHaveCount(2);
@@ -86,7 +86,7 @@ test('mobile has no page-wide overflow and remains usable without JavaScript', a
   browser,
   page
 }) => {
-  await page.setViewportSize({ width: 375, height: 812 });
+  await page.setViewportSize({ width: 320, height: 812 });
   await page.goto('/');
   await expect
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))

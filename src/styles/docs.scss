@@ -21,7 +21,9 @@
   --sl-line-height: 1.6;
   --sl-line-height-headings: 1.25;
 
-  --sl-nav-height: 90px;
+  // Starlight's fixed frame holds the beta banner above the shared header.
+  --doc-header-height: 90px;
+  --sl-nav-height: calc(var(--doc-header-height) + var(--banner-height));
   --sl-nav-pad-x: var(--doc-pad);
   --sl-sidebar-width: 300px;
   --sl-sidebar-pad-x: 20px;
@@ -81,6 +83,10 @@
 :root .page > header.header {
   padding: 0 calc(var(--doc-gutter) + var(--doc-pad));
   border-bottom: 1px solid var(--line);
+}
+
+.page > header.header .beta-banner {
+  margin-inline: calc(-1 * (var(--doc-gutter) + var(--doc-pad)));
 }
 
 // The frame draws the bottom border; an opaque header would cover it.
@@ -288,7 +294,7 @@ mobile-starlight-toc {
 // Heights of the shared header at each breakpoint, so the frame matches the landing page.
 @media (max-width: tokens.$tablet-width) {
   :root {
-    --sl-nav-height: 126px;
+    --doc-header-height: 126px;
   }
 }
 
@@ -299,7 +305,7 @@ mobile-starlight-toc {
   }
 
   .sl-menu-button {
-    top: 26px !important;
+    top: calc(var(--banner-height) + 26px) !important;
     inset-inline-end: var(--doc-pad) !important;
   }
 }
@@ -307,13 +313,13 @@ mobile-starlight-toc {
 @media (max-width: tokens.$mobile-width) {
   :root {
     --doc-pad: 20px;
-    --sl-nav-height: 114px;
+    --doc-header-height: 114px;
     --sl-content-pad-x: 20px;
     --sl-text-body: 17px;
   }
 
   .sl-menu-button {
-    top: 20px !important;
+    top: calc(var(--banner-height) + 20px) !important;
   }
 
   [data-has-sidebar] .site-header .preferences {

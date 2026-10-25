@@ -13,6 +13,13 @@ test('docs share the landing header, analytics and theme preference', async ({ p
   await expect(page).toHaveURL(/\/docs\/$/);
   await expect(page.locator('html')).toHaveAttribute('data-theme', theme ?? 'dark');
   await expect(page.locator('h1#_top')).toBeVisible();
+  await expect(page.getByRole('note')).toContainText('not ready for production use');
+  // The fixed frame must leave room for the banner, so the title is not covered.
+  const banner = await page.locator('.beta-banner').boundingBox();
+  const header = await page.locator('.page > header.header').boundingBox();
+  const title = await page.locator('h1#_top').boundingBox();
+  expect(title?.y).toBeGreaterThan((header?.y ?? 0) + (header?.height ?? 0));
+  expect(banner?.width).toBe(page.viewportSize()?.width);
   await expect(page.locator('.site-header nav a[aria-current="page"]')).toHaveText('Docs');
   await expect(
     page.locator('script[src="https://metrics.arthur.one/js/pa-3pDH1YhCzpfClRVGg57Ha.js"]')
