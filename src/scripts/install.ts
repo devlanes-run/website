@@ -4,6 +4,7 @@ if (installer) {
   const methods = [...installer.querySelectorAll<HTMLButtonElement>('[data-method]')];
   const panels = installer.querySelectorAll<HTMLElement>('[data-install-panel]');
   const status = installer.querySelector<HTMLElement>('.install-status');
+  const channel = installer.querySelector<HTMLButtonElement>('.install-channel');
   const browser = navigator as Navigator & { userAgentData?: { platform?: string } };
   const platform = browser.userAgentData?.platform ?? navigator.platform;
   const detected = /^win/i.test(platform)
@@ -11,30 +12,51 @@ if (installer) {
     : /linux/i.test(platform) && !/android/i.test(navigator.userAgent)
       ? 'linux'
       : 'macos';
-  const supports = (button: HTMLButtonElement, os: string) =>
+  let os = detected;
+  let next = false;
+
+  const supports = (button: HTMLButtonElement) =>
     (button.dataset.systems ?? '').split(' ').includes(os);
+  // Only the install scripts have a next channel; package managers install releases.
+  const hasNext = (button: HTMLButtonElement) =>
+    installer.querySelector(`[data-install-panel="${button.dataset.method}"] code[data-next]`) !==
+    null;
+  const offered = (button: HTMLButtonElement) => supports(button) && (!next || hasNext(button));
 
   function selectMethod(method: string) {
     for (const button of methods)
       button.setAttribute('aria-pressed', String(button.dataset.method === method));
     for (const panel of panels) panel.hidden = panel.dataset.installPanel !== method;
-    if (status) status.textContent = '';
+    if (status) status.textContent = next ? 'Showing the latest build of main.' : '';
   }
 
-  function selectPlatform(os: string) {
+  function showMethods() {
     for (const button of platforms)
       button.setAttribute('aria-pressed', String(button.dataset.os === os));
-    for (const button of methods) button.hidden = !supports(button, os);
+    for (const button of methods) button.hidden = !offered(button);
     // The markup lists each system's preferred method first.
-    const preferred = methods.find(
-      (button) => supports(button, os) && button.dataset.systems?.startsWith(os)
-    );
-    const fallback = methods.find((button) => supports(button, os));
-    selectMethod((preferred ?? fallback)?.dataset.method ?? 'npm');
+    const available = methods.filter(offered);
+    const preferred = available.find((button) => button.dataset.systems?.startsWith(os));
+    selectMethod((preferred ?? available[0])?.dataset.method ?? 'npm');
+  }
+
+  function setChannel(useNext: boolean) {
+    next = useNext;
+    for (const code of installer?.querySelectorAll<HTMLElement>('code[data-next]') ?? []) {
+      code.textContent = (next ? code.dataset.next : code.dataset.stable) ?? code.textContent;
+    }
+    if (channel) {
+      channel.textContent = next ? 'Switch to stable releases' : 'Switch to next builds';
+      channel.setAttribute('aria-pressed', String(next));
+    }
+    showMethods();
   }
 
   for (const button of platforms)
-    button.addEventListener('click', () => selectPlatform(button.dataset.os ?? 'macos'));
+    button.addEventListener('click', () => {
+      os = button.dataset.os ?? 'macos';
+      showMethods();
+    });
   for (const button of methods)
     button.addEventListener('click', () => selectMethod(button.dataset.method ?? 'npm'));
   for (const button of installer.querySelectorAll<HTMLButtonElement>('.install-copy')) {
@@ -50,8 +72,12 @@ if (installer) {
       }
     });
   }
+  if (channel) {
+    channel.hidden = false;
+    channel.addEventListener('click', () => setChannel(!next));
+  }
 
-  selectPlatform(detected);
+  showMethods();
   installer.dataset.enhanced = 'true';
   const controls = installer.querySelector<HTMLElement>('.install-controls');
   if (controls) controls.hidden = false;

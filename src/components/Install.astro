@@ -1,4 +1,6 @@
 ---
+import { Icon } from 'astro-icon/components';
+
 // `os` lists the systems a method supports; the first method listed for a system is its default.
 const methods = [
   {
@@ -11,14 +13,17 @@ const methods = [
     id: 'script',
     label: 'Shell script',
     os: ['linux', 'macos'],
-    command: 'curl -fsSL https://devlanes.run/install.sh | sh'
+    command: 'curl -fsSL https://devlanes.run/install.sh | sh',
+    // Next builds need the installer from main: released installers predate the channel.
+    next: 'curl -fsSL https://raw.githubusercontent.com/devlanes-run/devlanes/main/install.sh | DEVLANES_VERSION=next sh'
   },
   {
     id: 'powershell',
     label: 'PowerShell',
     os: ['windows'],
     prompt: 'PS>',
-    command: 'irm https://devlanes.run/install.ps1 | iex'
+    command: 'irm https://devlanes.run/install.ps1 | iex',
+    next: "$env:DEVLANES_VERSION = 'next'; irm https://raw.githubusercontent.com/devlanes-run/devlanes/main/install.ps1 | iex"
   },
   {
     id: 'npm',
@@ -34,18 +39,24 @@ const methods = [
   }
 ];
 const systems = [
-  { id: 'macos', label: 'macOS' },
-  { id: 'linux', label: 'Linux' },
-  { id: 'windows', label: 'Windows' }
+  { id: 'macos', label: 'macOS', icon: 'mdi:apple' },
+  { id: 'linux', label: 'Linux', icon: 'mdi:linux' },
+  { id: 'windows', label: 'Windows', icon: 'mdi:microsoft-windows' }
 ];
 ---
 
 <div class="install" id="install" aria-label="Install devlanes">
   <div class="install-controls" hidden>
     <div class="install-platforms" role="group" aria-label="Operating system">
-      {systems.map(({ id, label }) => (
-        <button type="button" data-os={id} aria-pressed={id === 'macos'}>
-          {label}
+      {systems.map(({ id, label, icon }) => (
+        <button
+          type="button"
+          data-os={id}
+          aria-pressed={id === 'macos'}
+          aria-label={label}
+          title={label}
+        >
+          <Icon name={icon} size={20} aria-hidden="true" />
         </button>
       ))}
     </div>
@@ -63,14 +74,16 @@ const systems = [
       ))}
     </div>
   </div>
-  {methods.map(({ id, label, command, prompt = '$' }) => (
+  {methods.map(({ id, label, command, prompt = '$', next }) => (
     <div class="install-panel" id={`install-${id}`} data-install-panel={id}>
       <h3 class="install-fallback-label">{label}</h3>
       <div class="install-command">
         <span class="install-prompt" aria-hidden="true">
           {prompt}
         </span>
-        <code>{command}</code>
+        <code data-stable={next && command} data-next={next}>
+          {command}
+        </code>
         <button
           type="button"
           class="install-copy"
@@ -82,7 +95,12 @@ const systems = [
       </div>
     </div>
   ))}
-  <p class="install-status" role="status" aria-live="polite"></p>
+  <div class="install-footer">
+    <p class="install-status" role="status" aria-live="polite"></p>
+    <button type="button" class="install-channel" aria-pressed="false" hidden>
+      Switch to next builds
+    </button>
+  </div>
 </div>
 
 <script>

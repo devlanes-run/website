@@ -21,7 +21,10 @@ export default defineConfig({
           'weather-night',
           'content-copy',
           'language-markdown-outline',
-          'open-in-new'
+          'open-in-new',
+          'apple',
+          'linux',
+          'microsoft-windows'
         ]
       }
     }),
