@@ -1,7 +1,28 @@
 import { expect, test } from '@playwright/test';
 
-for (const platform of ['macOS', 'Linux']) {
-  test(`detects ${platform} and selects its default install method`, async ({ page }) => {
+const systems = [
+  {
+    platform: 'macOS',
+    method: '#install-brew',
+    shown: ['Homebrew', 'Shell script', 'npm', 'cargo binstall'],
+    hidden: ['PowerShell']
+  },
+  {
+    platform: 'Linux',
+    method: '#install-script',
+    shown: ['Homebrew', 'Shell script', 'npm', 'cargo binstall'],
+    hidden: ['PowerShell']
+  },
+  {
+    platform: 'Windows',
+    method: '#install-powershell',
+    shown: ['PowerShell', 'npm', 'cargo binstall'],
+    hidden: ['Homebrew', 'Shell script']
+  }
+];
+
+for (const { platform, method, shown, hidden } of systems) {
+  test(`detects ${platform} and offers only its install methods`, async ({ page }) => {
     await page.addInitScript((platform) => {
       Object.defineProperty(navigator, 'userAgentData', { value: { platform } });
     }, platform);
@@ -10,21 +31,31 @@ for (const platform of ['macOS', 'Linux']) {
       'aria-pressed',
       'true'
     );
-    await expect(
-      page.locator(platform === 'macOS' ? '#install-brew' : '#install-script')
-    ).toBeVisible();
-    await page
-      .getByRole('button', { name: platform === 'macOS' ? 'Linux' : 'macOS', exact: true })
-      .click();
-    await expect(
-      page.locator(platform === 'macOS' ? '#install-script' : '#install-brew')
-    ).toBeVisible();
+    await expect(page.locator(method)).toBeVisible();
+    const methods = page.getByRole('group', { name: 'Install method' });
+    for (const name of shown)
+      await expect(methods.getByRole('button', { name, exact: true })).toBeVisible();
+    for (const name of hidden)
+      await expect(methods.getByRole('button', { name, exact: true })).toBeHidden();
   });
 }
+
+test('switching to Windows shows the PowerShell installer', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Windows', exact: true }).click();
+  await expect(page.locator('#install-powershell')).toContainText(
+    'irm https://devlanes.run/install.ps1 | iex'
+  );
+  await expect(page.locator('#install-powershell .install-prompt')).toHaveText('PS>');
+  await page.getByRole('button', { name: 'macOS', exact: true }).click();
+  await expect(page.locator('#install-brew')).toBeVisible();
+});
 
 test('switches install methods and copies only the selected command', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.goto('/');
+  // Playwright's desktop Chrome profile reports Windows, so pick a system explicitly.
+  await page.getByRole('button', { name: 'Linux', exact: true }).click();
   await page.getByRole('button', { name: 'npm', exact: true }).click();
   await expect(page.locator('#install-npm')).toBeVisible();
   await page.getByRole('button', { name: 'Copy npm install command' }).click();
