@@ -50,8 +50,7 @@ test('switches the install scripts to next builds', async ({ page, context }) =>
   await page.getByRole('button', { name: 'Switch to next builds' }).click();
 
   // Package managers only install releases, so only the script remains.
-  const next =
-    'curl -fsSL https://raw.githubusercontent.com/devlanes-run/devlanes/main/install.sh | DEVLANES_VERSION=next sh';
+  const next = 'curl -fsSL https://devlanes.run/install.sh | sh -s -- --channel next';
   await expect(page.locator('#install-script code')).toHaveText(next);
   for (const name of ['Homebrew', 'npm', 'cargo binstall'])
     await expect(methods.getByRole('button', { name, exact: true })).toBeHidden();
@@ -59,8 +58,8 @@ test('switches the install scripts to next builds', async ({ page, context }) =>
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(next);
 
   await page.getByRole('button', { name: 'Windows', exact: true }).click();
-  await expect(page.locator('#install-powershell code')).toContainText(
-    "$env:DEVLANES_VERSION = 'next'"
+  await expect(page.locator('#install-powershell code')).toHaveText(
+    'iex "& {$(irm https://devlanes.run/install.ps1)} -Channel next"'
   );
   for (const name of ['npm', 'cargo binstall'])
     await expect(methods.getByRole('button', { name, exact: true })).toBeHidden();
