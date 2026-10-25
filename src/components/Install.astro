@@ -14,8 +14,7 @@ const methods = [
     label: 'Shell script',
     os: ['linux', 'macos'],
     command: 'curl -fsSL https://devlanes.run/install.sh | sh',
-    // Next builds need the installer from main: released installers predate the channel.
-    next: 'curl -fsSL https://raw.githubusercontent.com/devlanes-run/devlanes/main/install.sh | DEVLANES_VERSION=next sh'
+    next: 'curl -fsSL https://devlanes.run/install.sh | sh -s -- --channel next'
   },
   {
     id: 'powershell',
@@ -23,7 +22,7 @@ const methods = [
     os: ['windows'],
     prompt: 'PS>',
     command: 'irm https://devlanes.run/install.ps1 | iex',
-    next: "$env:DEVLANES_VERSION = 'next'; irm https://raw.githubusercontent.com/devlanes-run/devlanes/main/install.ps1 | iex"
+    next: 'iex "& {$(irm https://devlanes.run/install.ps1)} -Channel next"'
   },
   {
     id: 'npm',
