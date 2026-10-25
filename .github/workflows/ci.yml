@@ -16,7 +16,8 @@ permissions:
 
 concurrency:
   group: website-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  # Main runs queue instead, so a newer push never interrupts a production deploy halfway.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   checks:
@@ -51,18 +52,41 @@ jobs:
           DISPATCH_REPOSITORY: ${{ github.event.client_payload.repository }}
           DISPATCH_TAG: ${{ github.event.client_payload.tag }}
 
+      - name: Get Playwright version
+        id: playwright
+        run: echo "version=$(pnpm exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}-chromium-headless-shell
+
+      # Headless tests only need the headless shell. On a cache hit the download is skipped,
+      # but apt system deps are not cached and still install every run.
       - name: Install Chromium
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm exec playwright install --with-deps --only-shell chromium
 
       - name: Test
+        id: test
         run: pnpm test
 
-      - name: Deploy production
+      - name: Upload Playwright traces
+        if: failure() && steps.test.outcome == 'failure'
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-test-results
+          path: test-results/
+          retention-days: 7
+
+      - name: Upload build
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-        run: pnpm deploy
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+          retention-days: 1
 
       - name: Create or update PR preview
         id: preview
@@ -92,6 +116,38 @@ jobs:
           PREVIEW_URL: ${{ steps.preview.outputs.url }}
         run: |
           gh pr comment "$PR_NUMBER" --edit-last --create-if-none --body "Preview ready: $PREVIEW_URL"
+
+  deploy:
+    name: Deploy production
+    needs: checks
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://devlanes.run
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/setup@v3
+        with:
+          runtime: node@24
+          cache: true
+          install: true
+          require-lockfile: true
+
+      - name: Download build
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+
+      - name: Deploy
+        run: pnpm deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
   cleanup:
     name: Delete closed PR preview
