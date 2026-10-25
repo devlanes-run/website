@@ -1,4 +1,6 @@
 ---
+import { Icon } from 'astro-icon/components';
+
 // `os` lists the systems a method supports; the first method listed for a system is its default.
 const methods = [
   {
@@ -37,18 +39,24 @@ const methods = [
   }
 ];
 const systems = [
-  { id: 'macos', label: 'macOS' },
-  { id: 'linux', label: 'Linux' },
-  { id: 'windows', label: 'Windows' }
+  { id: 'macos', label: 'macOS', icon: 'mdi:apple' },
+  { id: 'linux', label: 'Linux', icon: 'mdi:linux' },
+  { id: 'windows', label: 'Windows', icon: 'mdi:microsoft-windows' }
 ];
 ---
 
 <div class="install" id="install" aria-label="Install devlanes">
   <div class="install-controls" hidden>
     <div class="install-platforms" role="group" aria-label="Operating system">
-      {systems.map(({ id, label }) => (
-        <button type="button" data-os={id} aria-pressed={id === 'macos'}>
-          {label}
+      {systems.map(({ id, label, icon }) => (
+        <button
+          type="button"
+          data-os={id}
+          aria-pressed={id === 'macos'}
+          aria-label={label}
+          title={label}
+        >
+          <Icon name={icon} size={20} aria-hidden="true" />
         </button>
       ))}
     </div>

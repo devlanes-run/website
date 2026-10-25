@@ -40,6 +40,15 @@
   gap: 4px;
 }
 
+// Icon-only buttons, square so the three logos line up.
+.install-platforms button {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 34px;
+  padding: 0;
+}
+
 .install-platforms button[aria-pressed='true'] {
   background: var(--paint);
   border-color: var(--paint);
