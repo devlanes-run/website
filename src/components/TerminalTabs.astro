@@ -1,0 +1,22 @@
+---
+// Buttons that switch between panels inside a terminal window. Each tab's `id` is the id of
+// its panel; panels after the first start hidden, so the page reads the same without
+// JavaScript, which reveals these buttons.
+interface Props {
+  label: string;
+  tabs: { id: string; label: string }[];
+}
+const { label, tabs } = Astro.props;
+---
+
+<div class="terminal-tabs" role="group" aria-label={label} data-tab-list hidden>
+  {tabs.map(({ id, label: name }, index) => (
+    <button type="button" data-tab={id} aria-pressed={index === 0} aria-controls={id}>
+      {name}
+    </button>
+  ))}
+</div>
+
+<script>
+  import '../scripts/tabs';
+</script>

@@ -1,68 +1,148 @@
-.monitor-grid {
-  display: grid;
-  grid-template-columns: 1fr 1.6fr;
-  gap: 28px;
-  padding: 24px;
+// TUI screens: the lane view and the monitor. Rows mirror the real screens, drawn with
+// borders instead of box-drawing characters so they can reflow on narrow screens.
+.tui {
+  font-size: 11px;
 }
 
-.process-list {
-  border-right: 1px solid #494438;
-  padding-right: 24px;
+.tui-top,
+.tui-lanes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  padding: 8px 14px 0;
 
-  p {
-    margin: 10px 0;
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
+  strong {
+    color: var(--paint);
   }
 }
 
-.selected {
+.tui-lanes {
+  padding-bottom: 10px;
+}
+
+.tui-keys {
+  margin-left: auto;
+
+  b {
+    font-weight: 700;
+    color: #f2f0ea;
+  }
+}
+
+.tui-current {
+  background: #f2f0ea;
+  color: var(--terminal);
+  padding: 0 4px;
+}
+
+.tui-dim {
+  color: #a9a396;
+}
+
+.tui-panes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.8fr);
+  gap: 8px;
+  padding: 0 14px 12px;
+}
+
+.tui-pane {
+  border: 1px solid #5a554b;
+  min-width: 0;
+  padding: 0 10px 10px;
+
+  #monitor-units & {
+    margin: 0 14px 12px;
+  }
+
+  p {
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.tui-title {
+  display: flex;
+  gap: 8px;
+  margin: 0 -4px 6px !important;
+  padding: 0 4px;
+  transform: translateY(-50%);
+  background: var(--terminal);
+  width: fit-content;
+  max-width: calc(100% + 8px);
+}
+
+.tui-output .tui-title {
+  width: auto;
+}
+
+.tui-hint {
+  margin-left: auto;
+}
+
+.tui-tree ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    padding: 0 6px;
+  }
+
+  .tui-dim {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+.tui-selected {
+  background: #3d3829;
   color: #f5d47a;
 }
 
-.muted {
-  color: #b5afa2;
+.state-ready,
+.state-running {
+  color: #91c59f;
 }
 
-.resource {
-  margin-top: 30px;
-
-  small {
-    font-size: 10px;
-    color: #b5afa2;
-  }
-}
-
-.meter {
-  height: 5px;
-  background: #484338;
-  margin: 10px 0;
-
-  i {
-    display: block;
-    height: 100%;
-    width: 77.5%;
-    background: #c4a350;
-  }
-}
-
-.logs {
-  min-width: 0;
-  overflow: auto;
+.monitor-table {
+  border-collapse: collapse;
+  width: 100%;
   white-space: nowrap;
 
-  p {
-    margin-bottom: 12px;
+  th,
+  td {
+    text-align: left;
+    font-weight: 400;
+    padding: 1px 10px 1px 6px;
   }
 
-  time {
-    color: #b5afa2;
-    margin-right: 10px;
+  thead {
+    color: #a9a396;
+  }
+
+  .monitor-lane {
+    color: #f2f0ea;
+
+    th span {
+      margin-left: 8px;
+      color: #f5d47a;
+    }
+  }
+
+  tbody tr:not(.monitor-lane) th {
+    padding-left: 18px;
   }
 }
 
-.log-note {
-  color: #c4a350;
-  margin-top: 32px;
+.bar {
+  color: #4f4a3f;
+  letter-spacing: -1px;
+
+  i {
+    font-style: normal;
+    color: #91c59f;
+  }
 }

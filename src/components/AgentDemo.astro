@@ -1,29 +1,49 @@
 ---
 import Mark from './Mark.astro';
 import Terminal from './Terminal.astro';
+import TerminalTabs from './TerminalTabs.astro';
 
+// Commands and output follow devlanes' agent-mode output, which is what an agent reads.
 const scenes = [
   {
+    id: 'agent-start',
     title: 'Start a lane',
     prompt: 'Start the checkout branch so I can test it.',
-    command: '$ devlanes up --lane feat/checkout',
-    output: 'lane 1 ready / web :21000 / api :21001 / db myapp_lane1',
+    command: '$ devlanes start --lane feat/checkout',
+    output: [
+      'myapp@1 (feat/checkout): 3/3 ready',
+      'ready api http://127.0.0.1:20010 https://api.myapp-1.localhost',
+      'ready web http://127.0.0.1:20011 https://myapp-1.localhost',
+      'ready worker http://127.0.0.1:20012'
+    ],
     reply:
-      'The checkout stack is running alongside main. Open https://myapp-1.localhost on your laptop to try it.'
+      'The checkout stack is running next to main. Open https://myapp-1.localhost on your laptop to try it.'
   },
   {
+    id: 'agent-logs',
     title: 'Read the logs',
     prompt: 'Submitting the form returns a 500. Find out why.',
-    command: '$ devlanes logs api --lane 1',
-    output: 'error: column "orders.coupon_code" does not exist',
-    reply: 'The orders table is missing coupon_code. I will add the migration and retry in lane 1.'
+    command: '$ devlanes logs api --lane feat/checkout --grep error',
+    output: ['api#57 error: column "orders.coupon_code" does not exist'],
+    reply:
+      'The orders table is missing coupon_code. I will add the migration and retry in this lane.'
   },
   {
+    id: 'agent-with',
+    title: 'Run the tests',
+    prompt: 'Run the end-to-end tests against the fix.',
+    command: '$ devlanes with --lane feat/checkout -- pnpm test:e2e',
+    output: ['myapp@1 (feat/checkout): 3/3 ready', '42 passed (38.2s)'],
+    reply:
+      "All 42 tests passed against this lane's own ports and hostnames. The tests read them from the lane's environment."
+  },
+  {
+    id: 'agent-clean',
     title: 'Clean up',
     prompt: 'Looks good. Clean up this lane.',
-    command: '$ devlanes lane clean feat/checkout',
-    output: 'stopped 3 services / removed myapp_lane1 / released ports',
-    reply: 'The checkout lane is gone. Main is still running at https://myapp.localhost.'
+    command: '$ devlanes lane clean feat/checkout --yes',
+    output: ['cleaned myapp@1: stopped 3 units, teardown database'],
+    reply: 'The checkout lane is stopped, its database is dropped and its ports are free again.'
   }
 ];
 ---
@@ -48,32 +68,26 @@ const scenes = [
         your agent<small>your AI model / ~/dev/myapp</small>
       </div>
     </div>
-    <div class="scene-controls" role="group" aria-label="Agent workflow examples" hidden>
-      {scenes.map((scene, index) => (
-        <button
-          type="button"
-          data-scene={index}
-          aria-pressed={index === 0}
-          aria-controls={`scene-${index}`}
-          hidden
-        >
-          {scene.title}
-        </button>
-      ))}
-    </div>
+    <TerminalTabs
+      label="Agent workflow examples"
+      tabs={scenes.map(({ id, title }) => ({ id, label: title }))}
+    />
     {scenes.map((scene, index) => (
-      <div class="scene" id={`scene-${index}`} hidden={index !== 0}>
+      <div class="scene" id={scene.id} hidden={index !== 0}>
         <p class="agent-prompt">{scene.prompt}</p>
         <div class="scene-body">
           <p class="command">{scene.command}</p>
-          <p class="output">{scene.output}</p>
+          <p class="output">
+            {scene.output.map((line, index) => (
+              <>
+                {index > 0 && <br />}
+                {line}
+              </>
+            ))}
+          </p>
           <p>{scene.reply}</p>
         </div>
       </div>
     ))}
   </Terminal>
 </section>
-
-<script>
-  import '../scripts/agent-demo';
-</script>

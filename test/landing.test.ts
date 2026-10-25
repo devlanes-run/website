@@ -17,10 +17,19 @@ test('product content, themes and agent examples', async ({ page }) => {
   await expect(page.locator('#theme svg')).toHaveCount(2);
   await expect(page.locator('.github-link svg')).toHaveCount(1);
   await page.getByRole('button', { name: 'Read the logs' }).click();
-  await expect(page.locator('#scene-1')).toBeVisible();
-  await expect(page.locator('#scene-0')).toBeHidden();
+  await expect(page.locator('#agent-logs')).toBeVisible();
+  await expect(page.locator('#agent-start')).toBeHidden();
   await page.getByRole('button', { name: 'Clean up', exact: true }).click();
-  await expect(page.locator('#scene-2')).toContainText('Main is still running');
+  await expect(page.locator('#agent-clean')).toContainText('cleaned myapp@1');
+  // Each window's tabs switch only that window's panels.
+  await page.getByRole('button', { name: 'devlanes (TUI)' }).click();
+  await expect(page.locator('#hero-tui')).toContainText('@1 · 3/3 up');
+  await expect(page.locator('#hero-status')).toBeHidden();
+  await expect(page.locator('#monitor-units')).toBeVisible();
+  await page.getByRole('button', { name: 'lane view' }).click();
+  await expect(page.locator('#monitor-lanes')).toContainText('@3 · 3/3 up');
+  await expect(page.locator('#monitor-units')).toBeHidden();
+  await expect(page.locator('#hero-tui')).toBeVisible();
   await page.locator('#theme').click();
   const theme = await page.locator('html').getAttribute('data-theme');
   await page.reload();
@@ -101,7 +110,9 @@ test('mobile has no page-wide overflow and remains usable without JavaScript', a
     staticPage.getByRole('link', { name: 'Read the docs', exact: true })
   ).toHaveAttribute('href', 'https://github.com/devlanes-run/devlanes/tree/main/docs');
   await expect(staticPage.locator('#install-npm')).toContainText('npm install -g devlanes');
-  await expect(staticPage.locator('#scene-0')).toBeVisible();
+  await expect(staticPage.locator('#agent-start')).toBeVisible();
+  await expect(staticPage.locator('#hero-status')).toContainText('devlanes status');
+  await expect(staticPage.locator('#monitor-units')).toBeVisible();
   await expect(staticPage.locator('#motion')).toBeHidden();
   await context.close();
 });

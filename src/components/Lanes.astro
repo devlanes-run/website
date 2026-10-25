@@ -2,28 +2,29 @@
   <div class="section-heading copy">
     <h2 id="lanes-title">Run several copies of your project</h2>
     <p>
-      A lane groups the services and configuration for one running stack. Use separate worktrees,
-      another checkout, or the same checkout with different settings.
+      A lane groups the services and configuration for one running stack. Every Git worktree gets a
+      lane, and <code>devlanes lane new --name review</code> adds another lane to the same folder.
     </p>
   </div>
   <div class="lane-details">
     <article class="copy">
       <h3>Ports and hostnames</h3>
       <p>
-        Each lane gets a port range and local hostnames. Run the checkout branch alongside main
-        without assigning ports in <code>.env</code> files.
+        Each lane gets a block of ports and its own hostnames, such as{' '}
+        <code>myapp-1.localhost</code>. Run the checkout branch alongside main without assigning
+        ports in <code>.env</code> files.
       </p>
       <code class="example">
-        main :20000
+        main 20000-20009
         <br />
-        checkout :21000
+        feat/checkout 20010-20019
       </code>
     </article>
     <article class="copy">
       <h3>Per-lane databases</h3>
       <p>
-        Lanes can share a Postgres server while using separate databases. Test a migration in one
-        lane without changing main's data.
+        With an <code>infra.setup</code> step, lanes share one Postgres server and each gets its own
+        database. Test a migration in one lane without changing main's data.
       </p>
       <code class="example">
         postgres / myapp_main

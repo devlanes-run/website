@@ -6,6 +6,8 @@
   text-align: left;
   overflow: hidden;
   font: 12px/1.65 var(--mono);
+  // Terminals print `->` and `<-` as typed, so the mono font's arrow ligatures stay off.
+  font-variant-ligatures: none;
   min-width: 0;
   box-shadow: 0 0 0 5px color-mix(in srgb, var(--surface) 88%, var(--paint));
 }
@@ -29,20 +31,33 @@
   flex-shrink: 0;
 }
 
-.terminal-summary {
+.terminal-tabs {
   display: flex;
-  gap: 20px;
-  padding: 15px 18px;
-  font-size: 11px;
+  gap: 5px;
+  padding: 14px 16px;
+  flex-wrap: wrap;
 
-  strong {
-    color: var(--paint);
+  button {
+    background: transparent;
+    color: #bdb7aa;
+    border: 1px solid #514b40;
+    padding: 7px 9px;
+    border-radius: 4px;
+    font: 10px var(--mono);
+    cursor: pointer;
+
+    &[aria-pressed='true'] {
+      background: #393326;
+      color: #f5d47a;
+      border-color: #a28b4b;
+    }
   }
 }
 
-.connection {
-  margin-left: auto;
-  color: #9db89b;
+.terminal-line {
+  margin: 0;
+  padding: 14px 18px 4px;
+  font-size: 11px;
 }
 
 .table-scroll {
@@ -56,10 +71,16 @@
   white-space: nowrap;
   font-size: 11px;
 
+  caption {
+    text-align: left;
+    padding: 6px 13px;
+    color: #f5d47a;
+  }
+
   th,
   td {
     text-align: left;
-    padding: 13px 13px;
+    padding: 11px 13px;
     font-weight: 400;
   }
 
@@ -109,22 +130,14 @@
   background: #78aaa7;
 }
 
-.status {
-  display: inline-block;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #91c59f;
-  margin-right: 5px;
-}
-
 .terminal-foot {
   padding: 9px 16px;
   color: #b1ab9e;
   background: var(--terminal-raised);
   font-size: 10px;
   display: flex;
-  gap: 18px;
+  flex-wrap: wrap;
+  gap: 4px 18px;
 }
 
 .terminal-content {

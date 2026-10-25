@@ -12,26 +12,8 @@
   }
 }
 
-.scene-controls {
-  display: flex;
-  gap: 5px;
-  padding: 0 16px 16px;
-  flex-wrap: wrap;
-
-  button {
-    background: transparent;
-    color: #bdb7aa;
-    border: 1px solid #514b40;
-    padding: 7px 9px;
-    border-radius: 4px;
-    font: 10px var(--mono);
-
-    &[aria-pressed='true'] {
-      background: #393326;
-      color: #f5d47a;
-      border-color: #a28b4b;
-    }
-  }
+.agent-head + .terminal-tabs {
+  padding-top: 0;
 }
 
 .scene {
@@ -56,4 +38,10 @@
   color: #b5afa2;
   font-size: 11px;
   overflow-wrap: anywhere;
+}
+
+pre.output {
+  margin: 8px 0 16px;
+  font: 11px/1.65 var(--mono);
+  overflow-wrap: normal;
 }

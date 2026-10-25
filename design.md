@@ -30,6 +30,8 @@ The content width is 1200px, including 40px side padding. Mobile padding is 20px
 
 Text backgrounds are opaque so road markings cannot cross the copy. Terminal windows have a border, 7px corners and a narrow yellow-tinted surround. Buttons have 5px corners.
 
+Terminal examples show real devlanes commands and output, taken from the CLI snapshots (`crates/cli/tests/it/snapshots/`) and TUI screens (`crates/tui/screens/`) of the devlanes repository with the demo names substituted: project `myapp`, box `my-vps`, branches `main`, `feat/checkout`, `fix/login` and `agent/perf`. Examples may leave out lines and columns, but never show a command, flag, key or field that devlanes does not have. `src/data/demo.ts` holds the shared lanes, ports and resource figures. Tabs in a terminal window switch between panels with `TerminalTabs.astro`; the first panel is the one shown without JavaScript.
+
 ## Road
 
 The vertical road covers the page. Grey dividers are 2px wide. Each yellow centre stroke is 3px, with an opaque 4px gap. Dividers and process groups share a lane-width token: 160px on desktop and 100px on small screens.
