@@ -4,19 +4,19 @@ const systems = [
   {
     platform: 'macOS',
     method: '#install-brew',
-    shown: ['Homebrew', 'Shell script', 'npm', 'cargo binstall'],
+    shown: ['Homebrew', 'Shell script', 'npm', 'uv', 'cargo binstall'],
     hidden: ['PowerShell']
   },
   {
     platform: 'Linux',
     method: '#install-script',
-    shown: ['Homebrew', 'Shell script', 'npm', 'cargo binstall'],
+    shown: ['Homebrew', 'Shell script', 'npm', 'uv', 'cargo binstall'],
     hidden: ['PowerShell']
   },
   {
     platform: 'Windows',
     method: '#install-powershell',
-    shown: ['PowerShell', 'npm', 'cargo binstall'],
+    shown: ['PowerShell', 'npm', 'uv', 'cargo binstall'],
     hidden: ['Homebrew', 'Shell script']
   }
 ];
@@ -52,7 +52,7 @@ test('switches the install scripts to next builds', async ({ page, context }) =>
   // Package managers only install releases, so only the script remains.
   const next = 'curl -fsSL https://devlanes.run/install.sh | sh -s -- --channel next';
   await expect(page.locator('#install-script code')).toHaveText(next);
-  for (const name of ['Homebrew', 'npm', 'cargo binstall'])
+  for (const name of ['Homebrew', 'npm', 'uv', 'cargo binstall'])
     await expect(methods.getByRole('button', { name, exact: true })).toBeHidden();
   await page.getByRole('button', { name: 'Copy Shell script install command' }).click();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(next);
@@ -61,14 +61,14 @@ test('switches the install scripts to next builds', async ({ page, context }) =>
   await expect(page.locator('#install-powershell code')).toHaveText(
     'iex "& {$(irm https://devlanes.run/install.ps1)} -Channel next"'
   );
-  for (const name of ['npm', 'cargo binstall'])
+  for (const name of ['npm', 'uv', 'cargo binstall'])
     await expect(methods.getByRole('button', { name, exact: true })).toBeHidden();
 
   await page.getByRole('button', { name: 'Switch to stable releases' }).click();
   await expect(page.locator('#install-powershell code')).toHaveText(
     'irm https://devlanes.run/install.ps1 | iex'
   );
-  for (const name of ['PowerShell', 'npm', 'cargo binstall'])
+  for (const name of ['PowerShell', 'npm', 'uv', 'cargo binstall'])
     await expect(methods.getByRole('button', { name, exact: true })).toBeVisible();
 });
 
@@ -93,6 +93,13 @@ test('switches install methods and copies only the selected command', async ({ p
   await page.getByRole('button', { name: 'Copy npm install command' }).click();
   await expect(page.getByRole('status')).toHaveText('Command copied.');
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('npm install -g devlanes');
+  await page.getByRole('button', { name: 'uv', exact: true }).click();
+  await expect(page.locator('#install-uv')).toBeVisible();
+  await expect(page.locator('#install-npm')).toBeHidden();
+  await page.getByRole('button', { name: 'Copy uv install command' }).click();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+    'uv tool install devlanes'
+  );
   await page.getByRole('button', { name: 'cargo binstall', exact: true }).click();
   await expect(page.locator('#install-cargo')).toContainText(
     'cargo binstall --git https://github.com/devlanes-run/devlanes devlanes'
