@@ -160,3 +160,15 @@
     padding: 6px 8px;
   }
 }
+
+.install-controls[hidden],
+.install-command .install-copy[hidden],
+.install .install-channel[hidden] {
+  display: flex !important;
+  visibility: hidden;
+}
+
+.install-command .install-copy[hidden],
+.install .install-channel[hidden] {
+  display: inline-flex !important;
+}

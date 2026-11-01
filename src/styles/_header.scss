@@ -179,3 +179,15 @@
     }
   }
 }
+
+// Controls that JavaScript enables keep their box while hidden, so the page does not jump
+// when they appear after a navigation.
+#theme[hidden],
+footer #motion[hidden] {
+  display: grid !important;
+  visibility: hidden;
+}
+
+footer #motion[hidden] {
+  display: inline !important;
+}
