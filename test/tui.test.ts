@@ -92,21 +92,20 @@ test('keeps the static screen when the TUI web build is missing', async ({ page 
   expect(errors).toEqual([]);
 });
 
-test('mounts a live TUI of 140 by 34 cells on a wide window', async ({ page }) => {
+// Column counts depend on how the platform rasterises the font, so the tests check that the
+// grid the module built is the one the element was sized for, and that it fills the wrapper.
+test('mounts a live TUI of 34 rows that fills a wide window', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await openLive(page);
   const recorded = await calls(page);
   expect(recorded.inits).toBe(1);
-  expect(recorded.mounts).toEqual([{ id: 'tui-demo', columns: 140, rows: 34 }]);
   expect(recorded.keys).toEqual([opening]);
-  expect(await grid(page)).toEqual({
-    cols: 140,
-    rows: 34,
-    lines: 34,
-    cells: 140,
-    fits: true,
-    overflow: false
-  });
+  const built = await grid(page);
+  expect(built).toMatchObject({ rows: 34, lines: 34, fits: true, overflow: false });
+  expect(built.cols).toBeGreaterThanOrEqual(130);
+  expect(built.cols).toBeLessThanOrEqual(140);
+  expect(built.cells).toBe(built.cols);
+  expect(recorded.mounts).toEqual([{ id: 'tui-demo', columns: built.cols, rows: 34 }]);
   await expect(page.locator('#tui-demo')).toHaveCSS('font-size', '13px');
 
   // The badge in the title bar says where the keys go.
@@ -124,15 +123,12 @@ test('mounts a smaller font with fewer columns and rows on a phone-sized window'
   await page.setViewportSize({ width: 390, height: 844 });
   await openLive(page);
   const recorded = await calls(page);
-  expect(recorded.mounts).toEqual([{ id: 'tui-demo', columns: 61, rows: 26 }]);
-  expect(await grid(page)).toEqual({
-    cols: 61,
-    rows: 26,
-    lines: 26,
-    cells: 61,
-    fits: true,
-    overflow: false
-  });
+  const built = await grid(page);
+  expect(built).toMatchObject({ rows: 26, lines: 26, fits: true, overflow: false });
+  expect(built.cols).toBeGreaterThanOrEqual(55);
+  expect(built.cols).toBeLessThanOrEqual(70);
+  expect(built.cells).toBe(built.cols);
+  expect(recorded.mounts).toEqual([{ id: 'tui-demo', columns: built.cols, rows: 26 }]);
   await expect(page.locator('#tui-demo')).toHaveCSS('font-size', '10.5px');
 });
 
@@ -153,15 +149,17 @@ test('lays the TUI out again at the new width after a resize, keeping its page',
   expect(recorded.constructed).toBe(1);
   expect(recorded.frees).toBe(0);
   expect(recorded.resizes).toBe(1);
-  // 900px minus the page's 40px side padding, in 13px JetBrains Mono cells.
-  expect(recorded.mounts[1]).toEqual({ id: 'tui-demo', columns: 104, rows: 34 });
+  const built = await grid(page);
+  expect(built).toMatchObject({ rows: 34, lines: 34, fits: true, overflow: false });
+  expect(built.cols).toBeLessThan(recorded.mounts[0]?.columns ?? 0);
+  expect(built.cells).toBe(built.cols);
+  expect(recorded.mounts[1]).toEqual({ id: 'tui-demo', columns: built.cols, rows: 34 });
   // The demo keeps its page, so nothing is replayed.
   expect(recorded.keys).toEqual([
     opening,
     ['Shift', false, false, true],
     ['D', false, false, true]
   ]);
-  expect(await grid(page)).toMatchObject({ cols: 104, lines: 34, cells: 104, fits: true });
 
   // A resize that keeps the cell counts leaves the demo alone.
   await page.setViewportSize({ width: 900, height: 700 });
