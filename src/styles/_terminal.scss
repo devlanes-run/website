@@ -177,6 +177,17 @@
   color: #e39a8f;
 }
 
+// The TUI's colour for a frozen lane, which no other state uses.
+.frozen {
+  color: #6ca8e8;
+}
+
+// The speaker in a transcript between a person and an agent.
+.who {
+  color: var(--paint);
+  font-weight: 700;
+}
+
 .key {
   color: #c0b8ff;
 }

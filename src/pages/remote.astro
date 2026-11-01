@@ -21,19 +21,19 @@ const ledger = [
     items: [
       {
         code: 'http://10.0.3.14:20011',
-        text: 'A private IP in the address bar. Cookies, CORS origins and OAuth callbacks were written for a hostname.'
+        text: 'A private IP in the address bar. Cookies, CORS and OAuth callbacks wanted a hostname.'
       },
       {
         code: 'ssh -L 20011:localhost:20011 my-vps',
-        text: 'One forward per port, typed again after every sleep. The database client needs its own.'
+        text: 'One forward per port, typed again after every sleep.'
       },
       {
         code: '*.dev.example.com, a wildcard cert, a subdomain per branch',
-        text: 'DNS, certbot and a proxy config to edit every time a worktree appears.'
+        text: 'DNS, certbot and a proxy config, for a sandbox that lives an hour.'
       },
       {
         code: 'https://random-words.example.dev',
-        text: 'A public URL for something that should never have left your machine.'
+        text: 'A public URL for something that was never meant to leave the machine.'
       }
     ]
   },
@@ -46,15 +46,15 @@ const ledger = [
       },
       {
         code: 'https://myapp1.localhost',
-        text: "The box's hostnames join your local proxy with your local certificate. Nothing is public."
+        text: "The box's hostnames join your local proxy, with your local certificate."
       },
       {
         code: 'psql -h 127.0.0.1 -p 20013 myapp_lane1',
-        text: "Raw TCP works unchanged: databases, debuggers, gRPC, websockets, under the box's own port number."
+        text: "Databases, debuggers, gRPC and websockets, on the box's own port numbers."
       },
       {
         code: 'devlanes daemon pair',
-        text: 'A one-time code pairs your machine. The box keeps a hash of the token, never the token.'
+        text: 'A one-time code pairs your machine. The box keeps a hash of the token.'
       }
     ]
   }
@@ -63,30 +63,40 @@ const ledger = [
 
 <SiteLayout
   title="Remote boxes"
-  description="Run the lanes on a VPS, a container or a codespace and open them from your laptop. devlanes mirrors the box's hostnames and TCP ports over one ssh session; the box opens no ports."
+  description="Run the lanes on a VPS, a container or a codespace and open them from your laptop. devlanes mirrors the box's hostnames and ports over one ssh session; the box opens no ports."
   path="/remote/"
   current="remote"
 >
   <PageHead title="The lanes run on a box. Your laptop gets their hostnames and ports.">
     <p>
       A box is any machine that runs devlanes and that you can reach with <code>ssh</code>, or with
-      a command such as <code>docker exec</code>. Your laptop's daemon reads the box's lanes over
-      one ssh session and mirrors them, with the same names and the same port numbers. The
-      connection never runs commands on the box and never carries your environment.
+      a command such as <code>docker exec</code>. Your laptop's daemon mirrors the box's lanes over
+      one session, with the same names and the same port numbers, and the box opens no ports.
     </p>
   </PageHead>
 
+  <Section
+    id="ledger"
+    title="Nobody sets up DNS and a wildcard cert for an hour-long sandbox."
+    stacked
+  >
+    <p>
+      A dev server on a box was always reachable somehow: a private IP, a forward per port, a public
+      tunnel. None of it is worth doing for a lane an agent will throw away before lunch, so it did
+      not get done. With devlanes the box's lanes show up on your laptop by default.
+    </p>
+    <Ledger slot="visual" columns={ledger} />
+  </Section>
+
   <Section id="pair" title="Pair once. The box opens no ports.">
     <p>
-      On the box, <code>devlanes daemon pair</code> prints a code that works once and expires in 10
-      minutes. Your laptop trades it for a token the box keeps only a hash of, and presents that
-      token on every later connection.
+      The box prints a code that works once and expires in 10 minutes. Your laptop trades it for a
+      token the box keeps only a hash of. From then on the connection belongs to your local daemon:
+      it survives sleep, network loss and restarts, until you disconnect.
     </p>
     <p>
-      The connection belongs to your local daemon, not to the terminal. It reconnects after sleep or
-      network loss and comes back when the daemon restarts, until you disconnect. Over the ssh
-      session devlanes runs <code>devlanes tunnel --stdio</code> on the box, which needs only a
-      session channel; <code>AllowTcpForwarding no</code> there is fine.
+      Anything you can reach over ssh can be a box. The tunnel runs inside the session itself, so
+      the box needs no TCP forwarding enabled and no firewall rule.
     </p>
     <div slot="visual" class="terminal-stack">
       <Terminal title="on my-vps">
@@ -106,72 +116,61 @@ myapp1.localhost      ->  myapp@1:web  20011  <span class="success">ready</span>
     </div>
   </Section>
 
-  <Section id="mirror" title="Same port numbers, same hostnames." stacked>
+  <Section id="mirror" title="Same ports, same hostnames, on your laptop." stacked>
     <p>
-      Every service on the box listens on loopback, on a port devlanes allocated, under a hostname
-      devlanes generated. Your laptop's daemon binds those port numbers on its own 127.0.0.1 and
-      adds the hostnames to its own proxy, signed by the CA you already trust. Raw TCP works
-      unchanged: <code>psql</code> against the box's Postgres, a debugger, gRPC, websockets. Only
-      TCP; UDP ports are not mirrored.
+      Your laptop binds the box's port numbers on its own 127.0.0.1 and adds the box's hostnames to
+      your proxy, with the certificate you already trust. The URL a service prints on the box is the
+      one you open here, and <code>psql</code>, a debugger, gRPC or websockets connect as if the
+      service were local.
     </p>
     <BoxDiagram slot="visual" />
   </Section>
 
-  <Section id="tui" title="The box's lane shows up in your TUI, read-only.">
+  <Section id="tui" title="The box's lane shows up in your TUI.">
     <p>
-      A connected box's lanes join the tab of the project with the same name, after your own. The
-      pane for a box lane lists its domain, each port and whether it is mirrored here, and each
-      hostname with the URL that opens it on this machine.
-    </p>
-    <p>
-      Keys that would start, stop or restart do nothing for a box lane. The pane says what to run on
-      the box instead, and the monitor shows only this machine's units.
+      A connected box's lanes join the project tab after your own, with their domain, their ports
+      and the URL that opens each one on this machine. Starting and stopping stays on the box; the
+      pane says what to run there.
     </p>
     <Terminal slot="visual" title="devlanes, lane @1 on my-vps">
-      <pre class="terminal-content terminal-scroll tui-text"><span class="url">devlanes</span>  <span class="dim">1 myapp</span>               <span class="dim">Monitor  Daemon  Boxes</span>
-<span class="dim">lanes</span>  <span class="dim">1 @0 main</span>  <span class="tui-selected"> 2 @1 my-vps </span>     <span class="dim">[ ] switch lanes</span>
-<span class="dim">┌</span> myapp@1  running · 3 up <span class="dim">────────────────</span> <span class="url">on my-vps</span> <span class="dim">┐</span>
-<span class="dim">│</span> <span class="dim">box</span>       my-vps · ssh · devlanes 0.9.2            <span class="dim">│</span>
-<span class="dim">│</span> <span class="dim">domain</span>    myapp1.localhost                         <span class="dim">│</span>
-<span class="dim">│</span> <span class="dim">services</span>  3 of 3 up                                <span class="dim">│</span>
-<span class="dim">│</span> <span class="dim">infra</span>     postgres :20013                          <span class="dim">│</span>
-<span class="dim">│</span> <span class="dim">ports</span>     4 of 4 mirrored here                     <span class="dim">│</span>
-<span class="dim">│</span> <span class="dim">urls</span>      <span class="url">https://api.myapp1.localhost</span>             <span class="dim">│</span>
-<span class="dim">│</span>           <span class="url">https://myapp1.localhost</span>                 <span class="dim">│</span>
-<span class="dim">│</span>                                                    <span class="dim">│</span>
-<span class="dim">│</span> <span class="dim">Read-only here. On my-vps: ssh my-vps, then</span>        <span class="dim">│</span>
-<span class="dim">│</span> <span class="dim">devlanes status myapp@1</span>                            <span class="dim">│</span>
-<span class="dim">└────────────────────────────────────────────────────┘</span>
+      <pre class="terminal-content terminal-scroll tui-text"><span class="url">devlanes</span>  <span class="dim">1 myapp</span>         <span class="dim">Monitor  Daemon  Boxes</span>
+<span class="dim">lanes</span>  <span class="dim">1 @0 main</span>  <span class="tui-selected"> 2 @1 my-vps </span> <span class="dim">[ ] switch lanes</span>
+<span class="dim">┌</span> myapp@1  running · 3 up <span class="dim">──────────</span> <span class="url">on my-vps</span> <span class="dim">┐</span>
+<span class="dim">│</span> <span class="dim">box</span>       my-vps · ssh · devlanes 0.10.0     <span class="dim">│</span>
+<span class="dim">│</span> <span class="dim">domain</span>    myapp1.localhost                   <span class="dim">│</span>
+<span class="dim">│</span> <span class="dim">services</span>  3 of 3 up                          <span class="dim">│</span>
+<span class="dim">│</span> <span class="dim">infra</span>     postgres :20013                    <span class="dim">│</span>
+<span class="dim">│</span> <span class="dim">ports</span>     4 of 4 mirrored here               <span class="dim">│</span>
+<span class="dim">│</span> <span class="dim">urls</span>      <span class="url">https://api.myapp1.localhost</span>       <span class="dim">│</span>
+<span class="dim">│</span>           <span class="url">https://myapp1.localhost</span>           <span class="dim">│</span>
+<span class="dim">│</span>                                              <span class="dim">│</span>
+<span class="dim">│</span> <span class="dim">Read-only here. On my-vps: ssh my-vps,</span>       <span class="dim">│</span>
+<span class="dim">│</span> <span class="dim">then devlanes status myapp@1</span>                 <span class="dim">│</span>
+<span class="dim">└──────────────────────────────────────────────┘</span>
  o <span class="dim">open in browser</span>   [ ] <span class="dim">switch lane</span>   ? <span class="dim">all keys</span></pre>
     </Terminal>
   </Section>
 
-  <Section id="command" title="A box without ssh is reached by a command." reverse>
+  <Section id="command" title="No ssh on the box? A command works too." reverse>
     <p>
       A container, a pod, a WSL distribution or a codespace has no sshd, but each has a command that
-      runs a program inside and passes stdin and stdout through: <code>docker exec</code>,{' '}
-      <code>kubectl exec</code>, <code>wsl.exe</code>, <code>gh codespace ssh</code>. Name the box
-      in your user config with that command and it connects like any ssh host. Pairing works the
-      same way.
-    </p>
-    <p>
-      The command must end in <code>devlanes tunnel --stdio</code> inside the box, and devlanes has
-      to be installed there. There is no ControlMaster: every reconnect runs the command again.
+      runs a program inside it: <code>docker exec</code>, <code>kubectl exec</code>,{' '}
+      <code>wsl.exe</code>, <code>gh codespace ssh</code>. Name the box in your user config with
+      that command and it connects and pairs like any ssh host.
     </p>
     <Terminal slot="visual" title="~/.devlanes/config.yaml">
-      <pre class="terminal-content terminal-scroll"><span class="key">remote</span>:
+      <pre class="terminal-content"><span class="key">remote</span>:
   <span class="key">boxes</span>:
     <span class="key">myapp</span>:
-      <span class="key">command</span>: [docker, exec, -i, myapp, devlanes, tunnel, --stdio]</pre>
+      <span class="key">command</span>:
+        - docker
+        - exec
+        - -i
+        - myapp
+        - devlanes
+        - tunnel
+        - --stdio</pre>
     </Terminal>
-  </Section>
-
-  <Section id="ledger" title="The usual way, and with devlanes." stacked>
-    <p>
-      A dev server on a box was reachable before devlanes. Each way of getting to it either lost the
-      hostname, had to be redone after every sleep, or made public a machine that should not be.
-    </p>
-    <Ledger slot="visual" columns={ledger} />
   </Section>
 
   <PageFoot links={docs} />

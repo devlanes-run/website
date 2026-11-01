@@ -10,14 +10,11 @@ import Terminal from './Terminal.astro';
   more={{ href: '/remote/', label: 'More about remote boxes' }}
 >
   <p>
-    Run the lanes on a remote machine and open them from your laptop's browser or database client.
-    devlanes mirrors the box's hostnames and TCP ports to your laptop over one ssh session, with the
-    same names and the same port numbers.
+    Pair once over ssh. Your laptop's daemon then mirrors the box's hostnames and ports, with the
+    same names and the same numbers, so the URL a service prints on the box is the one you open
+    here, with the certificate you already trust.
   </p>
-  <p>
-    The URL a service prints on the box is the URL you open here, with the certificate you already
-    trust. Nothing is published and the box keeps every port closed.
-  </p>
+  <p>Nothing is published, and the box needs no forwarding enabled.</p>
   <div slot="visual" class="terminal-stack">
     <Terminal title="on my-vps">
       <pre class="terminal-content"><span class="command">$ devlanes daemon pair</span>

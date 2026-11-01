@@ -12,11 +12,10 @@ import Tui from './Tui.astro';
 >
   <p>
     Running <code>devlanes</code> opens a terminal view of every lane in the project, with the state
-    of each service and its live output. The monitor adds CPU and memory per lane, per service and
-    per container, with a minute of history, so you can tell which worktree is using the memory the
-    next one would need.
+    of each service and its live output. The monitor shows CPU and memory per lane, per service and
+    per container, with a minute of history, so you can tell which worktree is eating the memory.
+    Open a unit to read its output, type into it, stop it or restart it.
   </p>
-  <p>Open a unit to read its output, type into it, stop it or restart it.</p>
   <Terminal slot="visual" title="devlanes" class="terminal-tui">
     <Tui />
   </Terminal>
