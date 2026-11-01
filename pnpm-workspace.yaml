@@ -1,5 +1,5 @@
 allowBuilds:
-  '@parcel/watcher': false
+  "@parcel/watcher": false
   esbuild: true
   workerd: true
   sharp: true
@@ -11,4 +11,4 @@ minimumReleaseAgeExclude:
 # browser checks cover this combination, also used by the reference Astro site.
 peerDependencyRules:
   allowedVersions:
-    'astro-slop>astro': '7'
+    "astro-slop>astro": "7"

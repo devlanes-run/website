@@ -14,13 +14,13 @@ Sentence case everywhere. No em dashes, no "A · B · C" strings, no arrows in l
 
 ## Colour and typography
 
-| Token | Light | Dark |
-| --- | --- | --- |
-| Surface | `#f2f2ef` | `#22211e` |
-| Text | `#24231f` | `#f2f0ea` |
-| Muted text | `#63615a` | `#b0ada3` |
-| Border | `#d1cfc7` | `#4c4941` |
-| Paint | `#f5c542` | `#f5c542` |
+| Token       | Light     | Dark      |
+| ----------- | --------- | --------- |
+| Surface     | `#f2f2ef` | `#22211e` |
+| Text        | `#24231f` | `#f2f0ea` |
+| Muted text  | `#63615a` | `#b0ada3` |
+| Border      | `#d1cfc7` | `#4c4941` |
+| Paint       | `#f5c542` | `#f5c542` |
 | Road centre | `#d2ae43` | `#79672f` |
 
 Overpass for everything that is not code: headings in weight 900 with tight letter-spacing (hero `clamp(38px, 5vw, 64px)`, section headings `clamp(28px, 2.9vw, 40px)`), prose 18px/1.6, navigation 600 14px. JetBrains Mono only for code, terminals and the brand. Fonts are self-hosted through Fontsource.
