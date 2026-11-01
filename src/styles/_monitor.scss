@@ -111,3 +111,84 @@
     color: #91c59f;
   }
 }
+
+// The live TUI (src/scripts/monitor.ts). Page controls sit on the page background, like the
+// agent examples.
+.monitor-hint {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 0 14px;
+  padding: 4px 0;
+  background: var(--surface);
+  color: var(--muted);
+  font: 12px/1.6 var(--mono);
+}
+
+.tui-live-viewport {
+  overflow: hidden;
+}
+
+// The TUI gets as many cells as fit in this element, measured with `line-height: normal`, so
+// it is sized in cells of its own font: 120 columns by 40 rows, plus 2px so rounding never
+// drops one. Narrow screens scale it down in scripts/monitor.ts instead of losing columns.
+.tui-live {
+  // The self-hosted JetBrains Mono only covers Latin, so box drawing, blocks and symbols come
+  // from these, which have them at about JetBrains Mono's width on macOS, Linux and Windows.
+  font-family: 'JetBrains Mono', Menlo, 'DejaVu Sans Mono', 'Cascadia Mono', monospace;
+  font-size: 13px;
+  line-height: normal;
+  font-variant-ligatures: none;
+  width: calc(120ch + 2px);
+  height: calc(40lh + 2px);
+  margin: 0 auto;
+  transform-origin: top left;
+  color: var(--terminal-ink);
+  background: var(--terminal);
+
+  // The terminal clips its content, so the ring is drawn inside.
+  &:focus-visible {
+    outline-offset: -3px;
+  }
+
+  pre {
+    margin: 0;
+    font: inherit;
+    // Ratzilla sets each row's height to the cell height it measured, which is already scaled
+    // down on narrow screens, so the scale would apply twice.
+    height: 1lh !important;
+  }
+
+  // One span per cell. Glyphs from the fallback fonts are not exactly 1ch wide, so each cell is
+  // given its width rather than trusting the font to keep the columns aligned.
+  pre > span {
+    display: inline-block;
+    width: 1ch;
+    height: 1lh;
+    vertical-align: top;
+  }
+}
+
+.tui-hint-keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 14px;
+  padding: 4px 0;
+  background: var(--surface);
+
+  button {
+    min-width: 44px;
+    font: 12px var(--mono);
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 10px;
+
+    &:hover {
+      border-color: var(--ink);
+    }
+  }
+}
