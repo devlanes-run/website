@@ -95,8 +95,8 @@ function start(host: HTMLElement): void {
   ramp.minFilter = ramp.magFilter = THREE.NearestFilter;
   ramp.needsUpdate = true;
   const carMat = new THREE.MeshToonMaterial({ color: CHARCOAL, gradientMap: ramp });
-  // the hero's spoiler in orange, which reads against the sign; traffic stays all charcoal
-  const trimMat = new THREE.MeshToonMaterial({ color: 0xe8701a, gradientMap: ramp });
+  // the hero's spoiler in a lighter grey, so it stands out without a second colour
+  const trimMat = new THREE.MeshToonMaterial({ color: 0x8a867c, gradientMap: ramp });
   const isTrim = (o: THREE.Object3D): boolean =>
     /spoiler/.test(o.name) || (o.parent ? isTrim(o.parent) : false);
 
