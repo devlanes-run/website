@@ -93,6 +93,10 @@ function start(host: HTMLElement): void {
   ramp.minFilter = ramp.magFilter = THREE.NearestFilter;
   ramp.needsUpdate = true;
   const carMat = new THREE.MeshToonMaterial({ color: CHARCOAL, gradientMap: ramp });
+  // a few trim parts in the sign's yellow: the hero's spoiler, a grille, a van's door
+  const trimMat = new THREE.MeshToonMaterial({ color: PAINT, gradientMap: ramp });
+  const isTrim = (o: THREE.Object3D): boolean =>
+    /spoiler|grill|door/.test(o.name) || (o.parent ? isTrim(o.parent) : false);
 
   // dashed dividers in black on the yellow, long enough to stream past while the hero drives
   const dash = new THREE.PlaneGeometry(0.12, 1.5);
@@ -131,7 +135,7 @@ function start(host: HTMLElement): void {
         (gltf) => {
           const g = new THREE.Group();
           gltf.scene.traverse((o) => {
-            if (o instanceof THREE.Mesh) o.material = carMat;
+            if (o instanceof THREE.Mesh) o.material = isTrim(o) ? trimMat : carMat;
           });
           const box = new THREE.Box3().setFromObject(gltf.scene);
           const size = box.getSize(new THREE.Vector3());
