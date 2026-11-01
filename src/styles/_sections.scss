@@ -2,17 +2,20 @@
 
 // Every block on the page has an opaque surface, so the road's centre stroke shows only in
 // the gaps between blocks.
+// A block container, not a flex box, so the text-box trim below applies to the label itself.
 .button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 20px 16px;
+  display: inline-block;
+  text-align: center;
+  padding: 15px 20px;
   border: 1px solid var(--line);
   border-radius: 6px;
   background: var(--surface);
   font:
     600 14px/1 'Overpass',
     sans-serif;
+  // Browsers place Overpass's glyphs differently in its line box; trimming the box to the cap
+  // height and the baseline centres the ink itself where supported.
+  text-box: trim-both cap alphabetic;
   text-decoration: none;
 
   &:hover {
