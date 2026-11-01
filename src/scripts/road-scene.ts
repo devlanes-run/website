@@ -27,7 +27,13 @@ const KIT = [
 interface Car {
   g: THREE.Group;
   speed: number;
+  /** The lane's centre; the car wanders a little either side of it. */
+  x: number;
+  /** Two slow sine waves per car, so no two wander alike. */
+  wander: { phase: number; rate: number; phase2: number; rate2: number };
 }
+
+const WANDER = 0.32;
 
 function laneX(lane: number): number {
   return (lane - 1.5) * LANE_W;
@@ -145,7 +151,17 @@ function start(host: HTMLElement): void {
           // models arrive while the hero is already driving, so traffic spawns around it
           g.position.set(laneX(lane), 0, z + (hero ? hero.g.position.z : 0));
           scene.add(g);
-          const car = { g, speed };
+          const car: Car = {
+            g,
+            speed,
+            x: laneX(lane),
+            wander: {
+              phase: Math.random() * Math.PI * 2,
+              rate: 0.35 + Math.random() * 0.35,
+              phase2: Math.random() * Math.PI * 2,
+              rate2: 0.9 + Math.random() * 0.6
+            }
+          };
           cars.push(car);
           resolve(car);
         },
@@ -183,7 +199,8 @@ function start(host: HTMLElement): void {
     const ty = 0.75 + (frac - 0.5) * visibleH;
     // aim between the hero's lane and the idle one, so both side lanes stay in frame
     if (hero) {
-      target.set(hero.g.position.x + (small ? 0 : LANE_W * 0.4), ty, hero.g.position.z - 1);
+      // the lane's centre, not the car's, so the frame holds still while the hero wanders
+      target.set(hero.x + (small ? 0 : LANE_W * 0.4), ty, hero.g.position.z - 1);
     } else {
       target.y = ty;
     }
@@ -229,8 +246,19 @@ function start(host: HTMLElement): void {
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
     const heroZ = hero ? hero.g.position.z : 0;
+    const t = now / 1000;
     for (const c of cars) {
       c.g.position.z -= c.speed * dt;
+      // a slow drift across the lane plus a faster, smaller one; the car steers into it
+      const { phase, rate, phase2, rate2 } = c.wander;
+      const drift =
+        Math.sin(t * rate + phase) * WANDER + Math.sin(t * rate2 + phase2) * (WANDER / 4);
+      const slope =
+        Math.cos(t * rate + phase) * WANDER * rate +
+        Math.cos(t * rate2 + phase2) * (WANDER / 4) * rate2;
+      c.g.position.x = c.x + drift;
+      c.g.rotation.y = -slope / c.speed;
+      c.g.rotation.z = slope * 0.04;
       if (c === hero) continue;
       // beyond the fog nothing is visible, so the loop is short and a car is never gone for long
       if (c.g.position.z < heroZ - 40) c.g.position.z = heroZ + 24 + Math.random() * 8;
