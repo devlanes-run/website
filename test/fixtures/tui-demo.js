@@ -1,21 +1,28 @@
 // Stands in for /tui/devlanes_tui_web.js in test/monitor.test.ts, with the same API as the
-// devlanes-tui-web bundle. Calls are recorded on `window.tuiDemo`; keys listed in
-// `window.tuiDemo.unused` are reported as unused, like the TUI does for keys it ignores.
+// devlanes-tui-web bundle. Calls are recorded on `window.tuiDemo`. Keys listed in
+// `window.tuiDemo.unused` (chords as `Ctrl+<key>`) are reported as unused, like the TUI does for
+// keys it ignores. `window.tuiDemoFail` makes one step fail the way a panic in the real module
+// does: 'init', 'mount', 'key' or 'tick'.
 const calls = {
   inits: 0,
+  constructed: 0,
   mounts: [],
   keys: [],
   ticks: 0,
   frees: 0,
-  unused: ['Tab', 'Shift'],
-  // Set by a test to make `tick` throw, as a panic in the real module does.
-  failTick: false
+  unused: ['Tab', 'Shift', 'Control', 'Ctrl+l']
 };
 window.tuiDemo = calls;
+
+/** Throws when the test asked `step` to fail. */
+function failAt(step) {
+  if (window.tuiDemoFail === step) throw new Error('RuntimeError: unreachable');
+}
 
 /** Resolves like wasm-bindgen's init once the `.wasm` would be loaded. */
 export default async function init() {
   calls.inits += 1;
+  failAt('init');
 }
 
 export class Demo {
@@ -24,6 +31,8 @@ export class Demo {
    * cells the real TUI would get.
    */
   constructor(id) {
+    calls.constructed += 1;
+    failAt('mount');
     const element = document.getElementById(id);
     const probe = document.createElement('pre');
     probe.setAttribute('style', 'margin: 0; padding: 0; border: 0; line-height: normal;');
@@ -46,12 +55,14 @@ export class Demo {
   /** Records the key and reports it as used unless the test listed it in `unused`. */
   key(key, ctrl, alt, shift) {
     calls.keys.push([key, ctrl, alt, shift]);
-    return !calls.unused.includes(key);
+    failAt('key');
+    const name = ctrl && key !== 'Control' ? `Ctrl+${key}` : key;
+    return !calls.unused.includes(name);
   }
 
-  /** Counts a second of the fake daemon's clock, or throws when the test asked for a failure. */
+  /** Counts a second of the fake daemon's clock. */
   tick() {
-    if (calls.failTick) throw new Error('RuntimeError: unreachable');
+    failAt('tick');
     calls.ticks += 1;
   }
 
