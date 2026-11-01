@@ -172,6 +172,10 @@ test('the real TUI bundle draws 120 by 40 cells and opens the monitor', async ({
   await screen.focus();
   await page.keyboard.press('Shift+M');
   await expect(screen).toContainText('units');
+  // Ratzilla rebuilds its grid on a window resize; the screen must come back at once.
+  await page.setViewportSize({ width: 1200, height: 800 });
+  await expect(screen.locator('pre')).toHaveCount(40);
+  await expect(screen).toContainText('units');
   expect(errors).toEqual([]);
 });
 
