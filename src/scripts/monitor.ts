@@ -4,8 +4,8 @@
 
 /** The `Demo` class exported by the devlanes-tui-web bundle. */
 interface Demo {
-  /** Sends a `KeyboardEvent.key`; true when the TUI used it. */
-  key(key: string, ctrl: boolean, alt: boolean, shift: boolean): boolean;
+  /** Sends a `KeyboardEvent.key` with its modifiers; true when the TUI used it. */
+  key(key: string, ctrl: boolean, alt: boolean, shift: boolean, meta: boolean): boolean;
   /** Advances the fake daemon by one second and redraws. */
   tick(): void;
   /** Unmounts the TUI. */
@@ -126,7 +126,7 @@ if (
     // "ResizeObserver loop" error.
     new ResizeObserver(() => requestAnimationFrame(fit)).observe(viewport);
     // The section is about the monitor, so the demo opens on it.
-    guard((demo) => demo.key('M', false, false, true));
+    guard((demo) => demo.key('M', false, false, true, false));
     syncTicks();
   };
 
@@ -139,9 +139,8 @@ if (
   };
 
   container.addEventListener('keydown', (event) => {
-    // Command shortcuts on macOS belong to the browser.
-    if (event.metaKey) return;
-    // So does copying text selected inside the demo.
+    // Copying text selected inside the demo belongs to the browser; the module leaves Command
+    // shortcuts to it too, from the Meta flag.
     const selection = window.getSelection();
     if (
       event.ctrlKey &&
@@ -155,7 +154,13 @@ if (
     // AltGr arrives as Ctrl+Alt on Windows, but it types a character, not a chord.
     const altGraph = event.getModifierState('AltGraph');
     const used = guard((demo) =>
-      demo.key(event.key, event.ctrlKey && !altGraph, event.altKey && !altGraph, event.shiftKey)
+      demo.key(
+        event.key,
+        event.ctrlKey && !altGraph,
+        event.altKey && !altGraph,
+        event.shiftKey,
+        event.metaKey
+      )
     );
     if (used) event.preventDefault();
   });
@@ -163,7 +168,7 @@ if (
   for (const button of live.querySelectorAll<HTMLButtonElement>('[data-key]')) {
     button.addEventListener('click', () => {
       guard((demo) =>
-        demo.key(button.dataset.key ?? '', false, false, button.dataset.shift === 'true')
+        demo.key(button.dataset.key ?? '', false, false, button.dataset.shift === 'true', false)
       );
       container.focus({ preventScroll: true });
     });

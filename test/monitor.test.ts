@@ -14,6 +14,8 @@ interface Calls {
   constructed: number;
   mounts: { id: string; columns: number; rows: number }[];
   keys: [string, boolean, boolean, boolean][];
+  /** Keys sent with the Meta flag, which the module refuses. */
+  metaKeys: string[];
   ticks: number;
 }
 
@@ -179,9 +181,10 @@ test('leaves browser shortcuts and refused chords to the page', async ({ page })
   });
   await screen.focus();
 
-  // Command shortcuts never reach the module.
+  // Command shortcuts reach the module with the Meta flag, which refuses them.
   await page.keyboard.press('Meta+j');
   expect((await calls(page)).keys).toEqual([opening]);
+  expect((await calls(page)).metaKeys).toEqual(['Meta', 'j']);
 
   // A chord the module refuses keeps its browser behaviour.
   await page.keyboard.press('Control+l');

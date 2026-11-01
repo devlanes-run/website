@@ -8,6 +8,7 @@ const calls = {
   constructed: 0,
   mounts: [],
   keys: [],
+  metaKeys: [],
   ticks: 0,
   frees: 0,
   unused: ['Tab', 'Shift', 'Control', 'Ctrl+l']
@@ -52,8 +53,15 @@ export class Demo {
     element.textContent = 'devlanes live demo';
   }
 
-  /** Records the key and reports it as used unless the test listed it in `unused`. */
-  key(key, ctrl, alt, shift) {
+  /**
+   * Records the key and reports it as used unless the test listed it in `unused`. Meta chords
+   * are recorded apart and refused, as the real module leaves them to the browser.
+   */
+  key(key, ctrl, alt, shift, meta) {
+    if (meta) {
+      calls.metaKeys.push(key);
+      return false;
+    }
     calls.keys.push([key, ctrl, alt, shift]);
     failAt('key');
     const name = ctrl && key !== 'Control' ? `Ctrl+${key}` : key;
