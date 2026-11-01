@@ -1,14 +1,26 @@
 ---
+import Install from './Install.astro';
 import Mark from './Mark.astro';
 ---
 
-<section class="closing copy" aria-labelledby="closing-title">
+<section class="closing" aria-labelledby="closing-title">
   <Mark size={48} />
   <h2 id="closing-title">Run your first lane</h2>
   <p>
-    Install devlanes and describe your stack in <code>devlanes.yaml</code>.
+    Install devlanes, describe your stack in a <code>devlanes.yaml</code> at the root of the
+    repository, run <code>devlanes start</code>.
   </p>
-  <a class="button primary" href="#install">
-    Install devlanes
-  </a>
+  <Install />
+  <div class="closing-facts">
+    <p>
+      devlanes is in beta. Apache-2.0, written in Rust, for macOS, Linux and Windows 11. It runs
+      Node, Bun, Deno, Python and Rust services, with presets for Vite, Next, Wrangler and Tauri,
+      and Compose files or plain containers as infra.
+    </p>
+    <p>
+      Lanes keep ports, hostnames and data apart; they are not a sandbox, every process runs as you.
+      A crashed service stays stopped until you start it again. A remote connection mirrors TCP only
+      and never runs commands on the box.
+    </p>
+  </div>
 </section>

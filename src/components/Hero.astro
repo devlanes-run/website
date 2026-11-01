@@ -1,83 +1,27 @@
 ---
-import { domain, lanes, total } from '../data/demo';
-import Install from './Install.astro';
-import Terminal from './Terminal.astro';
+import RoadScene from './RoadScene.astro';
 ---
 
+<RoadScene />
 <section class="hero" aria-labelledby="hero-title">
-  <h1 id="hero-title">
-    <span>Sandboxes for your agents.</span> <span>localhost for you.</span>
-  </h1>
-  <p class="intro">
-    Run multiple copies of your development stack locally or on a remote machine, and access each
-    through localhost.
+  <h1 id="hero-title">Run every worktree at once, each on its own localhost.</h1>
+  <p class="hero-lede">
+    <strong>Stop fighting over port 3000.</strong>
+    devlanes runs your dev stack once per Git worktree. Each one gets its own ports, its own{' '}
+    <code>https://myapp1.localhost</code> and its own database, and a daemon keeps it running after
+    you close the terminal.
   </p>
-  <Install />
-  <div class="actions">
-    <a
-      class="button"
-      href="https://github.com/devlanes-run/devlanes/tree/main/docs"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
+  <div class="hero-actions">
+    <a class="button primary" href="#install">
+      Install devlanes
+    </a>
+    <a class="button" href="/docs/">
       Read the docs
     </a>
-    <a class="button" href="#lanes">
-      About lanes
-    </a>
   </div>
-  <Terminal title="devlanes / myapp">
-    <p class="terminal-line command">$ devlanes status</p>
-    <div
-      class="table-scroll"
-      role="region"
-      aria-label="Example lanes, scroll horizontally for all columns"
-      tabindex="0"
-    >
-      <table class="lane-table">
-        <caption>myapp</caption>
-        <thead>
-          <tr>
-            <th>LANE</th>
-            <th>BRANCH</th>
-            <th>STATE</th>
-            <th>SERVICES</th>
-            <th>CPU</th>
-            <th>MEM</th>
-            <th>URL</th>
-          </tr>
-        </thead>
-        <tbody>
-          {lanes.map(({ index, branch, units }) => (
-            <tr>
-              <td>
-                <span class={`lane-mark lane-${index}`} />
-                {index}
-              </td>
-              <th scope="row">{branch}</th>
-              {units.length ? (
-                <>
-                  <td class="state-ready">running</td>
-                  <td>
-                    {units.length}/{units.length}
-                  </td>
-                  <td>{total(units, 'cpu').toFixed(1)}%</td>
-                  <td>{total(units, 'mem').toFixed(1)} MiB</td>
-                </>
-              ) : (
-                <>
-                  <td class="tui-dim">idle</td>
-                  <td>–</td>
-                  <td>–</td>
-                  <td>–</td>
-                </>
-              )}
-              <td>https://{domain(index)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </Terminal>
-  <p class="caption">Each lane has its own ports, hostnames and data.</p>
+  <p class="hero-facts">
+    An open source command line tool for your own machine. Apache-2.0, written in Rust. Nothing to
+    sign up for and nothing hosted.
+  </p>
 </section>
+<span class="sign-credit">Car models by Kenney, CC0</span>

@@ -2,9 +2,11 @@
 @use 'base';
 @use 'layout';
 @use 'header';
+@use 'hero';
+@use 'scene';
 @use 'sections';
 @use 'terminal';
-@use 'agent';
-@use 'monitor';
-@use 'responsive';
+@use 'tui';
 @use 'install';
+@use 'pages';
+@use 'responsive';

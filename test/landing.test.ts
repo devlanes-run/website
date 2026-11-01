@@ -4,26 +4,33 @@ test.beforeEach(async ({ page }) => {
   await page.route('https://metrics.arthur.one/**', (route) => route.fulfill({ body: '' }));
 });
 
-test('product content, themes and agent examples', async ({ page }) => {
+test('product content, themes and anchors', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-    'Sandboxes for your agents. localhost for you.'
+    'Run every worktree at once, each on its own localhost.'
   );
+  await expect(page.locator('.hero')).toContainText('Stop fighting over port 3000.');
+  await expect(page.locator('.hero-facts')).toContainText('open source');
   await expect(page.getByRole('note')).toContainText('not ready for production use');
-  await expect(page.locator('.preview-label')).toHaveCount(0);
   await expect(page.locator('.site-header #motion')).toHaveCount(0);
   await expect(page.locator('#theme svg')).toHaveCount(2);
   await expect(page.locator('.github-link svg')).toHaveCount(1);
-  await page.getByRole('button', { name: 'Read the logs' }).click();
-  await expect(page.locator('#agent-logs')).toBeVisible();
-  await expect(page.locator('#agent-start')).toBeHidden();
-  await page.getByRole('button', { name: 'Clean up', exact: true }).click();
-  await expect(page.locator('#agent-clean')).toContainText('cleaned myapp@1');
-  await page.getByRole('button', { name: 'Run the tests', exact: true }).click();
-  await expect(page.locator('#agent-with')).toContainText('devlanes with');
-  await expect(page.locator('#agent-clean')).toBeHidden();
+  // The sign holds the road scene; the install control lives at the foot of the page.
+  await expect(page.locator('.sign [data-road-scene]')).toHaveCount(1);
+  await expect(page.locator('.sign #install')).toHaveCount(0);
+  await expect(page.locator('.closing #install')).toHaveCount(1);
+  // Every fold links to its own page.
+  for (const [id, href] of [
+    ['lanes', '/lanes/'],
+    ['remote', '/remote/'],
+    ['agents', '/agents/']
+  ] as const) {
+    await expect(page.locator(`#${id} a.more`)).toHaveAttribute('href', href);
+  }
+  await expect(page.locator('.lane-table')).toContainText('https://myapp1.localhost');
+  await expect(page.locator('body')).not.toContainText('myapp-1.localhost');
   await page.locator('#theme').click();
   const theme = await page.locator('html').getAttribute('data-theme');
   await page.reload();
@@ -41,45 +48,35 @@ test('product content, themes and agent examples', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-test('traffic alignment, pause, parallax and reduced motion', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/');
-  const vehicle = page.locator('.vehicle').nth(1);
-  await expect(vehicle).toHaveAttribute('style', /translateY/);
-  const initial = await vehicle.getAttribute('style');
-  await expect.poll(() => vehicle.getAttribute('style')).not.toBe(initial);
-  await page.locator('#motion').click();
-  const paused = await vehicle.getAttribute('style');
-  await page.waitForTimeout(150);
-  expect(await vehicle.getAttribute('style')).toBe(paused);
-  await page.locator('#motion').click();
-  await page.evaluate(() => window.scrollTo(0, 600));
-  await expect
-    .poll(() =>
-      page
-        .locator('[data-road]')
-        .evaluate((el) => (el as HTMLElement).style.getPropertyValue('--road-scroll'))
-    )
-    .toBe('-44px');
-  for (const width of [390, 1280, 1440, 1920]) {
-    await page.setViewportSize({ width, height: 1000 });
-    await expect
-      .poll(() =>
-        page.locator('.vehicle').evaluateAll((vehicles) => {
-          const lane = Number.parseFloat(
-            getComputedStyle(document.documentElement).getPropertyValue('--lane-width')
-          );
-          return vehicles.every((el) => {
-            const rect = el.getBoundingClientRect();
-            const offset = Math.abs(
-              rect.left + rect.width / 2 - document.documentElement.clientWidth / 2
-            );
-            return Math.abs((offset % lane) - lane / 2) < 1;
-          });
-        })
-      )
-      .toBe(true);
+test('feature pages share the layout and link back', async ({ page }) => {
+  for (const [path, title] of [
+    ['/lanes/', 'Lanes'],
+    ['/remote/', 'Remote boxes'],
+    ['/agents/', 'Coding agents']
+  ] as const) {
+    await page.goto(path);
+    await expect(page).toHaveTitle(`${title} | devlanes`);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      `https://devlanes.run${path}`
+    );
+    await expect(page.locator('.site-header nav a[aria-current="page"]')).toHaveAttribute(
+      'href',
+      path
+    );
+    await expect(page.locator('.sign')).toHaveCount(0);
+    await expect(page.locator('#install')).toHaveCount(1);
   }
+});
+
+test('motion pauses and honours reduced motion', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('html')).toHaveAttribute('data-motion', 'running');
+  await page.locator('#motion').click();
+  await expect(page.locator('#motion')).toHaveText('Play motion');
+  await expect(page.locator('html')).toHaveAttribute('data-motion', 'paused');
+  await page.locator('#motion').click();
+  await expect(page.locator('html')).toHaveAttribute('data-motion', 'running');
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect(page.locator('#motion')).toHaveText('Play motion');
   await expect(page.locator('html')).toHaveAttribute('data-motion', 'paused');
@@ -89,11 +86,14 @@ test('mobile has no page-wide overflow and remains usable without JavaScript', a
   browser,
   page
 }) => {
-  await page.setViewportSize({ width: 320, height: 812 });
+  for (const path of ['/', '/lanes/', '/remote/', '/agents/']) {
+    await page.setViewportSize({ width: 320, height: 812 });
+    await page.goto(path);
+    await expect
+      .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
+      .toBe(true);
+  }
   await page.goto('/');
-  await expect
-    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
-    .toBe(true);
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Skip to content' })).toBeFocused();
   const context = await browser.newContext({ javaScriptEnabled: false });
@@ -102,11 +102,9 @@ test('mobile has no page-wide overflow and remains usable without JavaScript', a
   await expect(staticPage.getByRole('heading', { level: 1 })).toBeVisible();
   await expect(
     staticPage.getByRole('link', { name: 'Read the docs', exact: true })
-  ).toHaveAttribute('href', 'https://github.com/devlanes-run/devlanes/tree/main/docs');
+  ).toHaveAttribute('href', '/docs/');
   await expect(staticPage.locator('#install-npm')).toContainText('npm install -g devlanes');
-  await expect(staticPage.locator('#agent-start')).toBeVisible();
-  await expect(staticPage.locator('#agent-with')).toBeHidden();
-  await expect(staticPage.getByRole('group', { name: 'Agent workflow examples' })).toBeHidden();
+  await expect(staticPage.locator('[data-tui-static]')).toBeVisible();
   await expect(staticPage.locator('#motion')).toBeHidden();
   await context.close();
 });

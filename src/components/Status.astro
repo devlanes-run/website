@@ -1,0 +1,67 @@
+---
+import { domain, lanes, total } from '../data/demo';
+import Terminal from './Terminal.astro';
+---
+
+<section class="status" aria-labelledby="status-title">
+  <div class="status-copy">
+    <h2 id="status-title">One repository, four worktrees, three of them running.</h2>
+    <p>
+      Each worktree is a <strong>lane</strong>: a running copy of the stack with its own ports,
+      hostnames and data. Lane 2 is idle, so its ports and database are kept and nothing runs.
+    </p>
+  </div>
+  <Terminal title="devlanes status">
+    <p class="terminal-line command">$ devlanes status</p>
+    <div
+      class="table-scroll"
+      role="region"
+      aria-label="Example lanes, scroll horizontally for all columns"
+      tabindex="0"
+    >
+      <table class="lane-table">
+        <caption>myapp</caption>
+        <thead>
+          <tr>
+            <th>LANE</th>
+            <th>BRANCH</th>
+            <th>STATE</th>
+            <th>SERVICES</th>
+            <th>CPU</th>
+            <th>MEM</th>
+            <th>URL</th>
+          </tr>
+        </thead>
+        <tbody>
+          {lanes.map(({ index, branch, units }) => (
+            <tr>
+              <td>
+                <span class={`lane-mark lane-${index}`} />
+                {index}
+              </td>
+              <th scope="row">{branch}</th>
+              {units.length ? (
+                <>
+                  <td class="success">running</td>
+                  <td>
+                    {units.length}/{units.length}
+                  </td>
+                  <td>{total(units, 'cpu').toFixed(1)}%</td>
+                  <td>{total(units, 'mem').toFixed(1)} MiB</td>
+                </>
+              ) : (
+                <>
+                  <td class="dim">idle</td>
+                  <td class="dim">-</td>
+                  <td class="dim">-</td>
+                  <td class="dim">-</td>
+                </>
+              )}
+              <td>https://{domain(index)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </Terminal>
+</section>

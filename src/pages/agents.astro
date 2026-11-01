@@ -1,0 +1,146 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import Section from '../components/Section.astro';
+import Terminal from '../components/Terminal.astro';
+import PageHead from '../components/pages/PageHead.astro';
+import PageFoot from '../components/pages/PageFoot.astro';
+
+const docs = [
+  { href: '/docs/getting-started/#coding-agents', label: 'Coding agents in getting started' },
+  {
+    href: 'https://github.com/devlanes-run/devlanes/tree/main/agent-plugin',
+    label: 'The agent plugin on GitHub'
+  },
+  { href: '/docs/reference/cli/', label: 'CLI reference' },
+  { href: '/docs/security/', label: 'Security' }
+];
+---
+
+<SiteLayout
+  title="Coding agents"
+  description="A coding agent starts a lane for its branch with the same devlanes commands you use. The daemon owns the processes, so the agent's shell can end and nothing dies, and the plugin refuses backgrounded dev servers."
+  path="/agents/"
+  current="agents"
+>
+  <PageHead title="Give your agent a lane. The daemon keeps it running.">
+    <p>
+      Close the terminal, the lane keeps running. That is also why a coding agent can use it: no{' '}
+      <code>pnpm dev &amp;</code>, no saved PIDs, no lost logs. An agent starts a stack for its
+      changes with the commands you use yourself and hands you a localhost URL to test.
+    </p>
+  </PageHead>
+
+  <Section
+    id="daemon"
+    title="The agent's shell is a client. The daemon owns the processes."
+    stacked
+  >
+    <p>
+      When devlanes detects an agent it prints terse output, failures first, within a byte budget.
+      The shell call returns as soon as the lane is ready; the services belong to the daemon and
+      keep running when the agent's session ends.
+    </p>
+    <p>
+      An hour later, <code>devlanes status</code> in your own terminal shows the agent's lane next
+      to yours, with what it costs. Nothing restarts a crashed service on its own: a failed unit
+      stays failed until something starts it again, and its log is still there.
+    </p>
+    <div slot="visual" class="terminal-stack">
+      <Terminal title="agent session · ~/dev/myapp-perf">
+        <pre class="terminal-content terminal-scroll"><span class="dim">agent&gt;</span> devlanes start
+myapp@3 (agent/perf): 3/3 ready
+<span class="success">ready</span> api    http://127.0.0.1:20030  <span class="url">https://api.myapp3.localhost</span>
+<span class="success">ready</span> web    http://127.0.0.1:20031  <span class="url">https://myapp3.localhost</span>
+<span class="success">ready</span> worker http://127.0.0.1:20032</pre>
+      </Terminal>
+      <Terminal title="your terminal, later">
+        <pre class="terminal-content terminal-scroll"><span class="command">$ devlanes status</span>
+<span class="url">myapp</span>
+  <span class="dim">LANE  BRANCH         STATE    SERVICES  CPU    MEM        URL</span>
+  0     main           <span class="success">running</span>  3/3       9.0%   286.0 MiB  https://myapp.localhost
+  1     feat/checkout  <span class="success">running</span>  3/3       12.6%  341.0 MiB  https://myapp1.localhost
+  2     fix/login      <span class="dim">idle     –         –      –</span>          https://myapp2.localhost
+  3     agent/perf     <span class="success">running</span>  3/3       38.4%  513.0 MiB  https://myapp3.localhost</pre>
+      </Terminal>
+    </div>
+  </Section>
+
+  <Section id="plugin" title="The plugin refuses a dev server started in the background.">
+    <p>
+      The Claude Code and Codex plugin adds a skill that teaches the CLI and a hook that runs before
+      every Bash and PowerShell call. The hook blocks a command that is detached, looks like a dev
+      server and runs where a <code>devlanes.yaml</code> is. A detached{' '}
+      <code>devlanes logs api -f &amp;</code> passes.
+    </p>
+    <p>
+      The message the agent reads says what to run instead, and how to check on it afterwards. The
+      hook is devlanes itself, so it needs the binary on the agent's <code>PATH</code> and nothing
+      else.
+    </p>
+    <Terminal slot="visual" title="agent session · ~/dev/myapp-perf">
+      <pre class="terminal-content terminal-wrap"><span class="command">$ claude plugin marketplace add devlanes-run/devlanes</span>
+<span class="command">$ claude plugin install devlanes@devlanes</span>
+
+<span class="dim">agent&gt;</span> pnpm dev &amp;
+<span class="failure">Blocked by the devlanes plugin:</span> this starts a long-running process in the background, where nothing supervises it and its logs are lost.
+Use instead:
+  devlanes start [UNIT...]               services defined in devlanes.yaml
+  devlanes exec --name NAME -- COMMAND   any other long-running command
+Then check it with `devlanes wait NAME --timeout 180s` and `devlanes logs NAME --tail 100`.</pre>
+    </Terminal>
+  </Section>
+
+  <Section id="mine" title="One lane per agent, and only its own to stop." reverse>
+    <p>
+      An agent working on <code>agent/perf</code> gets lane 3. Your <code>main</code> keeps lane 0
+      and its own database, and two agents on two worktrees never share one. The daemon records what
+      each agent session started.
+    </p>
+    <p>
+      <code>devlanes stop --mine</code> stops only those units, across every lane, and leaves yours
+      alone. The lane's ports and data stay until <code>devlanes lane clean</code> or until the
+      worktree is removed.
+    </p>
+    <Terminal slot="visual" title="agent session · ~/dev/myapp-perf">
+      <pre class="terminal-content"><span class="dim">agent&gt;</span> devlanes stop --mine
+stopped myapp@3:api
+stopped myapp@3:web
+stopped myapp@3:worker</pre>
+    </Terminal>
+  </Section>
+
+  <Section id="tests" title="Tests run against the lane, then it is put back.">
+    <p>
+      <code>devlanes with</code> starts the lane, runs the command with the lane's URLs in its
+      environment, stops what it started and exits with the command's code. The tests read their
+      base URL from <code>DEVLANES_PUBLIC_URL_WEB</code>, so the same line runs in CI, where
+      devlanes also starts and stops the daemon.
+    </p>
+    <Terminal slot="visual" title="agent session · ~/dev/myapp-perf">
+      <pre class="terminal-content"><span class="dim">agent&gt;</span> devlanes with -- pnpm test:e2e
+myapp@3 (agent/perf): 3/3 ready
+  42 passed (38.2s)</pre>
+    </Terminal>
+  </Section>
+
+  <Section id="box" title="An agent on a box. The URL it prints there opens here." reverse>
+    <p>
+      Put the agent on a VPS or in a container, connect to that box from your laptop, and the
+      hostname the agent prints is the one you open, with your own certificate. On the box,{' '}
+      <code>devlanes url print</code> adds a line per connected client saying what opens there.
+    </p>
+    <p>
+      Lanes are not a sandbox: every process runs as you, with your permissions. If you want an
+      agent contained, give it a container or a VM, run devlanes inside it, and connect to that box.
+      A devlanes command that finds itself in an agent's sandbox refuses to start a daemon of its
+      own; <code>devlanes daemon install</code> once outside it is the fix.
+    </p>
+    <Terminal slot="visual" title="on my-vps">
+      <pre class="terminal-content"><span class="command">$ devlanes url print web</span>
+<span class="url">https://myapp3.localhost</span>
+on laptop: <span class="url">https://myapp3.localhost</span></pre>
+    </Terminal>
+  </Section>
+
+  <PageFoot links={docs} />
+</SiteLayout>

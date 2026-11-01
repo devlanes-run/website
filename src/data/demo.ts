@@ -50,8 +50,7 @@ export const lanes: Lane[] = [
   }
 ];
 
-export const domain = (lane: number) =>
-  lane === 0 ? 'myapp.localhost' : `myapp-${lane}.localhost`;
+export const domain = (lane: number) => (lane === 0 ? 'myapp.localhost' : `myapp${lane}.localhost`);
 
 export const total = (units: Unit[], key: 'cpu' | 'mem') =>
   units.reduce((sum, item) => sum + item[key], 0);

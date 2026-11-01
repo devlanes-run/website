@@ -1,33 +1,21 @@
-.hero {
-  padding: 78px 0 0;
-  text-align: center;
-}
+@use 'tokens';
 
-.intro {
-  max-width: 630px;
-  margin: 0 auto;
-  background: var(--surface);
-  color: var(--muted);
-  padding: 8px 14px;
-  font-size: 20px;
-}
-
-.actions {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin: 28px 0 52px;
-}
-
+// Every block on the page has an opaque surface, so the road's centre stroke shows only in
+// the gaps between blocks.
+// A block container, not a flex box, so the text-box trim below applies to the label itself.
 .button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 20px;
+  display: inline-block;
+  text-align: center;
+  padding: 15px 20px;
   border: 1px solid var(--line);
-  border-radius: 5px;
+  border-radius: 6px;
   background: var(--surface);
-  font: 13px/1.5 var(--mono);
+  font:
+    600 14px/1 'Overpass',
+    sans-serif;
+  // Browsers place Overpass's glyphs differently in its line box; trimming the box to the cap
+  // height and the baseline centres the ink itself where supported.
+  text-box: trim-both cap alphabetic;
   text-decoration: none;
 
   &:hover {
@@ -46,86 +34,157 @@
   }
 }
 
-.caption {
-  display: table;
-  margin: 20px auto 0;
+// The status table right under the sign.
+.status {
+  margin: 28px auto 0;
+  max-width: 980px;
+}
+
+.status-copy {
+  max-width: 640px;
+  margin: 0 auto 28px;
+  padding: 10px 16px;
   background: var(--surface);
-  color: var(--muted);
-  font-size: 13px;
-  padding: 4px 10px;
+  text-align: center;
+
+  h2 {
+    margin-bottom: 14px;
+  }
+
+  p {
+    margin: 0;
+    color: var(--muted);
+  }
+
+  strong {
+    color: var(--ink);
+  }
 }
 
-.feature {
-  padding-top: 128px;
-  scroll-margin-top: 20px;
-}
-
-.split {
+// Folds: copy beside a visual, each roughly a screen tall.
+.fold {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  gap: 64px;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: 72px;
   align-items: center;
+  margin-top: 170px;
+  scroll-margin-top: 24px;
 }
 
-.copy {
+.fold-reverse .fold-copy {
+  order: 2;
+}
+
+.fold-stacked {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 40px;
+
+  .fold-copy {
+    max-width: 760px;
+  }
+}
+
+.fold-copy {
+  padding: 16px 0;
   background: var(--surface);
-  padding: 10px 0;
 
   p {
     color: var(--muted);
+    font-size: 18px;
+  }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.86em;
+    color: var(--ink);
   }
 }
 
-.text-link {
-  font-size: 15px;
+.fold-visual {
+  min-width: 0;
 }
 
-.section-heading {
-  max-width: 710px;
-  margin-bottom: 36px;
+.more {
+  display: inline-block;
+  margin-top: 6px;
+  font:
+    600 15px 'Overpass',
+    sans-serif;
+  color: var(--ink);
+  text-decoration-color: var(--paint);
+  text-decoration-thickness: 2px;
 
-  p:last-child {
-    margin-bottom: 0;
+  &:hover {
+    text-decoration-color: var(--ink);
   }
-}
-
-.lane-details {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 40px;
-
-  article {
-    border-top: 2px dashed var(--line);
-    padding-top: 24px;
-  }
-
-  p {
-    font-size: 17px;
-  }
-}
-
-.example {
-  display: block;
-  font: 12px/1.9 var(--mono);
-  border-left: 3px solid var(--paint);
-  padding-left: 14px;
-}
-
-.small {
-  font-size: 14px;
 }
 
 .closing {
   text-align: center;
-  max-width: 650px;
-  margin: 120px auto 100px;
+  max-width: 820px;
+  margin: 180px auto 100px;
   padding: 24px;
+  background: var(--surface);
+  scroll-margin-top: 24px;
 
   h2 {
     margin-top: 16px;
   }
 
-  p {
+  > p {
     font-size: 18px;
+    color: var(--muted);
+    max-width: 52ch;
+    margin: 0 auto 8px;
+  }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.86em;
+    color: var(--ink);
+  }
+}
+
+.closing-facts {
+  max-width: 62ch;
+  margin: 40px auto 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+
+  p {
+    margin: 0 0 12px;
+  }
+}
+
+@media (max-width: tokens.$tablet-width) {
+  .fold {
+    gap: 40px;
+    margin-top: 130px;
+  }
+}
+
+@media (max-width: tokens.$mobile-width) {
+  .status {
+    margin-top: 10px;
+  }
+
+  .fold {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+    margin-top: 96px;
+  }
+
+  .fold-reverse .fold-copy {
+    order: 0;
+  }
+
+  .fold-copy p {
+    font-size: 17px;
+  }
+
+  .closing {
+    margin: 110px auto 50px;
+    padding: 20px 0;
   }
 }

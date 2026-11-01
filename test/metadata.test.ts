@@ -4,19 +4,20 @@ test('generated crawler documents and assets are available', async ({ request })
   const markdown = await request.get('/index.md');
   expect(markdown.ok()).toBe(true);
   const content = await markdown.text();
-  expect(content).toContain('Sandboxes for your agents. localhost for you.');
+  expect(content).toContain('Run every worktree at once, each on its own localhost.');
   expect(content).not.toContain('not ready to use');
   expect(content).toContain('npm install -g devlanes');
-  expect(content).toContain('devlanes lane new --name review');
+  expect(content).toContain('git worktree add ../myapp-checkout -b feat/checkout');
   expect(content).not.toContain('astro-slop: fetch');
   const llms = await request.get('/llms.txt');
   expect(await llms.text()).toContain('/index.md');
   const full = await request.get('/llms-full.txt');
-  expect(await full.text()).toContain('security boundary');
+  expect(await full.text()).toContain('not a sandbox');
   const sitemap = await request.get('/sitemap-0.xml');
   const urls = await sitemap.text();
   expect(urls).toContain('https://devlanes.run/');
   expect(urls).toContain('https://devlanes.run/docs/');
+  expect(urls).toContain('https://devlanes.run/lanes/');
   for (const name of ['schema.json', 'user-schema.json']) {
     const path = `/v1/${name}`;
     const id = `https://devlanes.run${path}`;

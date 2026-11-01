@@ -17,4 +17,5 @@ coverage/
 /public/v1/user-schema.json
 /public/install.sh
 /public/install.ps1
+/public/tui/
 /src/content/docs/

@@ -1,11 +1,12 @@
-// Brings published content from source repositories into the build: docs, JSON Schemas and
-// the installer all come from one checkout of the same release tag.
+// Brings published content from source repositories into the build: docs, JSON Schemas, the
+// installer and release assets all come from the same release tag.
 import { execFile } from 'node:child_process';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { gunzipSync } from 'node:zlib';
 import { historyDates, importDocs } from './sync-docs.mjs';
 
 const run = promisify(execFile);
@@ -26,6 +27,21 @@ export const sources = [
       ['install.sh', 'install.sh'],
       // Optional until a release includes it: 0.3.0 and earlier have no Windows installer.
       ['install.ps1', 'install.ps1', { optional: true }]
+    ],
+    // Release archives unpacked into public/<target>/. When `dirEnv` is set, its directory of
+    // unpacked files is used instead, for any ref, so previews can try a local build.
+    assets: [
+      // The TUI built for the browser, shown live by the monitor section. Optional until a
+      // release includes it.
+      [
+        'devlanes-tui-web.tar.gz',
+        'tui',
+        {
+          optional: true,
+          dirEnv: 'DEVLANES_TUI_DIR',
+          requires: ['devlanes_tui_web.js', 'devlanes_tui_web_bg.wasm']
+        }
+      ]
     ]
   }
 ];
@@ -77,6 +93,99 @@ export function validateFile(name, content) {
   }
 }
 
+/** Download URL of an asset attached to the GitHub release of `tag`. */
+export function assetUrl(repository, tag, name) {
+  return `https://github.com/${repository}/releases/download/${encodeURIComponent(tag)}/${encodeURIComponent(name)}`;
+}
+
+/**
+ * Reads the regular files of an uncompressed tar archive. Release archives keep their files at
+ * the root, so anything nested is refused rather than written outside the target directory.
+ */
+export function untar(archive) {
+  const files = new Map();
+  let offset = 0;
+  while (offset + 512 <= archive.length) {
+    const header = archive.subarray(offset, offset + 512);
+    if (header.every((byte) => byte === 0)) break;
+    /** A NUL-terminated header field, as text. */
+    const field = (start, length) =>
+      header
+        .subarray(start, start + length)
+        .toString('utf8')
+        .replace(/\0.*$/s, '');
+    const size = Number.parseInt(field(124, 12).trim() || '0', 8);
+    // Only POSIX ustar headers carry a name prefix; GNU tar keeps other data in those bytes.
+    const prefix = field(257, 6) === 'ustar' ? field(345, 155) : '';
+    const name = (prefix ? `${prefix}/${field(0, 100)}` : field(0, 100)).replace(/^(\.\/)+/, '');
+    const type = field(156, 1) || '0';
+    offset += 512;
+    if (!Number.isSafeInteger(size) || size < 0 || offset + size > archive.length) {
+      throw new Error(`Truncated or corrupt archive entry: ${name}`);
+    }
+    if (type === '0') {
+      // Plain names only: no separators, drive letters (`C:x`), streams (`a:b`) or dotfiles.
+      if (!/^[\w-][\w.-]*$/.test(name)) throw new Error(`Unexpected path in archive: ${name}`);
+      files.set(name, archive.subarray(offset, offset + size));
+    }
+    // Directory entries such as `./` and pax or GNU metadata headers carry no file to publish.
+    offset += Math.ceil(size / 512) * 512;
+  }
+  return files;
+}
+
+// Every WebAssembly binary starts with `\0asm`; an HTML error page or a broken build does not.
+const wasmMagic = Buffer.from([0x00, 0x61, 0x73, 0x6d]);
+
+/** Checks the files of an unpacked asset before they are published. */
+export function validateAsset(name, files, requires = []) {
+  for (const file of requires) {
+    if (!files.has(file)) throw new Error(`${name} has no ${file}`);
+  }
+  for (const [file, content] of files) {
+    if (file.endsWith('.wasm') && !Buffer.from(content).subarray(0, 4).equals(wasmMagic)) {
+      throw new Error(`${name}: ${file} is not a WebAssembly module`);
+    }
+  }
+}
+
+/**
+ * Files of an asset for a ref, or null when the ref has none. The directory in `dirEnv` wins
+ * whenever it is set; otherwise the release of `ref` provides the archive, and a local checkout
+ * has none.
+ */
+export async function fetchAsset(source, asset, ref, env = process.env, fetcher = fetch) {
+  const [name, , { dirEnv } = {}] = asset;
+  const directory = dirEnv && env[dirEnv];
+  if (directory) {
+    const files = new Map();
+    for (const entry of await readdir(resolve(directory), { withFileTypes: true })) {
+      if (entry.isFile()) files.set(entry.name, await readFile(join(entry.parentPath, entry.name)));
+    }
+    return files;
+  }
+  if (ref === 'local') return null;
+  // No token: the repository is public, and github.com release downloads ignore it anyway.
+  const response = await fetcher(assetUrl(source.repository, ref, name), {
+    signal: AbortSignal.timeout(30_000)
+  });
+  // Releases published before the asset existed answer 404.
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error(`Download of ${name} for ${ref} failed: ${response.status}`);
+  return untar(gunzipSync(Buffer.from(await response.arrayBuffer())));
+}
+
+/**
+ * Replaces the contents of `directory` with `files`, or removes it when `files` is null. It is
+ * cleared either way, so files from another ref never stay behind.
+ */
+export async function publishAsset(directory, files) {
+  await rm(directory, { recursive: true, force: true });
+  if (!files) return;
+  await mkdir(directory, { recursive: true });
+  for (const [file, content] of files) await writeFile(join(directory, file), content);
+}
+
 async function git(directory, ...args) {
   const { stdout } = await run('git', ['-C', directory, ...args], { maxBuffer: 16 * 1024 * 1024 });
   return stdout.trim();
@@ -112,6 +221,7 @@ async function checkout(source, env = process.env) {
   };
 }
 
+/** Publishes the docs, files and release assets of one source into the build. */
 async function syncSource(source) {
   const { root, ref, commit, cleanup } = await checkout(source);
   try {
@@ -131,6 +241,15 @@ async function syncSource(source) {
       await mkdir(dirname(join(publicDir, to)), { recursive: true });
       await writeFile(join(publicDir, to), content);
     }
+    const assets = source.assets ?? [];
+    for (const asset of assets) {
+      const [name, to, { optional = false, requires = [] } = {}] = asset;
+      const files = await fetchAsset(source, asset, ref);
+      if (files) validateAsset(name, files, requires);
+      else if (!optional) throw new Error(`${name} is missing from ${source.repository}@${ref}`);
+      else missing.push(name);
+      await publishAsset(join(publicDir, to), files);
+    }
     const { repository, editBranch, docs } = source;
     const { published, skipped } = await importDocs(join(root, docs.path), {
       source: { repository, editBranch, ...docs },
@@ -138,10 +257,10 @@ async function syncSource(source) {
       updated: await historyDates(root, docs.path)
     });
     const hidden = skipped ? `, ${skipped} with publish: false skipped` : '';
-    const copied = source.files.length - missing.length;
+    const copied = source.files.length + assets.length - missing.length;
     const absent = missing.length ? ` (not in this ref: ${missing.join(', ')})` : '';
     console.log(
-      `Synced ${repository}@${ref} (${commit.slice(0, 12)}): ${published} docs pages${hidden}, ${copied} files${absent}.`
+      `Synced ${repository}@${ref} (${commit.slice(0, 12)}): ${published} docs pages${hidden}, ${copied} files and assets${absent}.`
     );
   } finally {
     await cleanup();

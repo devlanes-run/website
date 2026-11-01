@@ -1,0 +1,33 @@
+---
+// A landing page fold: copy on one side, a terminal or figure on the other. Stacks on mobile.
+interface Props {
+  id: string;
+  title: string;
+  /** Copy on the right, visual on the left. */
+  reverse?: boolean;
+  /** Visual below the copy at full width instead of beside it. */
+  stacked?: boolean;
+  /** Where "more" leads; omit for none. */
+  more?: { href: string; label: string };
+}
+const { id, title, reverse = false, stacked = false, more } = Astro.props;
+---
+
+<section
+  id={id}
+  class:list={['fold', { 'fold-reverse': reverse, 'fold-stacked': stacked }]}
+  aria-labelledby={`${id}-title`}
+>
+  <div class="fold-copy">
+    <h2 id={`${id}-title`}>{title}</h2>
+    <slot />
+    {more && (
+      <a class="more" href={more.href}>
+        {more.label}
+      </a>
+    )}
+  </div>
+  <div class="fold-visual">
+    <slot name="visual" />
+  </div>
+</section>

@@ -1,46 +1,37 @@
 ---
+import Section from './Section.astro';
 import Terminal from './Terminal.astro';
 ---
 
-<section id="remote" class="feature split" aria-labelledby="remote-title">
-  <div class="copy">
-    <h2 id="remote-title">Access remote services through localhost</h2>
-    <p>
-      Run the lanes on a remote machine and connect from your laptop's browser or database client.
-    </p>
-    <p>
-      <code>devlanes remote connect</code> mirrors the machine's hostnames and TCP ports to your
-      laptop over SSH, with the same names and port numbers.
-    </p>
-    <a class="text-link" href="#agents">
-      See the agent workflow
-    </a>
+<Section
+  id="remote"
+  title="Run the lanes on a VPS, a container or a codespace. The box opens no ports."
+  reverse
+  more={{ href: '/remote/', label: 'More about remote boxes' }}
+>
+  <p>
+    Run the lanes on a remote machine and open them from your laptop's browser or database client.
+    devlanes mirrors the box's hostnames and TCP ports to your laptop over one ssh session, with the
+    same names and the same port numbers.
+  </p>
+  <p>
+    The URL a service prints on the box is the URL you open here, with the certificate you already
+    trust. Nothing is published and the box keeps every port closed.
+  </p>
+  <div slot="visual" class="terminal-stack">
+    <Terminal title="on my-vps">
+      <pre class="terminal-content"><span class="command">$ devlanes daemon pair</span>
+pairing code: <span class="url">K7QM-3XWD</span>
+it works once and expires in 10 minutes
+on your other machine, run:
+  devlanes remote connect &lt;box&gt; --code K7QM-3XWD</pre>
+    </Terminal>
+    <Terminal title="on your laptop">
+      <pre class="terminal-content"><span class="command">$ devlanes remote connect my-vps --code K7QM-3XWD</span>
+<span class="command">$ devlanes url ls</span>
+HOST                      TARGET       PORT   STATE
+api.myapp1.localhost  ->  myapp@1:api  20010  <span class="success">ready</span>
+myapp1.localhost      ->  myapp@1:web  20011  <span class="success">ready</span></pre>
+    </Terminal>
   </div>
-  <Terminal title="your laptop / remote connection">
-    <div class="terminal-content">
-      <p class="command">$ devlanes remote connect my-vps --background</p>
-      <p class="command">$ devlanes url ls</p>
-      <div
-        class="table-scroll"
-        role="region"
-        aria-label="Routed hostnames, scroll horizontally for all columns"
-        tabindex="0"
-      >
-        <pre class="output">
-HOST                       TARGET       PORT   STATE
-api.myapp-1.localhost  ->  myapp@1:api  20010  <span class="success">ready</span>
-myapp-1.localhost      ->  myapp@1:web  20011  <span class="success">ready</span></pre>
-      </div>
-      <div class="route">
-        <span>browser</span>
-        <code>https://myapp-1.localhost</code>
-        <small>my-vps / myapp@1 / web :20011</small>
-      </div>
-      <div class="route">
-        <span>database client</span>
-        <code>127.0.0.1:15432/myapp_lane1</code>
-        <small>my-vps / shared postgres / lane 1 database</small>
-      </div>
-    </div>
-  </Terminal>
-</section>
+</Section>

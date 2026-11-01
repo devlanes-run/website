@@ -1,0 +1,166 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import Section from '../components/Section.astro';
+import Terminal from '../components/Terminal.astro';
+import PageHead from '../components/pages/PageHead.astro';
+import PageFoot from '../components/pages/PageFoot.astro';
+
+const docs = [
+  { href: '/docs/getting-started/', label: 'Getting started' },
+  { href: '/docs/guides/ports-and-env/', label: 'Ports and environment' },
+  { href: '/docs/guides/infra/', label: 'Infra: containers and a database per lane' },
+  { href: '/docs/guides/lifecycle/', label: 'Lane lifecycle' },
+  { href: '/docs/guides/https/', label: 'Hostnames and HTTPS' },
+  { href: '/docs/reference/config/', label: 'Config reference' }
+];
+---
+
+<SiteLayout
+  title="Lanes"
+  description="A lane is a running copy of your dev stack with its own ports, hostnames and data. devlanes gives every Git worktree one, from a single committed devlanes.yaml."
+  path="/lanes/"
+  current="lanes"
+>
+  <PageHead title="Every worktree gets a lane: its own ports, hostnames and data.">
+    <p>
+      Lane 0 follows the primary branch. Any other worktree becomes a lane the first time devlanes
+      runs in it, with the next index, a block of ports and a domain such as{' '}
+      <code>myapp1.localhost</code>. One committed file describes the stack, and expressions in it
+      resolve per lane.
+    </p>
+  </PageHead>
+
+  <Section id="ports" title="A block of ports and a name for each worktree." stacked>
+    <p>
+      Each lane gets a block of consecutive ports from one machine-wide pool: 20000 to 20009 for
+      main, 20010 to 20019 for the checkout branch. Inside the block every service has a fixed
+      offset, the same in every lane, and devlanes hands it to the service as <code>PORT</code>.
+    </p>
+    <p>
+      The lane sits in the hostname itself, <code>api.myapp1.localhost</code>, so each worktree is
+      its own site for cookies and storage. A lane that runs nothing keeps its ports and its data;
+      lane 2 below is idle.
+    </p>
+    <Terminal slot="visual" title="devlanes status">
+      <pre class="terminal-content terminal-scroll"><span class="command">$ devlanes status</span>
+<span class="url">myapp</span>
+  <span class="dim">LANE  BRANCH         STATE    SERVICES  CPU    MEM        URL</span>
+  0     main           <span class="success">running</span>  3/3       9.0%   286.0 MiB  https://myapp.localhost
+  1     feat/checkout  <span class="success">running</span>  3/3       12.6%  341.0 MiB  https://myapp1.localhost
+  2     fix/login      <span class="dim">idle     –         –      –</span>          https://myapp2.localhost
+  3     agent/perf     <span class="success">running</span>  3/3       38.4%  513.0 MiB  https://myapp3.localhost</pre>
+    </Terminal>
+  </Section>
+
+  <Section id="config" title="One committed file describes the stack." reverse>
+    <p>
+      <code>devlanes.yaml</code> sits at the root of the repository and is committed, so every
+      worktree has it. <code>lane.domain</code> is <code>myapp.localhost</code> in lane 0 and{' '}
+      <code>myapp1.localhost</code> in lane 1, so lane 1's web app talks to lane 1's API.
+    </p>
+    <p>
+      A service must listen on the port it is given. <code>preset: vite</code> adds Vite's port and
+      host flags for you; a plain <code>run</code> reads <code>PORT</code>. Changes only you want,
+      such as a service turned off on your machine, go in <code>devlanes.local.yaml</code> next to
+      it, which stays out of Git.
+    </p>
+    <Terminal slot="visual" title="devlanes.yaml">
+      <pre class="terminal-content terminal-scroll"><span class="key">project</span>: myapp
+<span class="key">services</span>:
+  <span class="key">api</span>:
+    <span class="key">run</span>: pnpm --filter api dev
+    <span class="key">hosts</span>: <span class="string">"api.<span class="expr">${"{{ lane.domain }}"}</span>"</span>
+  <span class="key">web</span>:
+    <span class="key">preset</span>: vite
+    <span class="key">run_script</span>:
+      <span class="key">file</span>: web/package.json
+      <span class="key">name</span>: dev
+    <span class="key">env</span>:
+      <span class="key">VITE_API_URL</span>: <span class="string">"<span class="expr">${"{{ services.api.public_url }}"}</span>"</span>
+    <span class="key">hosts</span>: <span class="string">"<span class="expr">${"{{ lane.domain }}"}</span>"</span></pre>
+    </Terminal>
+  </Section>
+
+  <Section id="database" title="One Postgres, a database per lane." stacked>
+    <p>
+      Containers under <code>infra</code> come from the Compose file you already have and run once,
+      shared by every lane. A setup entry runs once per lane, after the containers are healthy, and
+      creates that lane's database: <code>myapp_main</code> for lane 0, <code>myapp_lane1</code> for
+      lane 1. An expression puts its name in <code>DATABASE_URL</code>, so a migration in the
+      checkout branch leaves main's data alone.
+    </p>
+    <p>
+      <code>devlanes lane clean feat/checkout --yes</code> runs the teardown, drops that database
+      and frees the lane's ports. For a branch that pins a Postgres version or runs destructive
+      migrations, <code>per_lane: [postgres]</code> gives each lane a container of its own instead.
+    </p>
+    <Terminal slot="visual" title="devlanes.yaml, continued">
+      <pre class="terminal-content terminal-scroll"><span class="key">lanes</span>:
+  <span class="key">vars</span>:
+    <span class="key">db_name</span>: <span class="string">"myapp_<span class="expr">${"{{ lane.name }}"}</span>"</span>
+<span class="key">infra</span>:
+  <span class="key">compose</span>: docker-compose.yml
+  <span class="key">setup</span>:
+    <span class="key">database</span>: docker compose exec -T postgres createdb -U postgres <span class="expr">${"{{ lane.db_name }}"}</span>
+  <span class="key">teardown</span>:
+    <span class="key">database</span>: docker compose exec -T postgres dropdb -U postgres --if-exists --force <span class="expr">${"{{ lane.db_name }}"}</span>
+<span class="key">global_env</span>:
+  <span class="key">DATABASE_URL</span>: postgres://postgres:postgres@127.0.0.1:<span class="expr">${"{{ infra.postgres.port }}"}</span>/<span class="expr">${"{{ lane.db_name }}"}</span></pre>
+    </Terminal>
+  </Section>
+
+  <Section id="reload" title="Edit the file, then reload only what changed.">
+    <p>
+      An edit to <code>devlanes.yaml</code> never touches running services. Each one shows how it
+      differs from what the file would start now, and <code>devlanes reload</code> restarts, starts
+      or stops only those. When infra or ports changed, it restarts the whole lane instead.
+    </p>
+    <p>
+      A lane without requests, connections or commands for 15 minutes is frozen: its processes are
+      suspended, its ports and routes are kept, and the next request, connection or command resumes
+      it. The checkout branch you are not looking at stops costing CPU.
+    </p>
+    <Terminal slot="visual" title="~/dev/myapp-checkout">
+      <pre class="terminal-content terminal-scroll"><span class="command">$ devlanes status feat/checkout</span>
+<span class="url">myapp</span>
+  <span class="dim">LANE  BRANCH         STATE    SERVICES  CPU    MEM        URL</span>
+  1     feat/checkout  <span class="success">running</span>  3/3       12.6%  341.0 MiB  https://myapp1.localhost  <span class="dim">(config changed: 1 changed; devlanes reload --lane myapp@1 applies it)</span>
+
+  <span class="dim">UNIT    STATE  PORT   CPU   MEM        URL</span>
+  api     <span class="success">ready</span>  20010  7.9%  142.0 MiB  https://api.myapp1.localhost
+  web     <span class="success">ready</span>  20011  3.1%  126.0 MiB  https://myapp1.localhost
+  worker  <span class="success">ready</span>  20012  1.6%  73.0 MiB   http://127.0.0.1:20012
+  api: env LOG_LEVEL changed in the project file
+<span class="command">$ devlanes reload --no-ui</span>
+myapp@1 · feat/checkout
+<span class="success">✓</span> services  1 of 1 ready
+  <span class="success">✓</span>  api  <span class="url">https://api.myapp1.localhost</span></pre>
+    </Terminal>
+  </Section>
+
+  <Section id="https" title="HTTPS from a CA that is yours alone." reverse>
+    <p>
+      The proxy serves every hostname on port 443 and signs a certificate for each name with a CA
+      devlanes created for your user. Browsers resolve <code>*.localhost</code> to your machine on
+      their own, so trusting that CA once with <code>devlanes certs trust</code> is the whole setup;{' '}
+      <code>devlanes doctor</code> tells you where it stands.
+    </p>
+    <p>
+      Services started by devlanes get the CA through <code>NODE_EXTRA_CA_CERTS</code> and{' '}
+      <code>SSL_CERT_FILE</code>, so a service that calls another lane service over HTTPS needs no
+      workaround. The CA is name-constrained to <code>localhost</code> and a few local suffixes and
+      cannot sign anything else.
+    </p>
+    <Terminal slot="visual" title="devlanes doctor">
+      <pre class="terminal-content"><span class="command">$ devlanes doctor</span>
+proxy
+  <span class="success">✓</span> http on port 80
+  <span class="success">✓</span> https on port 443
+tls
+  <span class="success">✓</span> CA at /home/you/.devlanes/ca/ca.pem
+  <span class="success">✓</span> CA trusted by system</pre>
+    </Terminal>
+  </Section>
+
+  <PageFoot links={docs} />
+</SiteLayout>
