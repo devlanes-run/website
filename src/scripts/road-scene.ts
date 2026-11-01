@@ -6,8 +6,6 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const PAINT = 0xf5c542;
 const CHARCOAL = 0x24221e;
-// the hero car, the reader's own worktree, in the page's ink so it stands out from traffic
-const CREAM = 0xe9e5d6;
 const LANE_W = 4.4;
 const HERO = 1;
 // dashes loop behind the hero so the road never ends
@@ -95,7 +93,6 @@ function start(host: HTMLElement): void {
   ramp.minFilter = ramp.magFilter = THREE.NearestFilter;
   ramp.needsUpdate = true;
   const carMat = new THREE.MeshToonMaterial({ color: CHARCOAL, gradientMap: ramp });
-  const heroMat = new THREE.MeshToonMaterial({ color: CREAM, gradientMap: ramp });
 
   // dashed dividers in black on the yellow, long enough to stream past while the hero drives
   const dash = new THREE.PlaneGeometry(0.12, 1.5);
@@ -126,19 +123,15 @@ function start(host: HTMLElement): void {
     file: string,
     lane: number,
     z: number,
-    speed: number,
-    body: THREE.Material = carMat
+    speed: number
   ): Promise<Car | undefined> =>
     new Promise((resolve) => {
       loader.load(
         `/models/${file}.glb`,
         (gltf) => {
           const g = new THREE.Group();
-          // wheels stay charcoal whatever the body's colour
-          const isWheel = (o: THREE.Object3D): boolean =>
-            /wheel/.test(o.name) || (o.parent ? isWheel(o.parent) : false);
           gltf.scene.traverse((o) => {
-            if (o instanceof THREE.Mesh) o.material = isWheel(o) ? carMat : body;
+            if (o instanceof THREE.Mesh) o.material = carMat;
           });
           const box = new THREE.Box3().setFromObject(gltf.scene);
           const size = box.getSize(new THREE.Vector3());
@@ -284,7 +277,7 @@ function start(host: HTMLElement): void {
   };
 
   // the hero starts where the dashes loop around (z 0) and the others spawn relative to it
-  void makeCar('sedan-sports', HERO, 0, 7.5, heroMat).then((c) => {
+  void makeCar('sedan-sports', HERO, 0, 7.5).then((c) => {
     hero = c;
     render();
   });
