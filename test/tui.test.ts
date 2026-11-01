@@ -355,13 +355,14 @@ test('remounts once when a call throws and gives up on the second failure', asyn
 // DEVLANES_TUI_DIR); the tests above cover the page without one.
 const bundle = fileURLToPath(new URL('../public/tui/devlanes_tui_web.js', import.meta.url));
 
-const real: [width: number, height: number, cols: number, rows: number][] = [
-  [1440, 900, 140, 34],
-  [390, 844, 61, 26],
-  [320, 568, 50, 26]
+// The column range allows for the platform's font rasterisation; the rows are the component's.
+const real: [width: number, height: number, cols: [number, number], rows: number][] = [
+  [1440, 900, [130, 140], 34],
+  [390, 844, [55, 70], 26],
+  [320, 568, [45, 58], 26]
 ];
 
-for (const [width, height, cols, rows] of real) {
+for (const [width, height, [least, most], rows] of real) {
   test(`the real TUI bundle opens on the monitor at ${width}px`, async ({ page }) => {
     test.skip(!existsSync(bundle), 'no TUI web bundle in public/tui');
     const errors = watchErrors(page);
@@ -370,14 +371,11 @@ for (const [width, height, cols, rows] of real) {
     const screen = page.locator('#tui-demo');
     // Compiling the wasm takes a while on CI runners.
     await expect(screen.locator('pre')).toHaveCount(rows, { timeout: 30_000 });
-    expect(await grid(page)).toEqual({
-      cols,
-      rows,
-      lines: rows,
-      cells: cols,
-      fits: true,
-      overflow: false
-    });
+    const built = await grid(page);
+    expect(built).toMatchObject({ rows, lines: rows, fits: true, overflow: false });
+    expect(built.cols).toBeGreaterThanOrEqual(least);
+    expect(built.cols).toBeLessThanOrEqual(most);
+    expect(built.cells).toBe(built.cols);
     await expect(screen).toContainText('units');
     await expect(screen).toContainText('devlanes');
     if (width > 720) {
@@ -385,11 +383,11 @@ for (const [width, height, cols, rows] of real) {
       await page.keyboard.press('j');
       await expect(screen).toContainText('units');
     }
-    // Ratzilla rebuilds its grid on a window resize; a grid of another size is freed first and
-    // mounted again at the new size, still on the monitor.
+    // A window resize gives the element its new size and the demo lays itself out again, still
+    // on the monitor.
     const next = width > 720 ? 900 : 700;
     await page.setViewportSize({ width: next, height });
-    await expect.poll(async () => (await grid(page)).cols).not.toBe(cols);
+    await expect.poll(async () => (await grid(page)).cols).not.toBe(built.cols);
     await expect(screen.locator('pre')).toHaveCount(rows);
     const after = await grid(page);
     expect(after).toMatchObject({ lines: rows, cells: after.cols, fits: true, overflow: false });
