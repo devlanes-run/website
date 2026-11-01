@@ -4,6 +4,11 @@
 
 html {
   scroll-padding-top: 32px;
+  scroll-behavior: smooth;
+
+  @media (prefers-reduced-motion: reduce) {
+    scroll-behavior: auto;
+  }
 }
 
 body {
