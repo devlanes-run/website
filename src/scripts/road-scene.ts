@@ -39,8 +39,10 @@ function laneX(lane: number): number {
   return (lane - 1.5) * LANE_W;
 }
 
+// a shuffled deck, so the ten traffic cars are the ten models of the kit, each once
+const deck = [...KIT].sort(() => Math.random() - 0.5);
 function pick(): string {
-  return KIT[Math.floor(Math.random() * KIT.length)] ?? 'sedan';
+  return deck.pop() ?? KIT[Math.floor(Math.random() * KIT.length)] ?? 'sedan';
 }
 
 function contactShadow(): THREE.Material | undefined {
@@ -179,7 +181,7 @@ function start(host: HTMLElement): void {
   // traffic drives at its own pace, all of it slower than the hero, so the hero overtakes
   // everything; a car that catches the one ahead in its lane holds behind it
   const HERO_SPEED = 8.5;
-  const GAP = 6;
+  const GAP = 9;
   const fill = (lane: number, count = 4): Promise<Car | undefined>[] =>
     Array.from({ length: count }, (_, k) =>
       makeCar(pick(), lane, 6 - k * 16 - Math.random() * 6, 4 + Math.random() * 3)
@@ -269,9 +271,16 @@ function start(host: HTMLElement): void {
       c.g.rotation.y = -slope / c.speed;
       c.g.rotation.z = slope * 0.04;
       if (c === hero) continue;
-      // once overtaken and out of sight behind the hero, a car comes back ahead, in the fog
+      // once overtaken and out of sight behind the hero, a car comes back ahead, in the fog,
+      // clear of the others in its lane
       if (c.g.position.z > heroZ + 30) {
-        c.g.position.z = heroZ - 36 - Math.random() * 6;
+        let z = heroZ - 36 - Math.random() * 6;
+        for (const other of cars) {
+          if (other !== c && other.x === c.x && Math.abs(other.g.position.z - z) < GAP) {
+            z = other.g.position.z - GAP;
+          }
+        }
+        c.g.position.z = z;
         c.speed = 4 + Math.random() * 3;
       }
     }
