@@ -93,11 +93,10 @@ function start(host: HTMLElement): void {
   ramp.minFilter = ramp.magFilter = THREE.NearestFilter;
   ramp.needsUpdate = true;
   const carMat = new THREE.MeshToonMaterial({ color: CHARCOAL, gradientMap: ramp });
-  // a few trim parts in orange, which reads against the sign: the hero's spoiler, a grille,
-  // a van's door
+  // the hero's spoiler in orange, which reads against the sign; traffic stays all charcoal
   const trimMat = new THREE.MeshToonMaterial({ color: 0xe8701a, gradientMap: ramp });
   const isTrim = (o: THREE.Object3D): boolean =>
-    /spoiler|grill|door/.test(o.name) || (o.parent ? isTrim(o.parent) : false);
+    /spoiler/.test(o.name) || (o.parent ? isTrim(o.parent) : false);
 
   // dashed dividers in black on the yellow, long enough to stream past while the hero drives
   const dash = new THREE.PlaneGeometry(0.12, 1.5);
@@ -128,7 +127,8 @@ function start(host: HTMLElement): void {
     file: string,
     lane: number,
     z: number,
-    speed: number
+    speed: number,
+    trim = false
   ): Promise<Car | undefined> =>
     new Promise((resolve) => {
       loader.load(
@@ -136,7 +136,7 @@ function start(host: HTMLElement): void {
         (gltf) => {
           const g = new THREE.Group();
           gltf.scene.traverse((o) => {
-            if (o instanceof THREE.Mesh) o.material = isTrim(o) ? trimMat : carMat;
+            if (o instanceof THREE.Mesh) o.material = trim && isTrim(o) ? trimMat : carMat;
           });
           const box = new THREE.Box3().setFromObject(gltf.scene);
           const size = box.getSize(new THREE.Vector3());
@@ -299,7 +299,7 @@ function start(host: HTMLElement): void {
   };
 
   // the hero starts where the dashes loop around (z 0) and the others spawn relative to it
-  void makeCar('sedan-sports', HERO, 0, HERO_SPEED).then((c) => {
+  void makeCar('sedan-sports', HERO, 0, HERO_SPEED, true).then((c) => {
     hero = c;
     render();
   });
