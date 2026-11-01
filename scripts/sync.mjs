@@ -28,8 +28,8 @@ export const sources = [
       // Optional until a release includes it: 0.3.0 and earlier have no Windows installer.
       ['install.ps1', 'install.ps1', { optional: true }]
     ],
-    // Release archives unpacked into public/<target>/. A local checkout has no release, so
-    // `dirEnv` names a directory holding the unpacked files instead.
+    // Release archives unpacked into public/<target>/. When `dirEnv` is set, its directory of
+    // unpacked files is used instead, for any ref, so previews can try a local build.
     assets: [
       // The TUI built for the browser, shown live by the monitor section. Optional until a
       // release includes it.
@@ -108,6 +108,7 @@ export function untar(archive) {
   while (offset + 512 <= archive.length) {
     const header = archive.subarray(offset, offset + 512);
     if (header.every((byte) => byte === 0)) break;
+    /** A NUL-terminated header field, as text. */
     const field = (start, length) =>
       header
         .subarray(start, start + length)
@@ -119,10 +120,12 @@ export function untar(archive) {
     const name = (prefix ? `${prefix}/${field(0, 100)}` : field(0, 100)).replace(/^(\.\/)+/, '');
     const type = field(156, 1) || '0';
     offset += 512;
+    if (!Number.isSafeInteger(size) || size < 0 || offset + size > archive.length) {
+      throw new Error(`Truncated or corrupt archive entry: ${name}`);
+    }
     if (type === '0') {
-      if (!name || /[/\\]/.test(name) || name === '..') {
-        throw new Error(`Unexpected path in archive: ${name}`);
-      }
+      // Plain names only: no separators, drive letters (`C:x`), streams (`a:b`) or dotfiles.
+      if (!/^[\w-][\w.-]*$/.test(name)) throw new Error(`Unexpected path in archive: ${name}`);
       files.set(name, archive.subarray(offset, offset + size));
     }
     // Directory entries such as `./` and pax or GNU metadata headers carry no file to publish.
@@ -147,30 +150,40 @@ export function validateAsset(name, files, requires = []) {
 }
 
 /**
- * Files of an asset for a ref, or null when the ref has none: the release of `ref` provides the
- * archive, while a local checkout reads the unpacked files from the directory in `dirEnv`.
+ * Files of an asset for a ref, or null when the ref has none. The directory in `dirEnv` wins
+ * whenever it is set; otherwise the release of `ref` provides the archive, and a local checkout
+ * has none.
  */
 export async function fetchAsset(source, asset, ref, env = process.env, fetcher = fetch) {
   const [name, , { dirEnv } = {}] = asset;
-  if (ref === 'local') {
-    const directory = dirEnv && env[dirEnv];
-    if (!directory) return null;
+  const directory = dirEnv && env[dirEnv];
+  if (directory) {
     const files = new Map();
     for (const entry of await readdir(resolve(directory), { withFileTypes: true })) {
       if (entry.isFile()) files.set(entry.name, await readFile(join(entry.parentPath, entry.name)));
     }
     return files;
   }
-  const headers = {};
-  if (env.GH_TOKEN) headers.Authorization = `Bearer ${env.GH_TOKEN}`;
+  if (ref === 'local') return null;
+  // No token: the repository is public, and github.com release downloads ignore it anyway.
   const response = await fetcher(assetUrl(source.repository, ref, name), {
-    headers,
     signal: AbortSignal.timeout(30_000)
   });
   // Releases published before the asset existed answer 404.
   if (response.status === 404) return null;
   if (!response.ok) throw new Error(`Download of ${name} for ${ref} failed: ${response.status}`);
   return untar(gunzipSync(Buffer.from(await response.arrayBuffer())));
+}
+
+/**
+ * Replaces the contents of `directory` with `files`, or removes it when `files` is null. It is
+ * cleared either way, so files from another ref never stay behind.
+ */
+export async function publishAsset(directory, files) {
+  await rm(directory, { recursive: true, force: true });
+  if (!files) return;
+  await mkdir(directory, { recursive: true });
+  for (const [file, content] of files) await writeFile(join(directory, file), content);
 }
 
 async function git(directory, ...args) {
@@ -233,15 +246,9 @@ async function syncSource(source) {
       const [name, to, { optional = false, requires = [] } = {}] = asset;
       const files = await fetchAsset(source, asset, ref);
       if (files) validateAsset(name, files, requires);
-      // Cleared even when the ref has no asset, so files from a newer ref never stay behind.
-      await rm(join(publicDir, to), { recursive: true, force: true });
-      if (!files) {
-        if (!optional) throw new Error(`${name} is missing from ${source.repository}@${ref}`);
-        missing.push(name);
-        continue;
-      }
-      await mkdir(join(publicDir, to), { recursive: true });
-      for (const [file, content] of files) await writeFile(join(publicDir, to, file), content);
+      else if (!optional) throw new Error(`${name} is missing from ${source.repository}@${ref}`);
+      else missing.push(name);
+      await publishAsset(join(publicDir, to), files);
     }
     const { repository, editBranch, docs } = source;
     const { published, skipped } = await importDocs(join(root, docs.path), {
