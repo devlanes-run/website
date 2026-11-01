@@ -10,6 +10,7 @@ const calls = {
   keys: [],
   metaKeys: [],
   ticks: 0,
+  resizes: 0,
   frees: 0,
   unused: ['Tab', 'Shift', 'Control', 'Ctrl+l']
 };
@@ -35,7 +36,14 @@ export class Demo {
     calls.constructed += 1;
     failAt('mount');
     this.id = id;
+    this.build();
+  }
+
+  /** Builds the grid at the element's current size, recording it as a mount. */
+  build() {
+    const id = this.id;
     const element = document.getElementById(id);
+    element.innerHTML = '';
     const probe = document.createElement('pre');
     probe.setAttribute('style', 'margin: 0; padding: 0; border: 0; line-height: normal;');
     const cell = document.createElement('span');
@@ -79,6 +87,12 @@ export class Demo {
     failAt('key');
     const name = ctrl && key !== 'Control' ? `Ctrl+${key}` : key;
     return !calls.unused.includes(name);
+  }
+
+  /** Lays the grid out again at the element's size, like the real module keeps its state. */
+  resize() {
+    calls.resizes += 1;
+    this.build();
   }
 
   /** Counts a second of the fake daemon's clock. */

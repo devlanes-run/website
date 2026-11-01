@@ -9,6 +9,8 @@ interface Demo {
   key(key: string, ctrl: boolean, alt: boolean, shift: boolean, meta: boolean): boolean;
   /** Advances the fake daemon by one second and redraws. */
   tick(): void;
+  /** Measures the element again and lays the TUI out at the new size, keeping its state. */
+  resize(): void;
   /** Unmounts the TUI and empties its element. */
   free(): void;
 }
@@ -32,11 +34,8 @@ const minimumCols = 40;
 const maximumCols = 140;
 /** Keys that open another page, replayed after a remount so the same page is open. */
 const pages = ['M', 'D', 'B', 'Escape'];
-/**
- * The pages a touch screen cycles through, which has no keyboard to type into the demo. The
- * daemon page stays out: the mock data behind it shows failed checks on purpose.
- */
-const tour = ['M', 'Escape'];
+/** The pages a touch screen cycles through, which has no keyboard to type into the demo. */
+const tour = ['M', 'Escape', 'D'];
 
 const coarse = window.matchMedia('(pointer: coarse)').matches;
 const mobile = window.matchMedia('(max-width: 720px)');
@@ -85,6 +84,7 @@ function setup(wrapper: HTMLElement) {
   let tourTimer: number | undefined;
   let tourStep = 0;
   let remount: number | undefined;
+  let refit: number | undefined;
 
   /**
    * Measures one cell the way Ratzilla's DomBackend does (a `pre` with `line-height: normal`
@@ -140,7 +140,9 @@ function setup(wrapper: HTMLElement) {
     dead = true;
     unmount();
     window.clearTimeout(remount);
+    window.clearTimeout(refit);
     remount = undefined;
+    refit = undefined;
     live.hidden = true;
     if (badge) badge.hidden = true;
     staticScreen.hidden = false;
@@ -236,21 +238,32 @@ function setup(wrapper: HTMLElement) {
   };
 
   /**
-   * Ratzilla rebuilds its grid on every window resize, and a grid of another size makes the
-   * demo's next call throw, so a demo whose grid would change is freed before the demo's own
-   * listener runs (it is registered later) and remounted at the new size. The same holds for
-   * the wrapper changing size on its own.
+   * Gives the element the grid that fits now and has the demo lay the TUI out again at that
+   * size, keeping its state. The element keeps its old size until the width settles, so the
+   * demo's own window-resize handler, which runs after this one, rebuilds the same grid.
    */
+  const fit = () => {
+    refit = undefined;
+    if (dead || !demo || !grid) return;
+    const next = measure();
+    if (same(next, grid)) return;
+    grid = next;
+    for (const slack of [0, 2]) {
+      apply(next, slack);
+      guard((demo) => demo.resize());
+      // a failed resize has already scheduled a fresh mount
+      if (!demo || built(next)) return;
+    }
+  };
+
   const resized = () => {
     if (dead || !started) return;
     if (remount !== undefined) {
       schedule();
       return;
     }
-    if (!demo || !grid) return;
-    if (same(measure(), grid)) return;
-    unmount();
-    schedule();
+    window.clearTimeout(refit);
+    refit = window.setTimeout(fit, 150);
   };
 
   /**

@@ -20,6 +20,7 @@ interface Calls {
   /** Keys sent with the Meta flag, which the module refuses. */
   metaKeys: string[];
   ticks: number;
+  resizes: number;
   frees: number;
 }
 
@@ -135,25 +136,29 @@ test('mounts a smaller font with fewer columns and rows on a phone-sized window'
   await expect(page.locator('#tui-demo')).toHaveCSS('font-size', '10.5px');
 });
 
-test('remounts at the new width after a resize, on the same page', async ({ page }) => {
+test('lays the TUI out again at the new width after a resize, keeping its page', async ({
+  page
+}) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await openLive(page);
   const errors = watchErrors(page);
   const screen = page.locator('#tui-demo');
   await screen.focus();
   await page.keyboard.press('Shift+D');
-  // The window listener frees the demo at once; the remount follows after the size settles.
+  // The element is resized once the width settles, then the demo lays itself out again.
   await page.setViewportSize({ width: 900, height: 900 });
   await expect.poll(async () => (await calls(page)).mounts.length).toBe(2);
   await expect(screen).toContainText('devlanes live demo');
   const recorded = await calls(page);
-  expect(recorded.frees).toBe(1);
+  expect(recorded.constructed).toBe(1);
+  expect(recorded.frees).toBe(0);
+  expect(recorded.resizes).toBe(1);
   // 900px minus the page's 40px side padding, in 13px JetBrains Mono cells.
   expect(recorded.mounts[1]).toEqual({ id: 'tui-demo', columns: 104, rows: 34 });
+  // The demo keeps its page, so nothing is replayed.
   expect(recorded.keys).toEqual([
     opening,
     ['Shift', false, false, true],
-    ['D', false, false, true],
     ['D', false, false, true]
   ]);
   expect(await grid(page)).toMatchObject({ cols: 104, lines: 34, cells: 104, fits: true });
