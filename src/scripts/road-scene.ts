@@ -171,9 +171,13 @@ function start(host: HTMLElement): void {
       );
     });
 
-  const fill = (lane: number, speed: number): Promise<Car | undefined>[] =>
+  // traffic drives at its own pace, all of it slower than the hero, so the hero overtakes
+  // everything; a car that catches the one ahead in its lane holds behind it
+  const HERO_SPEED = 8.5;
+  const GAP = 6;
+  const fill = (lane: number): Promise<Car | undefined>[] =>
     Array.from({ length: 4 }, (_, k) =>
-      makeCar(pick(), lane, 6 - k * 16 - Math.random() * 6, speed)
+      makeCar(pick(), lane, 6 - k * 16 - Math.random() * 6, 4 + Math.random() * 3)
     );
 
   let hero: Car | undefined;
@@ -260,9 +264,22 @@ function start(host: HTMLElement): void {
       c.g.rotation.y = -slope / c.speed;
       c.g.rotation.z = slope * 0.04;
       if (c === hero) continue;
-      // beyond the fog nothing is visible, so the loop is short and a car is never gone for long
-      if (c.g.position.z < heroZ - 40) c.g.position.z = heroZ + 24 + Math.random() * 8;
-      if (c.g.position.z > heroZ + 30) c.g.position.z = heroZ - 36 - Math.random() * 6;
+      // once overtaken and out of sight behind the hero, a car comes back ahead, in the fog
+      if (c.g.position.z > heroZ + 30) {
+        c.g.position.z = heroZ - 36 - Math.random() * 6;
+        c.speed = 4 + Math.random() * 3;
+      }
+    }
+    for (const a of cars) {
+      if (a === hero) continue;
+      for (const b of cars) {
+        if (b === a || b.x !== a.x) continue;
+        // a is behind b and too close: it stays on b's tail at b's pace
+        if (a.g.position.z > b.g.position.z && a.g.position.z - b.g.position.z < GAP) {
+          a.g.position.z = b.g.position.z + GAP;
+          a.speed = b.speed;
+        }
+      }
     }
     for (const m of dashes) {
       if (m.position.z > heroZ + 22) m.position.z -= LOOP;
@@ -277,12 +294,12 @@ function start(host: HTMLElement): void {
   };
 
   // the hero starts where the dashes loop around (z 0) and the others spawn relative to it
-  void makeCar('sedan-sports', HERO, 0, 7.5).then((c) => {
+  void makeCar('sedan-sports', HERO, 0, HERO_SPEED).then((c) => {
     hero = c;
     render();
   });
   if (!small) {
-    for (const p of [...fill(0, 6.2), ...fill(3, 11.5)]) void p.then(render);
+    for (const p of [...fill(0), ...fill(3)]) void p.then(render);
   }
 
   if (reduced) return;
