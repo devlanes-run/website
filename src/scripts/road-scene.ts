@@ -93,8 +93,9 @@ function start(host: HTMLElement): void {
   ramp.minFilter = ramp.magFilter = THREE.NearestFilter;
   ramp.needsUpdate = true;
   const carMat = new THREE.MeshToonMaterial({ color: CHARCOAL, gradientMap: ramp });
-  // a few trim parts in the sign's yellow: the hero's spoiler, a grille, a van's door
-  const trimMat = new THREE.MeshToonMaterial({ color: PAINT, gradientMap: ramp });
+  // a few trim parts in orange, which reads against the sign: the hero's spoiler, a grille,
+  // a van's door
+  const trimMat = new THREE.MeshToonMaterial({ color: 0xe8701a, gradientMap: ramp });
   const isTrim = (o: THREE.Object3D): boolean =>
     /spoiler|grill|door/.test(o.name) || (o.parent ? isTrim(o.parent) : false);
 
