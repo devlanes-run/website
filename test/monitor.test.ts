@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
 
@@ -152,4 +153,38 @@ test('ticks every second only while the demo is visible', async ({ page }) => {
   });
   await page.clock.runFor(3000);
   expect((await calls(page)).ticks).toBe(4);
+});
+
+// Runs only when the build synced a real bundle (a devlanes release with it, or
+// DEVLANES_TUI_DIR); the tests above cover the page without one.
+const bundle = fileURLToPath(new URL('../dist/tui/devlanes_tui_web.js', import.meta.url));
+
+test('the real TUI bundle draws 120 by 40 cells and opens the monitor', async ({ page }) => {
+  test.skip(!existsSync(bundle), 'no TUI web bundle in dist/tui');
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto('/');
+  await page.locator('#monitor').scrollIntoViewIfNeeded();
+  const screen = page.locator('#tui-demo');
+  await expect(screen.locator('pre')).toHaveCount(40);
+  expect(await screen.locator('pre').first().locator('span').count()).toBe(120);
+  await expect(screen).toContainText('acme');
+  await screen.focus();
+  await page.keyboard.press('Shift+M');
+  await expect(screen).toContainText('units');
+  expect(errors).toEqual([]);
+});
+
+test('puts the static monitor back when the TUI fails', async ({ page }) => {
+  await page.clock.install();
+  await openLive(page);
+  await observed(page, true);
+  await page.evaluate(() => {
+    (window as unknown as { tuiDemo: { failTick: boolean } }).tuiDemo.failTick = true;
+  });
+  await page.clock.runFor(1000);
+  await expect(page.locator('[data-monitor-static]')).toBeVisible();
+  await expect(page.locator('[data-monitor-live]')).toBeHidden();
+  await page.locator('#tui-demo').press('j');
+  expect((await calls(page)).keys).toEqual([]);
 });

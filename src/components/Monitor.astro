@@ -20,14 +20,15 @@ const sorted = (units: Unit[]) => [...units].sort((a, b) => b.cpu - a.cpu);
 const bar = (value: number, max: number) => Math.max(1, Math.min(4, Math.round((value / max) * 4)));
 const spark = '▂▃▃▄▃▄▅▄▃▄▅▆▅▄▄▅▄▃▄▅';
 // For touch screens, which have no keyboard to type into the live demo. `key` is the
-// KeyboardEvent.key value the TUI receives.
+// KeyboardEvent.key value the TUI receives. No Tab: the demo leaves it to the browser, so the
+// keyboard can always leave the demo.
 const keys = [
   { label: 'j', key: 'j' },
   { label: 'k', key: 'k' },
   { label: 'Enter', key: 'Enter' },
   { label: 'Esc', key: 'Escape' },
   { label: 'M', key: 'M', shift: true },
-  { label: 'Tab', key: 'Tab' },
+  { label: 'D', key: 'D', shift: true },
   { label: '?', key: '?', shift: true }
 ];
 ---

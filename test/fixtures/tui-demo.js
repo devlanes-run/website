@@ -7,7 +7,9 @@ const calls = {
   keys: [],
   ticks: 0,
   frees: 0,
-  unused: ['Tab', 'Shift']
+  unused: ['Tab', 'Shift'],
+  // Set by a test to make `tick` throw, as a panic in the real module does.
+  failTick: false
 };
 window.tuiDemo = calls;
 
@@ -47,8 +49,9 @@ export class Demo {
     return !calls.unused.includes(key);
   }
 
-  /** Counts a second of the fake daemon's clock. */
+  /** Counts a second of the fake daemon's clock, or throws when the test asked for a failure. */
   tick() {
+    if (calls.failTick) throw new Error('RuntimeError: unreachable');
     calls.ticks += 1;
   }
 

@@ -30,11 +30,29 @@ if (section && fallback && live && viewport && container && 'IntersectionObserve
   let visible = false;
   let timer: number | undefined;
 
+  /**
+   * Runs `call` on the demo. A Rust panic surfaces here as an exception and leaves the module
+   * unusable, so the first failure puts the static screen back for good.
+   */
+  const guard = <T>(call: (demo: Demo) => T): T | undefined => {
+    if (!demo) return undefined;
+    try {
+      return call(demo);
+    } catch (error) {
+      console.debug('The live TUI demo stopped, showing the static container.', error);
+      demo = undefined;
+      syncTicks();
+      live.hidden = true;
+      fallback.hidden = false;
+      return undefined;
+    }
+  };
+
   /** Runs the fake daemon's clock only while someone can see the demo. */
   const syncTicks = () => {
     const running = demo !== undefined && visible && !document.hidden;
     if (running && timer === undefined) {
-      timer = window.setInterval(() => demo?.tick(), 1000);
+      timer = window.setInterval(() => guard((demo) => demo.tick()), 1000);
     } else if (!running && timer !== undefined) {
       window.clearInterval(timer);
       timer = undefined;
@@ -75,13 +93,16 @@ if (section && fallback && live && viewport && container && 'IntersectionObserve
 
   container.addEventListener('keydown', (event) => {
     // Command shortcuts on macOS belong to the browser.
-    if (!demo || event.metaKey) return;
-    if (demo.key(event.key, event.ctrlKey, event.altKey, event.shiftKey)) event.preventDefault();
+    if (event.metaKey) return;
+    const used = guard((demo) => demo.key(event.key, event.ctrlKey, event.altKey, event.shiftKey));
+    if (used) event.preventDefault();
   });
 
   for (const button of live.querySelectorAll<HTMLButtonElement>('[data-key]')) {
     button.addEventListener('click', () => {
-      demo?.key(button.dataset.key ?? '', false, false, button.dataset.shift === 'true');
+      guard((demo) =>
+        demo.key(button.dataset.key ?? '', false, false, button.dataset.shift === 'true')
+      );
       container.focus({ preventScroll: true });
     });
   }
