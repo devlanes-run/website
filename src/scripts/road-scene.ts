@@ -175,8 +175,8 @@ function start(host: HTMLElement): void {
   // everything; a car that catches the one ahead in its lane holds behind it
   const HERO_SPEED = 8.5;
   const GAP = 6;
-  const fill = (lane: number): Promise<Car | undefined>[] =>
-    Array.from({ length: 4 }, (_, k) =>
+  const fill = (lane: number, count = 4): Promise<Car | undefined>[] =>
+    Array.from({ length: count }, (_, k) =>
       makeCar(pick(), lane, 6 - k * 16 - Math.random() * 6, 4 + Math.random() * 3)
     );
 
@@ -299,7 +299,7 @@ function start(host: HTMLElement): void {
     render();
   });
   if (!small) {
-    for (const p of [...fill(0), ...fill(3)]) void p.then(render);
+    for (const p of [...fill(0), ...fill(2, 2), ...fill(3)]) void p.then(render);
   }
 
   if (reduced) return;
