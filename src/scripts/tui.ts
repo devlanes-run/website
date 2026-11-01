@@ -34,7 +34,10 @@ const minimumCols = 40;
 const maximumCols = 140;
 /** Keys that open another page, replayed after a remount so the same page is open. */
 const pages = ['M', 'D', 'B', 'Escape'];
-/** The pages a touch screen cycles through, which has no keyboard to type into the demo. */
+/**
+ * The pages a touch screen cycles through until it is tapped: taps reach the TUI, but without
+ * a keyboard nothing invites one.
+ */
 const tour = ['M', 'Escape', 'D'];
 
 const coarse = window.matchMedia('(pointer: coarse)').matches;
@@ -67,8 +70,7 @@ function setup(wrapper: HTMLElement) {
   const badge = wrapper.querySelector<HTMLElement>('[data-tui-badge]');
   const badgeText = badge?.querySelector<HTMLElement>('[data-tui-badge-text]');
   if (!staticScreen || !live || !screen?.id) return;
-  // Touch screens have no keyboard to type into the demo, so the badge does not ask for it.
-  const idleLabel = coarse ? 'Live terminal' : 'Live terminal, click to interact';
+  const idleLabel = coarse ? 'Live terminal, tap to interact' : 'Live terminal, click to interact';
 
   const desktopRows = Number(wrapper.dataset.rows) || 34;
   const mobileRows = Number(wrapper.dataset.mobileRows) || 26;
@@ -83,6 +85,7 @@ function setup(wrapper: HTMLElement) {
   let ticker: number | undefined;
   let tourTimer: number | undefined;
   let tourStep = 0;
+  let touring = coarse;
   let remount: number | undefined;
   let refit: number | undefined;
 
@@ -279,7 +282,7 @@ function setup(wrapper: HTMLElement) {
       document.documentElement.dataset.motion !== 'paused';
     if (running && ticker === undefined) {
       ticker = window.setInterval(() => guard((demo) => demo.tick()), 1000);
-      if (coarse) {
+      if (touring) {
         tourTimer = window.setInterval(() => {
           tourStep = (tourStep + 1) % tour.length;
           send(tour[tourStep] ?? 'M');
@@ -293,7 +296,16 @@ function setup(wrapper: HTMLElement) {
     }
   };
 
-  if (coarse) screen.removeAttribute('tabindex');
+  // The first tap ends the tour: from then on the page is whatever was tapped.
+  screen.addEventListener(
+    'pointerdown',
+    () => {
+      touring = false;
+      window.clearInterval(tourTimer);
+      tourTimer = undefined;
+    },
+    { once: true }
+  );
   if (badgeText) {
     badgeText.textContent = idleLabel;
     screen.addEventListener('focus', () => {

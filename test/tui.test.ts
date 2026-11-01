@@ -278,7 +278,7 @@ test('ticks every second only while motion runs and the tab is visible', async (
   expect(await ticks()).toBe(baseline);
 });
 
-test('touch screens get no keyboard and tour the pages instead', async ({ browser }) => {
+test('touch screens tour the pages until they are tapped', async ({ browser }) => {
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
     hasTouch: true,
@@ -289,8 +289,7 @@ test('touch screens get no keyboard and tour the pages instead', async ({ browse
   await openLive(page);
   await page.clock.pauseAt(Date.now() + 60_000);
   const screen = page.locator('#tui-demo');
-  await expect(screen).not.toHaveAttribute('tabindex');
-  await expect(page.locator('[data-tui-badge]')).toHaveText('Live terminal');
+  await expect(page.locator('[data-tui-badge]')).toHaveText('Live terminal, tap to interact');
   // The jump above already ran some of the tour; only what runFor sends from here on counts.
   const sent = (await calls(page)).keys.length;
   const since = async () => (await calls(page)).keys.slice(sent);
@@ -305,6 +304,11 @@ test('touch screens get no keyboard and tour the pages instead', async ({ browse
     expect([ctrl, alt, shift]).toEqual([false, false, key !== 'Escape']);
   }
   expect(keys[0]?.[0]).not.toBe(keys[1]?.[0]);
+  // A tap reaches the TUI itself, so the tour stops for good.
+  await screen.tap();
+  const after = (await calls(page)).keys.length;
+  await page.clock.runFor(12_100);
+  expect((await calls(page)).keys).toHaveLength(after);
   await context.close();
 });
 
