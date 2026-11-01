@@ -1,6 +1,6 @@
-// Swaps the static monitor for the devlanes TUI compiled to WebAssembly. scripts/sync.mjs
-// publishes the module under /tui/ when the release has it; until then, or when it fails to
-// load, the static screen stays.
+// Swaps the static screen of the monitor section for the devlanes TUI compiled to WebAssembly.
+// scripts/sync.mjs publishes the module under /tui/ when the release has it; until then, when
+// it fails to load or when the screen is too narrow to read it, the static screen stays.
 
 /** The `Demo` class exported by the devlanes-tui-web bundle. */
 interface Demo {
@@ -19,15 +19,30 @@ interface TuiModule {
   Demo: new (elementId: string) => Demo;
 }
 
+// Below this scale the 120 columns are too small to read, so phones keep the static screen and
+// never download the module.
+const minimumScale = 0.6;
+
 const section = document.querySelector<HTMLElement>('#monitor');
-const fallback = section?.querySelector<HTMLElement>('[data-monitor-static]');
+const staticScreen = section?.querySelector<HTMLElement>('[data-monitor-static]');
 const live = section?.querySelector<HTMLElement>('[data-monitor-live]');
 const viewport = live?.querySelector<HTMLElement>('.tui-live-viewport');
 const container = live?.querySelector<HTMLElement>('#tui-demo');
 
-if (section && fallback && live && viewport && container && 'IntersectionObserver' in window) {
+if (
+  section &&
+  staticScreen &&
+  live &&
+  viewport &&
+  container &&
+  'IntersectionObserver' in window &&
+  typeof WebAssembly === 'object'
+) {
+  const root = document.documentElement;
   let demo: Demo | undefined;
   let visible = false;
+  let near = false;
+  let started = false;
   let timer: number | undefined;
 
   /**
@@ -39,18 +54,22 @@ if (section && fallback && live && viewport && container && 'IntersectionObserve
     try {
       return call(demo);
     } catch (error) {
-      console.debug('The live TUI demo stopped, showing the static container.', error);
+      console.debug('The live TUI demo stopped, showing the static screen.', error);
       demo = undefined;
       syncTicks();
       live.hidden = true;
-      fallback.hidden = false;
+      staticScreen.hidden = false;
       return undefined;
     }
   };
 
-  /** Runs the fake daemon's clock only while someone can see the demo. */
+  /**
+   * Runs the fake daemon's clock only while someone can see the demo and motion is allowed:
+   * the footer's pause button and reduced motion both set `data-motion="paused"`.
+   */
   const syncTicks = () => {
-    const running = demo !== undefined && visible && !document.hidden;
+    const running =
+      demo !== undefined && visible && !document.hidden && root.dataset.motion !== 'paused';
     if (running && timer === undefined) {
       timer = window.setInterval(() => guard((demo) => demo.tick()), 1000);
     } else if (!running && timer !== undefined) {
@@ -69,6 +88,22 @@ if (section && fallback && live && viewport && container && 'IntersectionObserve
     viewport.style.height = `${container.offsetHeight * scale}px`;
   };
 
+  /**
+   * Whether the demo would be readable at the current width. It is measured with an off-screen
+   * copy of the container, since the live block stays hidden until the module loads, against
+   * the static screen's terminal, which has the same width as the live one.
+   */
+  const wideEnough = () => {
+    const terminal = staticScreen.querySelector<HTMLElement>('.terminal');
+    const probe = document.createElement('div');
+    probe.className = 'tui-live';
+    probe.style.cssText = 'position: absolute; visibility: hidden';
+    document.body.append(probe);
+    const width = probe.offsetWidth;
+    probe.remove();
+    return (terminal?.clientWidth ?? 0) >= width * minimumScale;
+  };
+
   /** Loads the module and mounts the TUI, leaving the static screen in place on any failure. */
   const start = async () => {
     try {
@@ -83,18 +118,45 @@ if (section && fallback && live && viewport && container && 'IntersectionObserve
       demo = new module.Demo(container.id);
     } catch (error) {
       live.hidden = true;
-      console.debug('The live TUI demo is unavailable, showing the static container.', error);
+      console.debug('The live TUI demo is unavailable, showing the static screen.', error);
       return;
     }
-    fallback.hidden = true;
-    new ResizeObserver(fit).observe(viewport);
+    staticScreen.hidden = true;
+    // Deferred to the next frame so resizing the viewport from here does not trigger a
+    // "ResizeObserver loop" error.
+    new ResizeObserver(() => requestAnimationFrame(fit)).observe(viewport);
+    // The section is about the monitor, so the demo opens on it.
+    guard((demo) => demo.key('M', false, false, true));
     syncTicks();
+  };
+
+  /** Starts loading once the section is close and the layout is wide enough, at most once. */
+  const maybeStart = () => {
+    if (started || !near || !wideEnough()) return;
+    started = true;
+    window.removeEventListener('resize', maybeStart);
+    void start();
   };
 
   container.addEventListener('keydown', (event) => {
     // Command shortcuts on macOS belong to the browser.
     if (event.metaKey) return;
-    const used = guard((demo) => demo.key(event.key, event.ctrlKey, event.altKey, event.shiftKey));
+    // So does copying text selected inside the demo.
+    const selection = window.getSelection();
+    if (
+      event.ctrlKey &&
+      event.key === 'c' &&
+      selection &&
+      !selection.isCollapsed &&
+      container.contains(selection.anchorNode)
+    ) {
+      return;
+    }
+    // AltGr arrives as Ctrl+Alt on Windows, but it types a character, not a chord.
+    const altGraph = event.getModifierState('AltGraph');
+    const used = guard((demo) =>
+      demo.key(event.key, event.ctrlKey && !altGraph, event.altKey && !altGraph, event.shiftKey)
+    );
     if (used) event.preventDefault();
   });
 
@@ -112,15 +174,19 @@ if (section && fallback && live && viewport && container && 'IntersectionObserve
     (entries) => {
       if (!entries.some((entry) => entry.isIntersecting)) return;
       loader.disconnect();
-      void start();
+      near = true;
+      maybeStart();
     },
     { rootMargin: '600px 0px' }
   );
   loader.observe(section);
+  // A phone turned sideways or a wider window can make the demo readable later.
+  window.addEventListener('resize', maybeStart);
 
   new IntersectionObserver((entries) => {
     visible = entries.at(-1)?.isIntersecting ?? visible;
     syncTicks();
   }).observe(section);
   document.addEventListener('visibilitychange', syncTicks);
+  new MutationObserver(syncTicks).observe(root, { attributeFilter: ['data-motion'] });
 }

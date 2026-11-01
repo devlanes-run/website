@@ -1,7 +1,8 @@
 ---
 // The TUI's monitor (M), following crates/tui/screens/monitor-* in the devlanes repository.
-// It stays as the fallback without JavaScript or the TUI web build; scripts/monitor.ts swaps
-// in the live TUI when /tui/devlanes_tui_web.js loads.
+// This static screen stays without JavaScript, the TUI web build or a wide enough layout;
+// scripts/monitor.ts swaps in the live TUI when /tui/devlanes_tui_web.js loads. The live TUI
+// shows the devlanes repository's mock data, so its terminal has no `myapp` in the title.
 import { lanes, total, type Unit } from '../data/demo';
 import Terminal from './Terminal.astro';
 
@@ -131,10 +132,10 @@ const keys = [
   </div>
   <div class="monitor-live" data-monitor-live hidden>
     <p class="monitor-hint" id="tui-demo-hint">
-      Click the terminal and type, or use the keys below: j and k move, Enter opens a unit, M opens
-      the monitor and ? lists all keys.
+      Click or tab into the terminal to type, or use the keys below: j and k move, Enter opens a
+      unit, Esc goes back, M shows the monitor, D the daemon page and ? all keys.
     </p>
-    <Terminal title="devlanes / myapp">
+    <Terminal title="devlanes">
       <div class="tui-live-viewport">
         <div
           id="tui-demo"
