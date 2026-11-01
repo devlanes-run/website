@@ -14,9 +14,9 @@ import Terminal from './Terminal.astro';
     editing a proxy by hand.
   </p>
   <p>
-    Lanes share one Postgres server and each gets its own database, so a migration in one lane
-    leaves main's data alone. One committed <code>devlanes.yaml</code> describes the stack for every
-    lane.
+    Heavy infra such as a database server runs once and is shared, with a database per lane inside
+    it, so a migration in one lane leaves main's data alone. Lanes that need their own containers
+    get them. One committed <code>devlanes.yaml</code> describes the stack for every lane.
   </p>
   <Terminal slot="visual" title="~/dev/myapp-checkout">
     <pre class="terminal-content"><span class="command">$ git worktree add ../myapp-checkout -b feat/checkout</span>

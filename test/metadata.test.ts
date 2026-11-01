@@ -33,7 +33,10 @@ test('generated crawler documents and assets are available', async ({ request })
     '/assets/logo-badge-square.svg',
     '/assets/logo-badge-square.png',
     '/assets/fileicon.svg',
-    '/assets/favicon-universal.png'
+    '/assets/banner.svg',
+    '/assets/og.png',
+    '/favicon.svg',
+    '/social.png'
   ]) {
     expect((await request.get(path)).ok(), path).toBe(true);
   }

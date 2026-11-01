@@ -1,4 +1,5 @@
 ---
+import Install from './Install.astro';
 import RoadScene from './RoadScene.astro';
 ---
 
@@ -6,22 +7,11 @@ import RoadScene from './RoadScene.astro';
 <section class="hero" aria-labelledby="hero-title">
   <h1 id="hero-title">Run every worktree at once, each on its own localhost.</h1>
   <p class="hero-lede">
-    <strong>Stop fighting over port 3000.</strong>
-    devlanes runs your dev stack once per Git worktree. Each one gets its own ports, its own{' '}
-    <code>https://myapp1.localhost</code> and its own database, and a daemon keeps it running after
-    you close the terminal.
+    Stop fighting over port 3000. devlanes runs your dev stack per Git worktree: own ports, own{' '}
+    <code>https://myapp1.localhost</code>, own databases. One terminal shows every lane and its
+    logs, and coding agents get lanes of their own.
   </p>
-  <div class="hero-actions">
-    <a class="button primary" href="#install">
-      Install devlanes
-    </a>
-    <a class="button" href="/docs/">
-      Read the docs
-    </a>
-  </div>
-  <p class="hero-facts">
-    An open source command line tool for your own machine. Apache-2.0, written in Rust. Nothing to
-    sign up for and nothing hosted.
-  </p>
+  <Install />
 </section>
+<p class="sign-facts">An open source CLI. Nothing to sign up for and nothing hosted.</p>
 <span class="sign-credit">Car models by Kenney, CC0</span>

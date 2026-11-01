@@ -10,18 +10,16 @@
     <rect x="90" y="40" width="332" height="432" fill="url(#badge-road-fade)"/>
   </mask>
 </defs>
-<rect x="2" y="2" width="508" height="508" rx="110" fill="#1a1917" stroke="#3d3b36" stroke-width="4"/>
-<g mask="url(#badge-road-mask)">
-  <path d="M96 40V472M416 40V472" stroke="#34332f" stroke-width="2"/>
-  <path d="M176 40V472M336 40V472" stroke="#555249" stroke-width="3" stroke-dasharray="28 22"/>
-  <path d="M251 40V472M261 40V472" stroke="#f5c542" stroke-width="3" opacity=".32"/>
+<rect width="512" height="512" rx="110" fill="#f5c542"/>
+<g mask="url(#badge-road-mask)" stroke="#d9ad2e" stroke-width="3" stroke-dasharray="28 22">
+  <path d="M176 40V472M336 40V472"/>
 </g>
-<g transform="translate(64 64) scale(6)" stroke="#1a1917" stroke-width="3" paint-order="stroke">
+<g transform="translate(64 64) scale(6)" stroke="#f5c542" stroke-width="3" paint-order="stroke">
   
-<rect x="8" y="16" width="32" height="8" rx="4" fill="#f5c542"/>
+<rect x="8" y="16" width="32" height="8" rx="4" fill="#0d0c0a"/>
 <g opacity="1">
-<rect x="16" y="28" width="32" height="8" rx="4" fill="#c9c6bd"/>
-<rect x="24" y="40" width="32" height="8" rx="4" fill="#c9c6bd"/>
+<rect x="16" y="28" width="32" height="8" rx="4" fill="#3d3b36"/>
+<rect x="24" y="40" width="32" height="8" rx="4" fill="#3d3b36"/>
 </g>
 </g>
 </svg>

@@ -73,10 +73,12 @@
   gap: 12px;
   padding: 16px 18px 12px;
 
-  code {
+  // Specific enough to beat a surrounding section's `code` colour; the window is always dark.
+  .install & code {
     flex: 1;
     min-width: 0;
     font: 13.5px/1.7 var(--mono);
+    color: var(--terminal-ink);
     overflow-wrap: anywhere;
     user-select: all;
   }
