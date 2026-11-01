@@ -33,7 +33,7 @@ interface Car {
   wander: { phase: number; rate: number; phase2: number; rate2: number };
 }
 
-const WANDER = 0.32;
+const WANDER = 0.16;
 
 function laneX(lane: number): number {
   return (lane - 1.5) * LANE_W;
