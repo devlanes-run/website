@@ -2,7 +2,7 @@
 // devlanes-tui-web bundle. Calls are recorded on `window.tuiDemo`. Keys listed in
 // `window.tuiDemo.unused` (chords as `Ctrl+<key>`) are reported as unused, like the TUI does for
 // keys it ignores. `window.tuiDemoFail` makes one step fail the way a panic in the real module
-// does: 'init', 'mount', 'key' or 'tick'.
+// does: 'init', 'mount', 'key' or 'tick'; 'grid' makes every grid one column short.
 const calls = {
   inits: 0,
   constructed: 0,
@@ -54,7 +54,9 @@ export class Demo {
     const size = cell.getBoundingClientRect();
     probe.remove();
     const area = element.getBoundingClientRect();
-    const columns = Math.floor(area.width / size.width);
+    // `grid`: the module measures the element differently from the page and builds a grid one
+    // column short, whatever slack the page adds.
+    const columns = Math.floor(area.width / size.width) - (window.tuiDemoFail === 'grid' ? 1 : 0);
     const rows = Math.floor(area.height / size.height);
     calls.mounts.push({ id, columns, rows });
     const grid = document.createElement('div');

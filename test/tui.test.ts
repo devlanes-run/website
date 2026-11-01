@@ -47,7 +47,7 @@ const grid = (page: Page) =>
   });
 
 /** Serves the fake module, optionally making one of its steps fail from the first call. */
-async function serveFake(page: Page, fail?: 'init' | 'mount' | 'key' | 'tick') {
+async function serveFake(page: Page, fail?: 'init' | 'mount' | 'key' | 'tick' | 'grid') {
   if (fail) {
     await page.addInitScript((fail) => {
       (window as unknown as { tuiDemoFail: string }).tuiDemoFail = fail;
@@ -310,14 +310,15 @@ test('touch screens tour the pages until they are tapped', async ({ browser }) =
   await context.close();
 });
 
-for (const step of ['init', 'mount'] as const) {
+for (const step of ['init', 'mount', 'grid'] as const) {
   test(`keeps the static screen when the module fails at ${step}`, async ({ page }) => {
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await serveFake(page, step);
     await page.goto(route);
-    // A failed mount is retried once before the static screen is kept.
-    const reached = step === 'init' ? 1 : 2;
+    // A failed mount is retried once before the static screen is kept; a grid of the wrong
+    // size is tried with both slacks on each mount.
+    const reached = step === 'init' ? 1 : step === 'mount' ? 2 : 4;
     await expect
       .poll(async () => {
         const recorded = await calls(page);
@@ -326,6 +327,7 @@ for (const step of ['init', 'mount'] as const) {
       .toBe(reached);
     await expect(page.locator('[data-tui-static]')).toBeVisible();
     await expect(page.locator('[data-tui-live]')).toBeHidden();
+    await expect(page.locator('[data-tui-badge]')).toBeHidden();
     expect(errors).toEqual([]);
   });
 }

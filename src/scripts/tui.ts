@@ -216,6 +216,9 @@ function setup(wrapper: HTMLElement) {
         if (built(next)) break;
         unmount();
       }
+      // A grid of another size than the element was sized for, with both slacks, is a failure
+      // too: the module built something, but not the terminal the page laid out.
+      if (!demo) throw new Error('the TUI grid did not match the measured size');
     } catch (error) {
       failures += 1;
       if (failures > 1) stop(error);
