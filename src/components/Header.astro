@@ -3,9 +3,10 @@ import { Icon } from 'astro-icon/components';
 import Mark from './Mark.astro';
 
 interface Props {
-  current?: 'docs';
+  current?: 'docs' | 'lanes' | 'remote' | 'agents';
 }
 const { current } = Astro.props;
+const page = (name: Props['current']) => (current === name ? 'page' : undefined);
 ---
 
 <header class="site-header">
@@ -14,10 +15,16 @@ const { current } = Astro.props;
     devlanes
   </a>
   <nav aria-label="Main navigation">
-    <a href="/#remote">Remote</a>
-    <a href="/#lanes">Lanes</a>
-    <a href="/#agents">Agents</a>
-    <a href="/docs/" aria-current={current === 'docs' ? 'page' : undefined}>
+    <a href="/lanes/" aria-current={page('lanes')}>
+      Lanes
+    </a>
+    <a href="/remote/" aria-current={page('remote')}>
+      Remote
+    </a>
+    <a href="/agents/" aria-current={page('agents')}>
+      Agents
+    </a>
+    <a href="/docs/" aria-current={page('docs')}>
       Docs
     </a>
     <a

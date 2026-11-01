@@ -1,0 +1,24 @@
+---
+import Install from '../Install.astro';
+
+// The end of a feature page: the docs that go deeper, then the install control.
+interface Props {
+  links: { href: string; label: string }[];
+}
+const { links } = Astro.props;
+---
+
+<section class="page-docs" aria-labelledby="page-docs-title">
+  <h2 id="page-docs-title">In the docs</h2>
+  <ul>
+    {links.map(({ href, label }) => (
+      <li>
+        <a href={href}>{label}</a>
+      </li>
+    ))}
+  </ul>
+</section>
+<section class="page-install" aria-labelledby="page-install-title">
+  <h2 id="page-install-title">Install devlanes</h2>
+  <Install />
+</section>

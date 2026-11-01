@@ -1,48 +1,32 @@
-<section id="lanes" class="feature" aria-labelledby="lanes-title">
-  <div class="section-heading copy">
-    <h2 id="lanes-title">Run several copies of your project</h2>
-    <p>
-      A lane groups the services and configuration for one running stack. Every Git worktree gets a
-      lane, and <code>devlanes lane new --name review</code> adds another lane to the same folder.
-    </p>
-  </div>
-  <div class="lane-details">
-    <article class="copy">
-      <h3>Ports and hostnames</h3>
-      <p>
-        Each lane gets a block of ports and its own hostnames, such as{' '}
-        <code>myapp-1.localhost</code>. Run the checkout branch alongside main without assigning
-        ports in <code>.env</code> files.
-      </p>
-      <code class="example">
-        main 20000-20009
-        <br />
-        feat/checkout 20010-20019
-      </code>
-    </article>
-    <article class="copy">
-      <h3>Per-lane databases</h3>
-      <p>
-        With an <code>infra.setup</code> step, lanes share one Postgres server and each gets its own
-        database. Test a migration in one lane without changing main's data.
-      </p>
-      <code class="example">
-        postgres / myapp_main
-        <br />
-        postgres / myapp_lane1
-      </code>
-    </article>
-    <article class="copy">
-      <h3>Project configuration</h3>
-      <p>
-        Define services and setup tasks in <code>devlanes.yaml</code>. Environment variables use
-        each lane's ports and database names.
-      </p>
-      <code class="example">
-        devlanes.yaml
-        <br />
-        web + api + worker
-      </code>
-    </article>
-  </div>
-</section>
+---
+import Section from './Section.astro';
+import Terminal from './Terminal.astro';
+---
+
+<Section
+  id="lanes"
+  title="A second worktree comes up next to main, on its own ports."
+  more={{ href: '/lanes/', label: 'More about lanes' }}
+>
+  <p>
+    Each lane gets a block of ports and its own hostnames, such as <code>myapp1.localhost</code>.
+    Run the checkout branch alongside main without assigning ports in <code>.env</code> files or
+    editing a proxy by hand.
+  </p>
+  <p>
+    Lanes share one Postgres server and each gets its own database, so a migration in one lane
+    leaves main's data alone. One committed <code>devlanes.yaml</code> describes the stack for every
+    lane.
+  </p>
+  <Terminal slot="visual" title="~/dev/myapp-checkout">
+    <pre class="terminal-content"><span class="command">$ git worktree add ../myapp-checkout -b feat/checkout</span>
+<span class="dim">Preparing worktree (new branch 'feat/checkout')</span>
+<span class="command">$ cd ../myapp-checkout</span>
+<span class="command">$ devlanes start --no-ui</span>
+myapp@1 · feat/checkout
+<span class="success">✓</span> services  3 of 3 ready
+  <span class="success">✓</span>  api     <span class="url">https://api.myapp1.localhost</span>
+  <span class="success">✓</span>  web     <span class="url">https://myapp1.localhost</span>
+  <span class="success">✓</span>  worker  http://127.0.0.1:20012</pre>
+  </Terminal>
+</Section>

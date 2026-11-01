@@ -29,7 +29,7 @@ test('docs share the landing header, analytics and theme preference', async ({ p
     '/docs.md'
   );
 
-  await expect(page.locator('.site-header')).toHaveCSS('font-family', /JetBrains Mono/);
+  await expect(page.locator('.site-header')).toHaveCSS('font-family', /Overpass/);
   await expect(page.locator('.sl-markdown-content p').first()).toHaveCSS('font-family', /Overpass/);
 });
 

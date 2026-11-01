@@ -2,11 +2,15 @@
 
 ## Copy
 
-The headline is "Sandboxes for your agents. localhost for you." Use it in the hero and social previews.
+The headline is "Run every worktree at once, each on its own localhost." Use it in the hero, the `<title>`, the social image and the footer.
 
-A lane is a running stack with its own ports and data. It may use a worktree, another checkout or the same checkout. The host machine or container defines its security boundary.
+devlanes is an open source CLI and a per-user daemon that run on the reader's own machine. The first screen says so in plain words (Apache-2.0, nothing to sign up for, nothing hosted), because the page otherwise reads like a hosted product.
 
-Use `myapp` and `my-vps` in examples. Agent conversations use a generic agent and model. Describe operations in the present tense. The team-only landing page uses the intended product experience, including installation, without development notices or mockup labels.
+The landing page teaches what devlanes is, not how to use it. Commands appear only inside terminal windows, as one real command with its real output; prose never lists commands, flags or keys. Each fold makes one point with one artefact and links to a page that goes deeper (`/lanes/`, `/remote/`, `/agents/`) or to the docs.
+
+A lane is a running copy of the stack with its own ports, hostnames and data. "Worktree" is the noun in copy; "lane" is introduced once under the status table. Lane domains have no hyphen: `myapp.localhost` for lane 0, `myapp1.localhost` for lane 1. Use `myapp` and `my-vps` in examples; branches `main`, `feat/checkout`, `fix/login` and `agent/perf`. Lanes are not a sandbox and the page says so.
+
+Sentence case everywhere. No em dashes, no "A · B · C" strings, no arrows in links, no tracked uppercase labels, no numbered card grids, no headings that start with What, Why or How. Reuse the sentences a person wrote before inventing new ones.
 
 ## Colour and typography
 
@@ -17,53 +21,54 @@ Use `myapp` and `my-vps` in examples. Agent conversations use a generic agent an
 | Muted text | `#63615a` | `#b0ada3` |
 | Border | `#d1cfc7` | `#4c4941` |
 | Paint | `#f5c542` | `#f5c542` |
+| Road centre | `#d2ae43` | `#79672f` |
 
-Use JetBrains Mono for headings, navigation and terminal text; Overpass for prose. Fonts are self-hosted through Fontsource. Headings use sentence case. Hero text scales from 25px to 48px; section headings use 24px to 31px.
+Overpass for everything that is not code: headings in weight 900 with tight letter-spacing (hero `clamp(38px, 5vw, 64px)`, section headings `clamp(28px, 2.9vw, 40px)`), prose 18px/1.6, navigation 600 14px. JetBrains Mono only for code, terminals and the brand. Fonts are self-hosted through Fontsource.
 
-Terminals remain dark in both themes. Green indicates ready services. Process groups use amber, blue, lavender or teal.
+Terminal windows stay dark in both themes: a macOS-style title bar (three dots, the first in paint yellow, centred title), a translucent surface over a blur, 12px corners and a soft shadow. Commands are bold white, raw output muted, ready states green, hostnames yellow.
 
 ## Layout
 
-Centre the hero above the terminal preview. Follow it with text and terminal examples in two columns, stacked on mobile. Lane explanations use dashed separators.
+The sign: a full-width paint-yellow block at least 90vh tall holding the header and the hero copy, centred, with the road scene behind it. Its foot fades into the page surface. The install control is not in the hero; the hero has two buttons, "Install devlanes" (to `#install`) and "Read the docs".
 
-The content width is 1200px, including 40px side padding. Mobile padding is 20px. Section spacing is 128px on desktop and 80px on mobile. Wide tables scroll within labelled, keyboard-accessible regions.
+Below the sign the page is a sequence of folds, each roughly a screen tall with 170px between them (96px on phones): the status table, lanes (copy left, terminal right), the live monitor (copy above, terminal full width), remote (terminal left), agents (copy left), then "Run your first lane" with the install control and the small print. Folds alternate sides and stack on phones. The content width is 1200px with 40px side padding, 20px on phones.
 
-Text backgrounds are opaque so road markings cannot cross the copy. Terminal windows have a border, 7px corners and a narrow yellow-tinted surround. Buttons have 5px corners.
-
-Terminal examples show real devlanes commands and output, taken from the CLI snapshots (`crates/cli/tests/it/snapshots/`) and TUI screens (`crates/tui/screens/`) of the devlanes repository with the demo names substituted: project `myapp`, box `my-vps`, branches `main`, `feat/checkout`, `fix/login` and `agent/perf`. Examples may leave out lines and columns, but never show a command, flag, key or field that devlanes does not have. `src/data/demo.ts` holds the lanes and resource figures shared by the status table and the monitor. The agent examples are switched by buttons above the terminal, on the page background, so they read as page controls rather than agent output; without JavaScript the buttons are hidden and the first example shows.
+Text blocks have opaque surfaces, so the road's centre stroke only shows in the gaps between them. On phones the live terminal runs edge to edge without side borders.
 
 ## Road
 
-The vertical road covers the page. Grey dividers are 2px wide. Each yellow centre stroke is 3px, with an opaque 4px gap. Dividers and process groups share a lane-width token: 160px on desktop and 100px on small screens.
+The sign's background is a three.js scene (`src/scripts/road-scene.ts`, bundled; models in `public/models/`, Kenney Car Kit, CC0, credited at the foot of the sign): four lanes with dashed dividers in the sign's yellow, charcoal toon-shaded cars, the hero car in lane 1 driving from the first frame with the camera behind and to its left, slower traffic in lane 0 and faster traffic in lane 3, fog in the sign's colour so nothing reaches the copy. The car's position follows the copy's bottom edge so it never sits under the text. Nothing is tied to scroll. Phones get the hero lane only, no antialiasing and a capped pixel ratio. Without WebGL the sign stays plain yellow; nothing stands in for the road.
 
-Each process group contains matching `web`, `api` and `worker` symbols. Symbols are about 32px and sit midway between dividers. Left-side groups move down; right-side groups move up. They pass behind page content. Markings move upward at 20% of the scroll speed.
+Below the sign the only road element is the double centre stroke: two 3px strokes with a 4px gap, fixed behind the page.
 
-The footer contains a pause button. Honour reduced-motion preferences and stop animation frames while paused or when the tab is hidden. Agent examples change only when selected.
+The footer's pause button and the reduced-motion preference set `data-motion` on the root; the scene and the live terminal stop while it says `paused` and when the tab is hidden or they are off screen.
+
+## The live terminal
+
+The monitor fold runs the real devlanes TUI compiled to WebAssembly (`crates/tui-web` in the devlanes repository) against its fake daemon. `scripts/sync.mjs` unpacks the release asset `devlanes-tui-web.tar.gz` into `public/tui/`; it is optional, so a release without it keeps the static screen. `DEVLANES_TUI_DIR` points at a local build (the output of `packaging/scripts/tui-web.sh`).
+
+`src/components/Tui.astro` and `src/scripts/tui.ts` size the terminal in cells of its own font, between 40 and 140 columns and a fixed number of rows (34, 26 on phones), and remount it at the new size when the width changes, replaying the page that was open. The window's title bar shows a green badge, "Live terminal, click to interact", once it is live. Keys go to the TUI while it has focus (Tab always leaves). Touch screens cycle between the monitor and the lanes view every few seconds instead. The static monitor table built from `src/data/demo.ts` stays without JavaScript, without the bundle, and if the module throws twice. The mock data is the devlanes repository's (`acme`), so the window is titled `devlanes`.
+
+## Feature pages
+
+`/lanes/`, `/remote/` and `/agents/` use the same layout without the sign: a page title, a lede, folds with one artefact each, links into the docs and the install control. The header marks the current one.
 
 ## Docs
 
-Starlight renders `/docs/` with the landing page's header, fonts, colours and theme preference. The header component, theme script, fonts and Plausible snippet are shared, so a change applies to both. Page titles use the section heading size; body text is 18px Overpass; navigation, sidebars and the table of contents use 13px JetBrains Mono. The current page is highlighted in paint yellow. Code blocks use the dark terminal style in both themes. The road stays on the landing page so long pages remain readable.
+Starlight renders `/docs/` with the landing page's header, fonts, colours and theme preference. Headings are Overpass 900 at the landing sizes, body 18px/1.7 in a text column of at most 760px, sidebar and table of contents in Overpass 14px with the current page in a darker paint colour. Code blocks use the terminal window look. The road stays on the landing page.
 
-The Markdown comes from the source repositories listed in `scripts/sync.mjs` and is not committed here. Each build checks out the latest stable release tag of every source once, and takes the docs, the JSON Schemas served at `/v1/`, `/install.sh` and `/install.ps1` from that same tag. A file marked optional in `scripts/sync.mjs` is skipped when the tag predates it. A source repository triggers the build after a release with a `source-release` dispatch carrying its `repository` and `tag`; the build refuses a tag that is no longer the latest release. The importer turns the first heading into the page title, links other pages to their routes and other files to GitHub at the built commit. For previews, `DEVLANES_REF` builds another branch or tag, and `DEVLANES_DIR` uses a local checkout of the repository.
+The Markdown comes from the source repositories listed in `scripts/sync.mjs` and is not committed here. Each build checks out the latest stable release tag of every source once, and takes the docs, the JSON Schemas served at `/v1/`, `/install.sh`, `/install.ps1` and the TUI bundle from that same tag. A file marked optional in `scripts/sync.mjs` is skipped when the tag predates it. A source repository triggers the build after a release with a `source-release` dispatch carrying its `repository` and `tag`; the build refuses a tag that is no longer the latest release. The importer turns the first heading into the page title, links other pages to their routes and other files to GitHub at the built commit. For previews, `DEVLANES_REF` builds another branch or tag, and `DEVLANES_DIR` uses a local checkout of the repository.
 
-Each page shows when it last changed, from the newest commit that touched its source file. The import clones the source history without file contents, so the dates match the repository rather than the build.
-
-A source file with `publish: false` in its frontmatter stays on GitHub only; links to it open the file there. Other Starlight frontmatter, such as `sidebar.order`, `sidebar.hidden` or `pagefind: false`, passes through. Images inside the source directory referenced with Markdown image syntax are optimized by Astro. Images in raw HTML or outside the directory load from GitHub at the built commit.
+Each page shows when it last changed, from the newest commit that touched its source file. A source file with `publish: false` in its frontmatter stays on GitHub only. Other Starlight frontmatter passes through. Images inside the source directory referenced with Markdown image syntax are optimized by Astro; others load from GitHub at the built commit.
 
 Pagefind indexes the docs at build time. Every docs page has a Markdown twin at its URL plus `.md`, which `astro-slop` lists in `llms.txt` and `llms-full.txt` beside the landing page.
 
 ## Assets
 
-The mark has three rounded bars staggered right. The top bar is yellow; the lower bars are neutral. Preserve its proportions.
+The mark has three rounded bars staggered right. The top bar is yellow; the lower bars are neutral. On the yellow sign the top bar turns dark. Preserve its proportions.
 
-- Use the dark-tile favicon for browser tabs.
-- Universal file icons have mid-grey bars with charcoal outlines.
-- Use the road-detail badge for large avatars.
-- The square badge has an edge-to-edge dark background without a border or rounded corners.
-- Banner SVGs use outlined text so rendering does not depend on installed fonts.
-
-Served assets are in `public/assets/`. Source generators remain in the brand repository.
+`public/social.png` and `public/assets/banner.png` are rendered by `node scripts/social.mjs` from the sign: headline, one line of copy and the status table in a terminal window. Run it after changing the headline. The other assets in `public/assets/` come from the brand repository.
 
 ## Interaction
 
-Provide visible keyboard focus and a skip link. Theme selection persists when storage is available. Example buttons expose their selected state and associated panel. The page remains readable without JavaScript.
+Provide visible keyboard focus and a skip link, except inside the live terminal, where the badge is the focus indicator. Theme selection persists when storage is available. The page remains readable without JavaScript.

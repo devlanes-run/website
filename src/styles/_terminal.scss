@@ -1,40 +1,81 @@
+// Terminal windows stay dark in both themes: a macOS-style title bar over a slightly
+// translucent surface, so the road behind shows through a little.
 .terminal {
-  background: var(--terminal);
+  position: relative;
+  background: rgba(26, 25, 23, 0.86);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   color: var(--terminal-ink);
-  border: 1px solid #666158;
-  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 12px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 24px 60px -24px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(0, 0, 0, 0.35);
   text-align: left;
   overflow: hidden;
-  font: 12px/1.65 var(--mono);
+  font: 12.5px/1.65 var(--mono);
   // Terminals print `->` and `<-` as typed, so the mono font's arrow ligatures stay off.
   font-variant-ligatures: none;
   min-width: 0;
-  box-shadow: 0 0 0 5px color-mix(in srgb, var(--surface) 88%, var(--paint));
 }
 
 .terminal-bar {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 9px;
-  padding: 10px 14px;
-  border-bottom: 1px solid #47443d;
-  background: var(--terminal-raised);
-  font-size: 11px;
-  color: #c3beb2;
+  height: 38px;
+  padding: 0 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.035);
+  font-size: 11.5px;
+  color: #a9a396;
 }
 
-.terminal-dot {
-  width: 8px;
-  height: 8px;
-  background: var(--paint);
-  border-radius: 50%;
-  flex-shrink: 0;
+.terminal-dots {
+  display: flex;
+  gap: 7px;
+
+  i {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #4a463f;
+  }
+
+  i:first-child {
+    background: var(--paint);
+  }
+}
+
+.terminal-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
 }
 
 .terminal-line {
   margin: 0;
-  padding: 14px 18px 4px;
-  font-size: 11px;
+  padding: 16px 20px 4px;
+}
+
+.terminal-content {
+  padding: 20px 22px;
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+}
+
+.terminal pre {
+  margin: 0;
+  font: inherit;
+  // Raw output is muted so the commands stand out; long lines wrap rather than scroll.
+  color: #b3ada0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  overflow: hidden;
 }
 
 .table-scroll {
@@ -46,37 +87,37 @@
   border-collapse: collapse;
   width: 100%;
   white-space: nowrap;
-  font-size: 11px;
+  font-size: 12px;
 
   caption {
     text-align: left;
-    padding: 6px 13px;
+    padding: 6px 20px 8px;
     color: #f5d47a;
   }
 
   th,
   td {
     text-align: left;
-    padding: 11px 13px;
+    padding: 11px 20px;
     font-weight: 400;
   }
 
   thead {
     color: #a9a396;
-    font-size: 10px;
+    font-size: 10.5px;
 
     th {
-      border-bottom: 1px solid #464239;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
   }
 
   tbody {
     tr:first-child {
-      background: #302a1c;
+      background: rgba(245, 197, 66, 0.07);
     }
 
     tr + tr {
-      border-top: 1px dashed #38352e;
+      border-top: 1px dashed rgba(255, 255, 255, 0.07);
     }
   }
 
@@ -107,32 +148,50 @@
   background: #78aaa7;
 }
 
-.terminal-foot {
-  padding: 9px 16px;
-  color: #b1ab9e;
-  background: var(--terminal-raised);
-  font-size: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 18px;
-}
-
-.terminal-content {
-  padding: 22px;
-}
-
 .command {
-  color: #f2f0ea;
+  color: #fdfcf8;
+  font-weight: 700;
   overflow-wrap: anywhere;
+  margin: 0 0 6px;
+}
+
+// Inside a <pre> the command is a span on its own line.
+.terminal pre .command {
+  display: inline;
+  margin: 0;
 }
 
 .success {
   color: #91c59f;
 }
 
+.dim {
+  color: #8f8a7e;
+}
+
+.url {
+  color: #f5d47a;
+}
+
+.failure {
+  color: #e39a8f;
+}
+
+.key {
+  color: #c0b8ff;
+}
+
+.string {
+  color: #91c59f;
+}
+
+.expr {
+  color: #f5d47a;
+}
+
 .route {
   padding: 15px 0;
-  border-top: 1px dashed #4a453c;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
 
   &:last-child {
     padding-bottom: 0;
@@ -146,18 +205,33 @@
 
   span {
     color: #b9b2a4;
-    font-size: 10px;
+    font-size: 10.5px;
   }
 
   code {
     color: #f5d47a;
-    font: 12px var(--mono);
+    font: 12.5px var(--mono);
     margin: 5px 0;
     overflow-wrap: anywhere;
   }
 
   small {
     color: #b5afa2;
-    font-size: 10px;
+    font-size: 10.5px;
+  }
+}
+
+.terminal-stack {
+  display: grid;
+  gap: 22px;
+}
+
+// On phones the live terminal goes edge to edge, without padding, so more columns fit.
+@media (max-width: 720px) {
+  .terminal-tui {
+    margin: 0 -20px;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
   }
 }

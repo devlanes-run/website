@@ -1,0 +1,255 @@
+@use 'tokens';
+
+// The live TUI (src/components/Tui.astro, src/scripts/tui.ts). The page wraps it in a Terminal
+// window, whose surface shows through the screen.
+.tui {
+  min-width: 0;
+}
+
+// The TUI gets as many cells as fit this element, measured in its own font with
+// `line-height: normal`, so the script sizes it to whole cells and never scales it.
+.tui-screen {
+  // The self-hosted JetBrains Mono only covers Latin, so box drawing, blocks and symbols come
+  // from these, which have them at about JetBrains Mono's width on macOS, Linux and Windows.
+  font-family: 'JetBrains Mono', Menlo, 'DejaVu Sans Mono', 'Cascadia Mono', monospace;
+  font-size: 13px;
+  line-height: normal;
+  font-variant-ligatures: none;
+  box-sizing: content-box;
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  color: #e8e6df;
+  background: transparent;
+
+  // No ring, by mouse or keyboard: the badge in the title bar is the focus indicator.
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+
+  // Every `pre` in here, the grid's rows and the probes Ratzilla and the script measure a cell
+  // with, takes the screen's font: the browser's default gives `pre` its own monospace font,
+  // which would size the grid in one font and draw it in another. Rows never scroll: the
+  // terminal window's `pre` rule would give each one a scrollbar.
+  pre {
+    margin: 0;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: normal;
+    overflow: hidden;
+  }
+
+  // Ratzilla's grid: one `pre` per row, one span per cell. Glyphs from the fallback fonts are
+  // not exactly one cell, so each cell is given its size rather than trusting the font to keep
+  // the rows and columns aligned. The probes sit directly under the screen and keep their
+  // natural size, so only the grid is matched.
+  > div > pre {
+    height: var(--tui-cell-height) !important;
+
+    > span {
+      display: inline-block;
+      height: var(--tui-cell-height);
+      vertical-align: top;
+    }
+  }
+
+  // Phones get a smaller cell so more columns fit the window, which spans the viewport there.
+  @media (max-width: tokens.$mobile-width) {
+    font-size: 10.5px;
+  }
+}
+
+.tui-live {
+  padding: 6px 0;
+  overflow: hidden;
+}
+
+@media (max-width: tokens.$mobile-width) {
+  .tui,
+  .tui-live {
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+// Shown in the Terminal window's title bar (the window is positioned) once the live TUI is up.
+.tui-badge {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(145, 197, 159, 0.1);
+  color: #91c59f;
+  font:
+    600 11.5px/1 Overpass,
+    sans-serif;
+  white-space: nowrap;
+
+  &[hidden] {
+    display: none;
+  }
+
+  i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentcolor;
+    animation: tui-pulse 2s ease-in-out infinite;
+  }
+
+  // The title bar is too narrow for both the centred title and the text, so only the dot stays.
+  @media (max-width: tokens.$mobile-width) {
+    padding: 6px;
+
+    span {
+      display: none;
+    }
+  }
+}
+
+@keyframes tui-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tui-badge i {
+    animation: none;
+  }
+}
+
+// The static monitor, drawn with borders instead of box-drawing characters so it can reflow on
+// narrow screens. Rows mirror the real screen.
+.tui-static {
+  font-size: 11px;
+
+  .tui-top,
+  .tui-usage {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    padding: 8px 14px 0;
+
+    strong {
+      color: var(--paint);
+    }
+  }
+
+  .tui-top {
+    padding-top: 14px;
+  }
+
+  .tui-usage {
+    padding-bottom: 10px;
+  }
+
+  .tui-keys {
+    margin-left: auto;
+
+    b {
+      font-weight: 700;
+      color: #f2f0ea;
+    }
+  }
+
+  .tui-dim {
+    color: #a9a396;
+  }
+
+  .tui-pane {
+    border: 1px solid #5a554b;
+    min-width: 0;
+    margin: 0 14px 12px;
+    padding: 0 10px 10px;
+
+    p {
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .tui-title {
+    display: flex;
+    gap: 8px;
+    margin: 0 -4px 6px !important;
+    padding: 0 4px;
+    transform: translateY(-50%);
+    background: var(--terminal);
+    width: fit-content;
+    max-width: calc(100% + 8px);
+  }
+
+  .tui-selected {
+    background: #3d3829;
+    color: #f5d47a;
+  }
+
+  .state-ready,
+  .state-running {
+    color: #91c59f;
+  }
+
+  .terminal-foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 18px;
+    padding: 9px 16px;
+    color: #b1ab9e;
+    background: rgba(255, 255, 255, 0.035);
+    font-size: 10px;
+  }
+}
+
+.monitor-table {
+  border-collapse: collapse;
+  width: 100%;
+  white-space: nowrap;
+
+  th,
+  td {
+    text-align: left;
+    font-weight: 400;
+    padding: 1px 10px 1px 6px;
+  }
+
+  thead {
+    color: #a9a396;
+  }
+
+  .monitor-lane {
+    color: #f2f0ea;
+
+    th span {
+      margin-left: 8px;
+      color: #f5d47a;
+    }
+  }
+
+  tbody tr:not(.monitor-lane) th {
+    padding-left: 18px;
+  }
+}
+
+.bar {
+  color: #4f4a3f;
+  letter-spacing: -1px;
+
+  i {
+    font-style: normal;
+    color: #91c59f;
+  }
+}

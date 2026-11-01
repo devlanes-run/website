@@ -1,0 +1,67 @@
+---
+// A box's lane mirrored to the laptop: two machines and the one ssh session between them.
+// Labels follow messaging.md, "The remote diagram".
+---
+
+<figure class="diagram">
+  <div class="diagram-node">
+    <div class="diagram-head">
+      <b>your laptop</b>
+    </div>
+    <dl>
+      <div>
+        <dt>browser</dt>
+        <dd>
+          <span class="url">https://myapp1.localhost</span>
+        </dd>
+      </div>
+      <div>
+        <dt>devlanes daemon</dt>
+        <dd>
+          proxy :443, TLS from your CA
+          <br />
+          api.myapp1.localhost <span class="diagram-port">:20010</span>
+          <br />
+          myapp1.localhost <span class="diagram-port">:20011</span>
+        </dd>
+      </div>
+      <div>
+        <dt>mirror on 127.0.0.1</dt>
+        <dd>:20010 :20011 :20012</dd>
+      </div>
+    </dl>
+  </div>
+  <div class="diagram-link" aria-hidden="true">
+    <span>ssh</span>
+    <small>one session, TCP only</small>
+  </div>
+  <div class="diagram-node">
+    <div class="diagram-head">
+      <b>my-vps</b>
+      <span>or a container, pod, WSL distro or codespace</span>
+    </div>
+    <dl>
+      <div>
+        <dt>no inbound ports</dt>
+        <dd>only sshd (or the exec command)</dd>
+      </div>
+      <div>
+        <dt>devlanes daemon</dt>
+        <dd>
+          myapp@1 (feat/checkout)
+          <br />
+          api <span class="diagram-port">127.0.0.1:20010</span>
+          <br />
+          web <span class="diagram-port">127.0.0.1:20011</span>
+          <br />
+          worker <span class="diagram-port">127.0.0.1:20012</span>
+        </dd>
+      </div>
+      <div>
+        <dt>devlanes tunnel --stdio</dt>
+        <dd>started by sshd, once per client</dd>
+      </div>
+    </dl>
+  </div>
+  <figcaption>same port numbers. same hostnames. the URL printed there opens here.</figcaption>
+</figure>

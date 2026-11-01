@@ -1,0 +1,27 @@
+---
+// Two columns of short items: how people reach a box's dev servers today, and with devlanes.
+interface Item {
+  code: string;
+  text: string;
+}
+interface Props {
+  columns: { title: string; items: Item[] }[];
+}
+const { columns } = Astro.props;
+---
+
+<div class="ledger">
+  {columns.map(({ title, items }) => (
+    <div class="ledger-column">
+      <h3>{title}</h3>
+      <ul>
+        {items.map(({ code, text }) => (
+          <li>
+            <code>{code}</code>
+            <span>{text}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  ))}
+</div>

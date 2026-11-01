@@ -8,11 +8,25 @@ import ThemeInit from '../components/head/ThemeInit.astro';
 import Road from '../components/Road.astro';
 import '../styles/global.scss';
 
-const title = 'devlanes | Sandboxes for your agents. localhost for you.';
-const description =
-  'Run multiple development stacks locally or on a remote machine and access them through localhost.';
-const socialTitle = 'Sandboxes for your agents. localhost for you.';
-const socialDescription = 'Parallel development stacks with local access.';
+interface Props {
+  /** Page title; the site name is appended. The landing page passes none. */
+  title?: string;
+  description?: string;
+  /** Path of this page, for the canonical URL. */
+  path?: string;
+  current?: 'lanes' | 'remote' | 'agents';
+}
+
+const tagline = 'Run every worktree at once, each on its own localhost.';
+const {
+  title,
+  description = 'devlanes is an open source CLI and daemon that runs your dev stack once per Git worktree, each with its own ports, hostnames and database, on your own machine or mirrored from a box over ssh.',
+  path = '/',
+  current
+} = Astro.props;
+const pageTitle = title ? `${title} | devlanes` : `devlanes: ${tagline}`;
+const canonical = `https://devlanes.run${path}`;
+const socialDescription = 'An open source CLI that runs your dev stack once per Git worktree.';
 const structuredData = {
   '@context': 'https://schema.org',
   '@graph': [
@@ -31,8 +45,11 @@ const structuredData = {
       name: 'devlanes',
       url: 'https://devlanes.run/',
       applicationCategory: 'DeveloperApplication',
+      operatingSystem: 'macOS, Linux, Windows',
+      isAccessibleForFree: true,
+      license: 'https://www.apache.org/licenses/LICENSE-2.0',
       description:
-        'devlanes manages development stacks on local and remote machines, with separate ports and data for each lane.',
+        'devlanes runs a dev stack once per Git worktree, with separate ports, hostnames and data for each lane, kept running by a per-user daemon.',
       sameAs: 'https://github.com/devlanes-run/devlanes'
     }
   ]
@@ -45,28 +62,25 @@ const structuredData = {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f2f2ef" />
-    <title>{title}</title>
+    <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://devlanes.run/" />
+    <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="alternate" type="text/markdown" href="/index.md" />
+    {path === '/' && <link rel="alternate" type="text/markdown" href="/index.md" />}
     <link rel="help" type="text/plain" href="/llms.txt" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://devlanes.run/" />
+    <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content="devlanes" />
     <meta property="og:locale" content="en_US" />
-    <meta property="og:title" content={socialTitle} />
+    <meta property="og:title" content={title ?? tagline} />
     <meta property="og:description" content={socialDescription} />
     <meta property="og:image" content="https://devlanes.run/social.png" />
     <meta property="og:image:width" content="2560" />
     <meta property="og:image:height" content="1120" />
-    <meta
-      property="og:image:alt"
-      content="devlanes: Sandboxes for your agents. localhost for you. Parallel development stacks."
-    />
+    <meta property="og:image:alt" content={`devlanes: ${tagline}`} />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={socialTitle} />
+    <meta name="twitter:title" content={title ?? tagline} />
     <meta name="twitter:description" content={socialDescription} />
     <meta name="twitter:image" content="https://devlanes.run/social.png" />
     <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
@@ -80,8 +94,16 @@ const structuredData = {
     </a>
     <Road />
     <BetaBanner />
+    {Astro.slots.has('sign') && (
+      <div class="sign">
+        <div class="page">
+          <Header {...(current ? { current } : {})} />
+          <slot name="sign" />
+        </div>
+      </div>
+    )}
     <div class="page">
-      <Header />
+      {!Astro.slots.has('sign') && <Header {...(current ? { current } : {})} />}
       <main id="main">
         <slot />
       </main>

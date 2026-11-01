@@ -1,0 +1,205 @@
+@use 'tokens';
+
+// The sign: a full-bleed yellow block holding the header and the hero, with the road scene
+// behind both. It fades into the page surface at its foot instead of a hard cut.
+.sign {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  z-index: 1;
+  // short windows get a taller sign, so the road keeps room under the copy
+  min-height: max(90vh, 780px);
+  min-height: max(90svh, 780px);
+  background: var(--paint);
+  color: #0d0c0a;
+  overflow: hidden;
+
+  // The page wrapper only centres the content here; the scene and the credit position
+  // against the sign itself.
+  > .page {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 220px;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0%,
+      color-mix(in srgb, var(--surface) 18%, transparent) 45%,
+      var(--surface) 100%
+    );
+  }
+
+  .site-header {
+    position: relative;
+    z-index: 3;
+    background: transparent;
+    color: #0d0c0a;
+  }
+
+  // The mark's yellow bar would vanish on the sign.
+  .brand svg rect:first-child {
+    fill: #0d0c0a;
+  }
+
+  .preferences > button {
+    background: transparent;
+    color: #0d0c0a;
+    border-color: rgba(0, 0, 0, 0.35);
+  }
+
+  :focus-visible {
+    outline-color: #0d0c0a;
+  }
+}
+
+.hero {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 36px 0 0;
+  max-width: 880px;
+  margin: 0 auto;
+
+  h1 {
+    max-width: 19ch;
+    margin: 0 0 26px;
+    font:
+      900 clamp(38px, 5vw, 64px) / 1.02 'Overpass',
+      sans-serif;
+    letter-spacing: -0.035em;
+    color: #0d0c0a;
+  }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.9em;
+  }
+}
+
+.hero-lede {
+  max-width: 58ch;
+  margin: 0 0 30px;
+  font-size: 18.5px;
+  line-height: 1.5;
+  color: #3a3000;
+
+  strong {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 27px;
+    line-height: 1.2;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: #0d0c0a;
+  }
+}
+
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 26px;
+
+  .button {
+    border: 2px solid #0d0c0a;
+    background: transparent;
+    color: #0d0c0a;
+    font:
+      600 14px/1.4 'Overpass',
+      sans-serif;
+    padding: 12px 22px;
+    border-radius: 6px;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.08);
+      border-color: #0d0c0a;
+    }
+  }
+
+  .primary {
+    background: #0d0c0a;
+    color: var(--paint);
+
+    &:hover {
+      background: #262420;
+      border-color: #262420;
+    }
+  }
+}
+
+.hero-facts {
+  max-width: 50ch;
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: #4a3f10;
+}
+
+.sign-credit {
+  position: absolute;
+  left: max(40px, calc(50% - 560px));
+  bottom: 12px;
+  z-index: 2;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+@media (max-width: tokens.$mobile-width) {
+  .sign {
+    min-height: 0;
+    padding-bottom: 300px;
+
+    &::after {
+      height: 150px;
+    }
+  }
+
+  .hero {
+    padding-top: 20px;
+
+    h1 {
+      font-size: clamp(32px, 9vw, 40px);
+      margin-bottom: 20px;
+    }
+  }
+
+  .hero-lede {
+    font-size: 16.5px;
+
+    strong {
+      font-size: 22px;
+    }
+  }
+
+  .hero-actions {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+
+    .button {
+      padding: 11px 18px;
+      font-size: 13px;
+    }
+  }
+
+  .hero-facts {
+    font-size: 13.5px;
+  }
+
+  .sign-credit {
+    left: 20px;
+  }
+}
