@@ -18,6 +18,10 @@
   // against the sign itself.
   > .page {
     position: static;
+    // A flex item with a z-index is a stacking context of its own, which would put the fade
+    // (the sign's ::after) over the lines at the foot. With auto, the scene, the fade and the
+    // copy all order within the sign.
+    z-index: auto;
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -29,13 +33,15 @@
     left: 0;
     right: 0;
     bottom: 0;
-    height: 150px;
+    height: 180px;
     z-index: 1;
     pointer-events: none;
+    // Solid surface for the last stretch, so the lines at the foot sit on the page colour.
     background: linear-gradient(
       to bottom,
       rgba(0, 0, 0, 0) 0%,
-      color-mix(in srgb, var(--surface) 18%, transparent) 45%,
+      color-mix(in srgb, var(--surface) 18%, transparent) 40%,
+      var(--surface) 84%,
       var(--surface) 100%
     );
   }
@@ -117,8 +123,7 @@
   margin: 0;
   text-align: center;
   font-size: 14px;
-  color: var(--ink);
-  opacity: 0.75;
+  color: var(--muted);
 }
 
 .sign-credit {

@@ -255,6 +255,16 @@ h1#_top {
     border-bottom: 0;
   }
 
+  // Example values wrap anywhere so a long JSON sample does not squeeze the description; a path
+  // in the first column breaks only when it has to.
+  td code:not(:where(.not-content *)) {
+    overflow-wrap: anywhere;
+  }
+
+  td:first-child code:not(:where(.not-content *)) {
+    overflow-wrap: break-word;
+  }
+
   th:not(:where(.not-content *)) {
     font:
       600 14px/1.4 'Overpass',
