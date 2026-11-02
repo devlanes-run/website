@@ -5,30 +5,28 @@ import Terminal from './Terminal.astro';
 
 <Section
   id="agents"
-  title="A daemon owns the processes, so an agent's shell can end and nothing dies."
+  title="Your agent gets a lane of its own, and the daemon keeps it running."
   more={{ href: '/agents/', label: 'More about agents' }}
 >
   <p>
-    An agent can start a stack for its changes and give you a localhost URL to test. It uses the
-    same commands you use to inspect logs or stop services, and the daemon keeps those services
-    running when the agent's session ends.
+    An agent starts a stack for its branch with the same commands you use, hands you a localhost
+    URL, and moves on. Its shell can end; the daemon owns the processes. A second agent on the same
+    machine gets lane 4, not a port conflict.
   </p>
   <p>
     The Claude Code and Codex plugin teaches the agent the CLI and refuses a dev server started in
     the background, where nothing supervises it and its logs are lost.
   </p>
   <Terminal slot="visual" title="agent session">
-    <pre class="terminal-content"><span class="dim">agent&gt;</span> pnpm dev &amp;
-<span class="failure">Blocked by the devlanes plugin:</span> this starts a long-running process in the background, where nothing supervises it and its logs are lost.
-Use instead:
-  devlanes start [UNIT...]               services defined in devlanes.yaml
-  devlanes exec --name NAME -- COMMAND   any other long-running command
-Then check it with `devlanes wait NAME --timeout 180s` and `devlanes logs NAME --tail 100`.
+    <pre class="terminal-content"><span class="who">you</span>    start the stack and give me the URL
 
-<span class="dim">agent&gt;</span> devlanes start
-myapp@3 (agent/perf): 3/3 ready
-<span class="success">ready</span> api    http://127.0.0.1:20030  <span class="url">https://api.myapp3.localhost</span>
-<span class="success">ready</span> web    http://127.0.0.1:20031  <span class="url">https://myapp3.localhost</span>
-<span class="success">ready</span> worker http://127.0.0.1:20032</pre>
+<span class="who">agent</span>  <span class="command">devlanes start</span>
+       myapp@3 (agent/perf): 3/3 ready
+       <span class="success">ready</span> api    http://127.0.0.1:20030  <span class="url">https://api.myapp3.localhost</span>
+       <span class="success">ready</span> web    http://127.0.0.1:20031  <span class="url">https://myapp3.localhost</span>
+       <span class="success">ready</span> worker http://127.0.0.1:20032
+
+<span class="who">agent</span>  Up on lane 3, main is untouched on lane 0:
+       <span class="url">https://myapp3.localhost</span></pre>
   </Terminal>
 </Section>

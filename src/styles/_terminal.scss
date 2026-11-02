@@ -2,7 +2,7 @@
 // translucent surface, so the road behind shows through a little.
 .terminal {
   position: relative;
-  background: rgba(26, 25, 23, 0.86);
+  background: rgba(26, 25, 23, 0.92);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   color: var(--terminal-ink);
@@ -29,7 +29,7 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   background: rgba(255, 255, 255, 0.035);
   font-size: 11.5px;
-  color: #a9a396;
+  color: #b5b0a3;
 }
 
 .terminal-dots {
@@ -103,7 +103,7 @@
   }
 
   thead {
-    color: #a9a396;
+    color: #b5b0a3;
     font-size: 10.5px;
 
     th {
@@ -165,8 +165,9 @@
   color: #91c59f;
 }
 
+// Light enough for 4.5:1 on the window, which is translucent over the light page too.
 .dim {
-  color: #8f8a7e;
+  color: #a39e91;
 }
 
 .url {
@@ -175,6 +176,17 @@
 
 .failure {
   color: #e39a8f;
+}
+
+// The TUI's colour for a frozen lane, which no other state uses.
+.frozen {
+  color: #6ca8e8;
+}
+
+// The speaker in a transcript between a person and an agent.
+.who {
+  color: var(--paint);
+  font-weight: 700;
 }
 
 .key {

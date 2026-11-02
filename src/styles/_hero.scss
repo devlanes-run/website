@@ -18,6 +18,10 @@
   // against the sign itself.
   > .page {
     position: static;
+    // A flex item with a z-index is a stacking context of its own, which would put the fade
+    // (the sign's ::after) over the lines at the foot. With auto, the scene, the fade and the
+    // copy all order within the sign.
+    z-index: auto;
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -29,33 +33,26 @@
     left: 0;
     right: 0;
     bottom: 0;
-    height: 220px;
+    height: 180px;
     z-index: 1;
     pointer-events: none;
+    // Solid surface for the last stretch, so the lines at the foot sit on the page colour.
     background: linear-gradient(
       to bottom,
       rgba(0, 0, 0, 0) 0%,
-      color-mix(in srgb, var(--surface) 18%, transparent) 45%,
+      color-mix(in srgb, var(--surface) 18%, transparent) 40%,
+      var(--surface) 84%,
       var(--surface) 100%
     );
   }
 
+  // The sign is the band here.
   .site-header {
     position: relative;
     z-index: 3;
     background: transparent;
-    color: #0d0c0a;
-  }
-
-  // The mark's yellow bar would vanish on the sign.
-  .brand svg rect:first-child {
-    fill: #0d0c0a;
-  }
-
-  .preferences > button {
-    background: transparent;
-    color: #0d0c0a;
-    border-color: rgba(0, 0, 0, 0.35);
+    box-shadow: none;
+    clip-path: none;
   }
 
   :focus-visible {
@@ -91,67 +88,39 @@
 }
 
 .hero-lede {
-  max-width: 58ch;
-  margin: 0 0 30px;
+  max-width: 60ch;
+  margin: 0 0 32px;
   font-size: 18.5px;
   line-height: 1.5;
   color: #3a3000;
-
-  strong {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 27px;
-    line-height: 1.2;
-    font-weight: 900;
-    letter-spacing: -0.02em;
-    color: #0d0c0a;
-  }
 }
 
-.hero-actions {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 26px;
-
-  .button {
-    border: 2px solid #0d0c0a;
-    background: transparent;
-    color: #0d0c0a;
-    font:
-      600 14px/1 'Overpass',
-      sans-serif;
-    padding: 15px 22px;
-    border-radius: 6px;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.08);
-      border-color: #0d0c0a;
-    }
-  }
-
-  .primary {
-    background: #0d0c0a;
-    color: var(--paint);
-
-    &:hover {
-      background: #262420;
-      border-color: #262420;
-    }
-  }
-}
-
-.hero-facts {
-  max-width: 50ch;
+// The install control sits in the sign, so the first screen has the command.
+.hero .install {
+  width: 100%;
+  max-width: 680px;
   margin: 0;
-  font-size: 14.5px;
-  line-height: 1.5;
-  color: #4a3f10;
+  border-color: rgba(0, 0, 0, 0.35);
+  box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.55);
+}
+
+// At the sign's foot, where the yellow fades into the page.
+.sign-facts {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 14px;
+  z-index: 2;
+  margin: 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--muted);
 }
 
 .sign-credit {
   position: absolute;
   left: max(40px, calc(50% - 560px));
-  bottom: 12px;
+  bottom: 14px;
   z-index: 2;
   font-size: 11.5px;
   color: var(--muted);
@@ -178,25 +147,13 @@
 
   .hero-lede {
     font-size: 16.5px;
-
-    strong {
-      font-size: 22px;
-    }
+    margin-bottom: 24px;
   }
 
-  .hero-actions {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-
-    .button {
-      padding: 13px 18px;
-      font-size: 13px;
-    }
-  }
-
-  .hero-facts {
-    font-size: 13.5px;
+  .sign-facts {
+    bottom: 36px;
+    padding: 0 20px;
+    font-size: 13px;
   }
 
   .sign-credit {

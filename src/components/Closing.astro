@@ -10,7 +10,7 @@ import Mark from './Mark.astro';
     Install devlanes, describe your stack in a <code>devlanes.yaml</code> at the root of the
     repository, run <code>devlanes start</code>.
   </p>
-  <Install />
+  <Install id="install-again" />
   <div class="closing-facts">
     <p>
       devlanes is in beta. Apache-2.0, written in Rust, for macOS, Linux and Windows 11. It runs
@@ -19,8 +19,7 @@ import Mark from './Mark.astro';
     </p>
     <p>
       Lanes keep ports, hostnames and data apart; they are not a sandbox, every process runs as you.
-      A crashed service stays stopped until you start it again. A remote connection mirrors TCP only
-      and never runs commands on the box.
+      A remote connection never runs commands on the box.
     </p>
   </div>
 </section>

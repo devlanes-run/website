@@ -100,13 +100,19 @@ function start(host: HTMLElement): void {
   const isTrim = (o: THREE.Object3D): boolean =>
     /spoiler/.test(o.name) || (o.parent ? isTrim(o.parent) : false);
 
-  // dashed dividers in black on the yellow, long enough to stream past while the hero drives
+  // dashed dividers on the yellow, long enough to stream past while the hero drives: black in
+  // the dark theme, white in the light one, following the page's theme switch
   const dash = new THREE.PlaneGeometry(0.12, 1.5);
-  const dashMat = new THREE.MeshBasicMaterial({
-    color: 0x000000,
-    transparent: true,
-    opacity: 0.32,
-    fog: true
+  const dashMat = new THREE.MeshBasicMaterial({ transparent: true, fog: true });
+  const paintDashes = (): void => {
+    const dark = document.documentElement.dataset.theme === 'dark';
+    dashMat.color.set(dark ? 0x000000 : 0xffffff);
+    dashMat.opacity = dark ? 0.32 : 0.55;
+  };
+  paintDashes();
+  new MutationObserver(paintDashes).observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme']
   });
   const dashes: THREE.Mesh[] = [];
   const laneLines = small ? [HERO, HERO + 1] : [0, 1, 2, 3, 4];
@@ -199,8 +205,8 @@ function start(host: HTMLElement): void {
     const h = host.clientHeight;
     if (!copy || !h) return;
     const bottom = copy.getBoundingClientRect().bottom - host.getBoundingClientRect().top;
-    // and stays clear of the fade at the foot of the sign
-    frac = Math.min(1 - 190 / h, Math.max(small ? 0.8 : 0.76, (bottom + h * 0.16) / h));
+    // and stays clear of the fade at the foot of the sign, roof and all
+    frac = Math.min(1 - 225 / h, Math.max(small ? 0.8 : 0.72, (bottom + h * 0.1) / h));
   };
   const place = (): void => {
     const a = small ? -0.25 : -0.5;

@@ -48,9 +48,15 @@ const systems = [
   { id: 'linux', label: 'Linux', icon: 'mdi:linux' },
   { id: 'windows', label: 'Windows', icon: 'mdi:microsoft-windows' }
 ];
+
+// The control appears twice on the landing page, so a second instance takes another id.
+interface Props {
+  id?: string;
+}
+const { id: base = 'install' } = Astro.props;
 ---
 
-<div class="install" id="install" aria-label="Install devlanes">
+<div class="install" id={base} aria-label="Install devlanes">
   <div class="install-controls" hidden>
     <div class="install-platforms" role="group" aria-label="Operating system">
       {systems.map(({ id, label, icon }) => (
@@ -72,7 +78,7 @@ const systems = [
           data-method={id}
           data-systems={os.join(' ')}
           aria-pressed={id === 'brew'}
-          aria-controls={`install-${id}`}
+          aria-controls={`${base}-${id}`}
         >
           {label}
         </button>
@@ -80,7 +86,7 @@ const systems = [
     </div>
   </div>
   {methods.map(({ id, label, command, prompt = '$', next }) => (
-    <div class="install-panel" id={`install-${id}`} data-install-panel={id}>
+    <div class="install-panel" id={`${base}-${id}`} data-install-panel={id}>
       <h3 class="install-fallback-label">{label}</h3>
       <div class="install-command">
         <span class="install-prompt" aria-hidden="true">

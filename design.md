@@ -4,7 +4,7 @@
 
 The headline is "Run every worktree at once, each on its own localhost." Use it in the hero, the `<title>`, the social image and the footer.
 
-devlanes is an open source CLI and a per-user daemon that run on the reader's own machine. The first screen says so in plain words (Apache-2.0, nothing to sign up for, nothing hosted), because the page otherwise reads like a hosted product.
+devlanes is an open source CLI and a per-user daemon. The first screen says so in plain words at the foot of the sign (nothing to sign up for, nothing hosted), because the page otherwise reads like a hosted product; the licence and the platforms go in the small print at the end. It runs wherever the reader's shell runs, so do not call it "for your own machine". It runs the stack per Git worktree, not "once per": a worktree can hold several lanes. Infra is plural ("own databases"); heavy infra is shared with a database per lane, so never describe Postgres as the thing being shared.
 
 The landing page teaches what devlanes is, not how to use it. Commands appear only inside terminal windows, as one real command with its real output; prose never lists commands, flags or keys. Each fold makes one point with one artefact and links to a page that goes deeper (`/lanes/`, `/remote/`, `/agents/`) or to the docs.
 
@@ -29,7 +29,7 @@ Terminal windows stay dark in both themes: a macOS-style title bar (three dots, 
 
 ## Layout
 
-The sign: a full-width paint-yellow block at least 90vh tall holding the header and the hero copy, centred, with the road scene behind it. Its foot fades into the page surface. The install control is not in the hero; the hero has two buttons, "Install devlanes" (to `#install`) and "Read the docs".
+The sign: a full-width paint-yellow block at least 90vh tall holding the header and the hero copy, centred, with the road scene behind it. Its foot fades into the page surface. The hero is the headline, one short lede (the first sentence is "Stop fighting over port 3000.", in the same weight as the rest, so the page has one title) and the install control (`#install`), so the first screen has the command. The control appears again at the end of the page as `#install-again`.
 
 Below the sign the page is a sequence of folds, each roughly a screen tall with 170px between them (96px on phones): the status table, lanes (copy left, terminal right), the live monitor (copy above, terminal full width), remote (terminal left), agents (copy left), then "Run your first lane" with the install control and the small print. Folds alternate sides and stack on phones. The content width is 1200px with 40px side padding, 20px on phones.
 
@@ -67,7 +67,7 @@ Pagefind indexes the docs at build time. Every docs page has a Markdown twin at 
 
 The mark has three rounded bars staggered right. The top bar is yellow; the lower bars are neutral. On the yellow sign the top bar turns dark. Preserve its proportions.
 
-`public/social.png` and `public/assets/banner.png` are rendered by `node scripts/social.mjs` from the sign: headline, one line of copy and the status table in a terminal window. Run it after changing the headline. The other assets in `public/assets/` come from the brand repository.
+Every file in `public/assets/`, the favicon and `public/social.png` come from the brand repository (`brand/build.mjs` in the root repository): the favicon and the badge are the sign, a yellow tile with the dark mark; the file icon for editors keeps the yellow bar on a transparent ground so a tab and a file read differently. `banner.svg` is the README banner (1280 by 560) and `og.svg` the social card (1200 by 630, copied to `social.png` at 2x); both draw the sign with the headline, the lede and the status table, with the copy well inside the edges that previews crop. Rebuild there after changing the headline or the lede and copy the output over.
 
 ## Interaction
 

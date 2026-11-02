@@ -1,5 +1,5 @@
-const installer = document.querySelector<HTMLElement>('#install');
-if (installer) {
+// Each control on the page keeps its own selection.
+for (const installer of document.querySelectorAll<HTMLElement>('.install')) {
   const platforms = installer.querySelectorAll<HTMLButtonElement>('[data-os]');
   const methods = [...installer.querySelectorAll<HTMLButtonElement>('[data-method]')];
   const panels = installer.querySelectorAll<HTMLElement>('[data-install-panel]');
@@ -42,7 +42,7 @@ if (installer) {
 
   function setChannel(useNext: boolean) {
     next = useNext;
-    for (const code of installer?.querySelectorAll<HTMLElement>('code[data-next]') ?? []) {
+    for (const code of installer.querySelectorAll<HTMLElement>('code[data-next]')) {
       code.textContent = (next ? code.dataset.next : code.dataset.stable) ?? code.textContent;
     }
     if (channel) {

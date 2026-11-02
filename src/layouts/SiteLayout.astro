@@ -20,13 +20,14 @@ interface Props {
 const tagline = 'Run every worktree at once, each on its own localhost.';
 const {
   title,
-  description = 'devlanes is an open source CLI and daemon that runs your dev stack once per Git worktree, each with its own ports, hostnames and database, on your own machine or mirrored from a box over ssh.',
+  description = 'devlanes is an open source CLI and daemon that runs your dev stack per Git worktree, each with its own ports, hostnames and databases, on your machine or mirrored from a box over ssh.',
   path = '/',
   current
 } = Astro.props;
 const pageTitle = title ? `${title} | devlanes` : `devlanes: ${tagline}`;
 const canonical = `https://devlanes.run${path}`;
-const socialDescription = 'An open source CLI that runs your dev stack once per Git worktree.';
+const socialDescription =
+  'An open source CLI that runs your dev stack per Git worktree: own ports, own hostnames, own databases.';
 const structuredData = {
   '@context': 'https://schema.org',
   '@graph': [
@@ -49,7 +50,7 @@ const structuredData = {
       isAccessibleForFree: true,
       license: 'https://www.apache.org/licenses/LICENSE-2.0',
       description:
-        'devlanes runs a dev stack once per Git worktree, with separate ports, hostnames and data for each lane, kept running by a per-user daemon.',
+        'devlanes runs a dev stack per Git worktree, with separate ports, hostnames and data for each lane, kept running by a per-user daemon.',
       sameAs: 'https://github.com/devlanes-run/devlanes'
     }
   ]
@@ -61,7 +62,7 @@ const structuredData = {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#f2f2ef" />
+    <meta name="theme-color" content="#e9e7e1" />
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <meta name="robots" content="index, follow" />
@@ -76,8 +77,8 @@ const structuredData = {
     <meta property="og:title" content={title ?? tagline} />
     <meta property="og:description" content={socialDescription} />
     <meta property="og:image" content="https://devlanes.run/social.png" />
-    <meta property="og:image:width" content="2560" />
-    <meta property="og:image:height" content="1120" />
+    <meta property="og:image:width" content="2400" />
+    <meta property="og:image:height" content="1260" />
     <meta property="og:image:alt" content={`devlanes: ${tagline}`} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title ?? tagline} />

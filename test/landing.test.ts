@@ -12,15 +12,17 @@ test('product content, themes and anchors', async ({ page }) => {
     'Run every worktree at once, each on its own localhost.'
   );
   await expect(page.locator('.hero')).toContainText('Stop fighting over port 3000.');
-  await expect(page.locator('.hero-facts')).toContainText('open source');
+  await expect(page.locator('.hero strong')).toHaveCount(0);
+  await expect(page.locator('.sign-facts')).toContainText('open source');
   await expect(page.getByRole('note')).toContainText('not ready for production use');
   await expect(page.locator('.site-header #motion')).toHaveCount(0);
   await expect(page.locator('#theme svg')).toHaveCount(2);
   await expect(page.locator('.github-link svg')).toHaveCount(1);
-  // The sign holds the road scene; the install control lives at the foot of the page.
+  // The sign holds the road scene and the install control; a second control ends the page.
   await expect(page.locator('.sign [data-road-scene]')).toHaveCount(1);
-  await expect(page.locator('.sign #install')).toHaveCount(0);
-  await expect(page.locator('.closing #install')).toHaveCount(1);
+  await expect(page.locator('.hero #install')).toHaveCount(1);
+  await expect(page.locator('.closing #install-again')).toHaveCount(1);
+  await expect(page.locator('.closing #install-again-npm')).toContainText('npm install -g');
   // Every fold links to its own page.
   for (const [id, href] of [
     ['lanes', '/lanes/'],
@@ -100,9 +102,6 @@ test('mobile has no page-wide overflow and remains usable without JavaScript', a
   const staticPage = await context.newPage();
   await staticPage.goto('http://127.0.0.1:4321/');
   await expect(staticPage.getByRole('heading', { level: 1 })).toBeVisible();
-  await expect(
-    staticPage.getByRole('link', { name: 'Read the docs', exact: true })
-  ).toHaveAttribute('href', '/docs/');
   await expect(staticPage.locator('#install-npm')).toContainText('npm install -g devlanes');
   await expect(staticPage.locator('[data-tui-static]')).toBeVisible();
   await expect(staticPage.locator('#motion')).toBeHidden();

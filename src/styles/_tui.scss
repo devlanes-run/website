@@ -87,12 +87,14 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
+  padding: 6px 12px;
   border-radius: 999px;
-  background: rgba(145, 197, 159, 0.1);
-  color: #91c59f;
+  // Solid, so the window reads as something to click rather than a recording.
+  background: #6fcf8a;
+  color: #0b1a10;
+  box-shadow: 0 0 0 4px rgba(111, 207, 138, 0.18);
   font:
-    600 11.5px/1 Overpass,
+    700 12px/1 Overpass,
     sans-serif;
   white-space: nowrap;
 
@@ -165,7 +167,7 @@
   }
 
   .tui-dim {
-    color: #a9a396;
+    color: #b5b0a3;
   }
 
   .tui-pane {
@@ -227,7 +229,7 @@
   }
 
   thead {
-    color: #a9a396;
+    color: #b5b0a3;
   }
 
   .monitor-lane {
