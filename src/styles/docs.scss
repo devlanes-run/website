@@ -5,7 +5,7 @@
 // take precedence over Starlight's cascade layers.
 :root {
   // Wider than the landing page's 1200px frame so a 760px text column fits beside two sidebars.
-  --doc-gutter: max(0px, calc((100vw - 1320px) / 2));
+  --doc-gutter: max(0px, calc((100vw - 1640px) / 2));
   --doc-pad: 40px;
 
   --sl-font: 'Overpass', sans-serif;
@@ -27,10 +27,10 @@
   --doc-header-height: 90px;
   --sl-nav-height: calc(var(--doc-header-height) + var(--banner-height));
   --sl-nav-pad-x: var(--doc-pad);
-  --sl-sidebar-width: 280px;
+  --sl-sidebar-width: 300px;
   --sl-sidebar-pad-x: 20px;
-  --sl-content-width: 760px;
-  --doc-toc-width: 210px;
+  --sl-content-width: 880px;
+  --doc-toc-width: 240px;
   --sl-content-pad-x: 40px;
   --sl-menu-button-size: 38px;
 
@@ -86,16 +86,19 @@
 // Header: Starlight's frame keeps it fixed; the shared component supplies the content.
 :root .page > header.header {
   padding: 0 calc(var(--doc-gutter) + var(--doc-pad));
-  border-bottom: 1px solid var(--line);
+  background: var(--paint);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.18);
 }
 
 .page > header.header .beta-banner {
   margin-inline: calc(-1 * (var(--doc-gutter) + var(--doc-pad)));
 }
 
-// The frame draws the bottom border; an opaque header would cover it.
+// The frame paints the band and draws the bottom border.
 .page > header.header .site-header {
   background: transparent;
+  box-shadow: none;
+  clip-path: none;
 }
 
 site-search button[data-open-modal] {
@@ -106,17 +109,17 @@ site-search button[data-open-modal] {
   width: auto;
   max-width: none;
   padding: 0 12px;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(0, 0, 0, 0.35);
   border-radius: 6px;
-  background: var(--surface);
-  color: var(--muted);
+  background: transparent;
+  color: rgba(13, 12, 10, 0.75);
   font:
     600 13px 'Overpass',
     sans-serif;
 
   &:hover {
-    border-color: var(--ink);
-    color: var(--ink);
+    border-color: #0d0c0a;
+    color: #0d0c0a;
   }
 
   kbd {
@@ -255,13 +258,34 @@ h1#_top {
     border-bottom: 0;
   }
 
-  // Example values wrap anywhere so a long JSON sample does not squeeze the description; a path
-  // in the first column breaks only when it has to.
+  // Reference tables (path, type, description, example) get fixed columns, since the auto
+  // layout hands the description the least room; example values wrap anywhere, paths only when
+  // they have to.
+  table:has(th:first-child:nth-last-child(4)):not(:where(.not-content *)) {
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+
+    th:nth-child(1) {
+      width: 24%;
+    }
+
+    th:nth-child(2) {
+      width: 15%;
+    }
+
+    th:nth-child(4) {
+      width: 21%;
+    }
+  }
+
   td code:not(:where(.not-content *)) {
     overflow-wrap: anywhere;
   }
 
-  td:first-child code:not(:where(.not-content *)) {
+  // Paths break after a dot (the importer adds a <wbr> there) and other cells at spaces; only
+  // the example column breaks mid-word, for long JSON samples.
+  td:not(:last-child) code:not(:where(.not-content *)) {
     overflow-wrap: break-word;
   }
 
@@ -474,10 +498,10 @@ footer.sl-flex .meta {
 }
 
 .sl-menu-button {
-  border: 1px solid var(--line) !important;
+  border: 1px solid rgba(0, 0, 0, 0.35) !important;
   border-radius: 6px !important;
-  background: var(--surface) !important;
-  color: var(--ink) !important;
+  background: transparent !important;
+  color: #0d0c0a !important;
   box-shadow: none !important;
 }
 

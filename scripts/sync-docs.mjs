@@ -130,6 +130,30 @@ export function rewriteLinks(markdown, file, context) {
     .join('\n');
 }
 
+/**
+ * Lets a dotted path in the first column of a table (`hostnames.dns_provider.token`) break after
+ * a dot instead of mid-word: the code span becomes HTML with a <wbr> after each dot, which no
+ * browser copies.
+ */
+export function breakPaths(markdown) {
+  let fence = null;
+  return markdown
+    .split('\n')
+    .map((line) => {
+      const marker = line.match(/^\s*(`{3,}|~{3,})/)?.[1];
+      if (marker && (!fence || marker.startsWith(fence))) {
+        fence = fence ? null : marker;
+        return line;
+      }
+      if (fence || !line.startsWith('|')) return line;
+      return line.replace(
+        /^\|(\s*)`([^`|]*\.[^`|]*)`/,
+        (_, space, path) => `|${space}<code>${path.replaceAll('.', '.<wbr>')}</code>`
+      );
+    })
+    .join('\n');
+}
+
 /** Whether the body has h2 or h3 headings, the levels Starlight lists in the page outline. */
 function hasSections(markdown) {
   let fence = null;
@@ -198,7 +222,7 @@ export function toStarlightPage(markdown, file, context) {
   }
 
   const header = [frontmatter, ...fields].filter(Boolean).join('\n');
-  return `---\n${header}\n---\n\n${rewriteLinks(body, file, context).trimStart()}`;
+  return `---\n${header}\n---\n\n${breakPaths(rewriteLinks(body, file, context)).trimStart()}`;
 }
 
 async function listFiles(root, directory = root) {

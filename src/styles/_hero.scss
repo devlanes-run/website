@@ -46,22 +46,13 @@
     );
   }
 
+  // The sign is the band here.
   .site-header {
     position: relative;
     z-index: 3;
     background: transparent;
-    color: #0d0c0a;
-  }
-
-  // The mark's yellow bar would vanish on the sign.
-  .brand svg rect:first-child {
-    fill: #0d0c0a;
-  }
-
-  .preferences > button {
-    background: transparent;
-    color: #0d0c0a;
-    border-color: rgba(0, 0, 0, 0.35);
+    box-shadow: none;
+    clip-path: none;
   }
 
   :focus-visible {

@@ -123,12 +123,12 @@ myapp@1 · feat/checkout
     </Terminal>
   </Section>
 
-  <Section id="freeze" title="Idle lanes are frozen, so ten of them cost nothing." stacked>
+  <Section id="freeze" title="Idle lanes are frozen, so ten of them cost no CPU." stacked>
     <p>
       Put agents on ten branches at once and walk away. A lane with no requests, connections or
-      commands for 15 minutes is suspended with the operating system's own mechanism: its ports and
-      data stay, its processes stop using CPU, and the next request wakes it. Overnight, every lane
-      you are not looking at costs nothing.
+      commands for 15 minutes is suspended with the operating system's own mechanism: its ports,
+      data and memory stay, its processes stop using CPU, and the next request wakes it. Overnight,
+      the lanes you are not looking at are idle for the machine.
     </p>
     <Terminal slot="visual" title="devlanes status, the next morning">
       <pre class="terminal-content terminal-scroll"><span class="command">$ devlanes status</span>

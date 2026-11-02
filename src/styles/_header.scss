@@ -31,7 +31,8 @@
   }
 }
 
-// Shared by the landing page and the docs so both render the same header.
+// Shared by the landing page and the docs so both render the same header: the yellow band of
+// the sign, full bleed. The shadow paints past the page column without adding scroll width.
 .site-header {
   display: flex;
   align-items: center;
@@ -40,11 +41,28 @@
   font:
     600 14px 'Overpass',
     sans-serif;
-  background: var(--surface);
-  color: var(--ink);
+  background: var(--paint);
+  color: #0d0c0a;
+  box-shadow: 0 0 0 100vmax var(--paint);
+  clip-path: inset(0 -100vmax);
 
   .brand {
     margin-right: auto;
+  }
+
+  // The mark's yellow bar would vanish on the band.
+  .brand svg rect:first-child {
+    fill: #0d0c0a;
+  }
+
+  .preferences > button {
+    background: transparent;
+    color: #0d0c0a;
+    border-color: rgba(0, 0, 0, 0.35);
+  }
+
+  :focus-visible {
+    outline-color: #0d0c0a;
   }
 
   nav {

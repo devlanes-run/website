@@ -8,7 +8,7 @@ if (themeButton) {
     themeButton.title = label;
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute('content', dark ? '#22211e' : '#f2f2ef');
+      ?.setAttribute('content', dark ? '#22211e' : '#e9e7e1');
   };
   sync();
   themeButton.addEventListener('click', () => {

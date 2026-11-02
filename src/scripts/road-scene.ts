@@ -100,13 +100,19 @@ function start(host: HTMLElement): void {
   const isTrim = (o: THREE.Object3D): boolean =>
     /spoiler/.test(o.name) || (o.parent ? isTrim(o.parent) : false);
 
-  // dashed dividers in black on the yellow, long enough to stream past while the hero drives
+  // dashed dividers on the yellow, long enough to stream past while the hero drives: black in
+  // the dark theme, white in the light one, following the page's theme switch
   const dash = new THREE.PlaneGeometry(0.12, 1.5);
-  const dashMat = new THREE.MeshBasicMaterial({
-    color: 0x000000,
-    transparent: true,
-    opacity: 0.32,
-    fog: true
+  const dashMat = new THREE.MeshBasicMaterial({ transparent: true, fog: true });
+  const paintDashes = (): void => {
+    const dark = document.documentElement.dataset.theme === 'dark';
+    dashMat.color.set(dark ? 0x000000 : 0xffffff);
+    dashMat.opacity = dark ? 0.32 : 0.55;
+  };
+  paintDashes();
+  new MutationObserver(paintDashes).observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme']
   });
   const dashes: THREE.Mesh[] = [];
   const laneLines = small ? [HERO, HERO + 1] : [0, 1, 2, 3, 4];

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  breakPaths,
   isPublished,
   parseLastUpdated,
   rewriteLinks,
@@ -134,4 +135,26 @@ test('keeps existing frontmatter, minus the importer-only publish key', () => {
   assert.doesNotMatch(page, /publish:/);
   assert.match(page, /# Later heading/);
   assert.doesNotMatch(page, /sidebar:/);
+});
+
+test("lets a dotted path in a table's first column break after its dots", () => {
+  const table = [
+    '| Path | Type |',
+    '| --- | --- |',
+    '| `hostnames.dns_provider.token` | string |',
+    '| `tld` | string |',
+    '| text with `a.b` | `c.d` |'
+  ].join('\n');
+  assert.equal(
+    breakPaths(table),
+    [
+      '| Path | Type |',
+      '| --- | --- |',
+      '| <code>hostnames.<wbr>dns_provider.<wbr>token</code> | string |',
+      '| `tld` | string |',
+      '| text with `a.b` | `c.d` |'
+    ].join('\n')
+  );
+  const fenced = '```\n| `a.b` |\n```';
+  assert.equal(breakPaths(fenced), fenced);
 });
