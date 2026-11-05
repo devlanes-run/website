@@ -29,10 +29,6 @@
     color: #f2f0ea;
     border-color: rgba(255, 255, 255, 0.14);
   }
-
-  &[data-enhanced] .install-fallback-label {
-    display: none;
-  }
 }
 
 .install-controls {
@@ -132,11 +128,6 @@
   &:focus-visible {
     color: #f2f0ea;
   }
-}
-
-.install-fallback-label {
-  margin: 14px 18px 0;
-  font-size: 13px;
 }
 
 @media (max-width: 600px) {

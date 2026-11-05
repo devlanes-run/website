@@ -4,7 +4,7 @@
 
 The headline is "Run every worktree at once, each on its own localhost." Use it in the hero, the `<title>`, the social image and the footer.
 
-devlanes is an open source CLI and a per-user daemon. The first screen says so in plain words at the foot of the sign (nothing to sign up for, nothing hosted), because the page otherwise reads like a hosted product; the licence and the platforms go in the "Free and open source" fold near the end. It runs wherever the reader's shell runs, so do not call it "for your own machine". It runs the stack per Git worktree, not "once per": a worktree can hold several lanes. Infra is plural ("own databases"); heavy infra is shared with a database per lane, so never describe Postgres as the thing being shared.
+devlanes is an open source CLI and a per-user daemon. The "Free and open source" fold near the end says so in plain words (no account, nothing hosted, the licence and the platforms), because the page otherwise reads like a hosted product. It runs wherever the reader's shell runs, so do not call it "for your own machine". It runs the stack per Git worktree, not "once per": a worktree can hold several lanes. Infra is plural ("own databases"); heavy infra is shared with a database per lane, so never describe Postgres as the thing being shared.
 
 The landing page teaches what devlanes is, not how to use it. Commands appear only inside terminal windows, as one real command with its real output; prose never lists commands, flags or keys. Each fold makes one point with one artefact and links to a page that goes deeper (`/lanes/`, `/remote/`, `/agents/`) or to the docs.
 
@@ -29,7 +29,7 @@ Terminal windows stay dark in both themes: a macOS-style title bar (three dots, 
 
 ## Layout
 
-The sign: a full-width paint-yellow block at least 90vh tall holding the header and the hero copy, centred, with the road scene behind it. Its foot fades into the page surface along a 3 degree tilt (the fade is a wide overlay rotated as a whole, so the band is even along its edge). Text selected on the sign is dark with yellow type, since the page's yellow selection would vanish there. The hero is the headline, one short lede (the first sentence is "Stop fighting over port 3000.", in the same weight as the rest, so the page has one title) and the install control (`#install`), so the first screen has the command. The control appears again at the end of the page as `#install-again`.
+The sign: a full-width paint-yellow block at least 90vh tall holding the header and the hero copy, centred, with the road scene behind it. Its foot fades into the page surface. Text selected on the sign is dark with yellow type, since the page's yellow selection would vanish there. The hero is the headline, one short lede (the first sentence is "Stop fighting over port 3000.", in the same weight as the rest, so the page has one title) and the install control (`#install`), so the first screen has the command. The control appears again at the end of the page as `#install-again`.
 
 Below the sign the page is a sequence of folds, each roughly a screen tall with 170px between them (96px on phones): the status table, the live monitor (copy above, terminal full width), lanes (copy left, terminal right), remote (terminal left), agents (copy left), "Free and open source" (one column of copy with GitHub-styled star and sponsor buttons), then "Run your first lane" with the install control and the caveats. Each fold's heading links to the fold, with a hash shown on hover. The footer carries the brand, the tagline, two columns of links (product, docs) and the small print with the project links in a row. The brand assets page at `/assets/` shows every file on the ground it was drawn for, with its SVG and PNG under it; only the footer links to it. Folds alternate sides and stack on phones. The content width is 1200px with 40px side padding, 20px on phones.
 
@@ -39,7 +39,7 @@ Text blocks have opaque surfaces, so the road's centre stroke only shows in the 
 
 The sign's background is a three.js scene (`src/scripts/road-scene.ts`, bundled; models in `public/models/`, Kenney Car Kit, CC0, credited at the foot of the sign): four lanes with dashed dividers in the sign's yellow, charcoal toon-shaded cars, the hero car in lane 1 driving from the first frame with the camera behind and to its left, slower traffic in lane 0 and faster traffic in lane 3, fog in the sign's colour so nothing reaches the copy. The car's position follows the copy's bottom edge so it never sits under the text. Nothing is tied to scroll. Phones get the hero lane only, no antialiasing and a capped pixel ratio. Without WebGL the sign stays plain yellow; nothing stands in for the road.
 
-Below the sign the only road element is the double centre stroke: two 3px strokes with a 4px gap, fixed behind the page.
+Below the sign the only road element is the centre line: a single 8px dashed stroke (64px dashes, 48px gaps), fixed behind the page, drawn as a crisp SVG pattern so it stays even at fractional zoom.
 
 The footer's pause button and the reduced-motion preference set `data-motion` on the root; the scene and the live terminal stop while it says `paused` and when the tab is hidden or they are off screen.
 

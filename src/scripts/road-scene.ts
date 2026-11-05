@@ -206,7 +206,7 @@ function start(host: HTMLElement): void {
     if (!copy || !h) return;
     const bottom = copy.getBoundingClientRect().bottom - host.getBoundingClientRect().top;
     // and stays clear of the fade at the foot of the sign, roof and all
-    frac = Math.min(1 - 225 / h, Math.max(small ? 0.8 : 0.72, (bottom + h * 0.1) / h));
+    frac = Math.min(1 - 330 / h, Math.max(small ? 0.8 : 0.72, (bottom + h * 0.1) / h));
   };
   const place = (): void => {
     const a = small ? -0.25 : -0.5;

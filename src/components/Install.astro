@@ -25,6 +25,14 @@ const methods = [
     next: 'iex "& {$(irm https://devlanes.run/install.ps1)} -Channel next"'
   },
   {
+    // The same script as on Linux, run inside the distro; devlanes supports WSL as a box too.
+    id: 'wsl',
+    label: 'WSL',
+    os: ['windows'],
+    command: 'curl -fsSL https://devlanes.run/install.sh | sh',
+    next: 'curl -fsSL https://devlanes.run/install.sh | sh -s -- --channel next'
+  },
+  {
     id: 'npm',
     label: 'npm',
     os: ['macos', 'linux', 'windows'],
@@ -86,8 +94,14 @@ const { id: base = 'install' } = Astro.props;
     </div>
   </div>
   {methods.map(({ id, label, command, prompt = '$', next }) => (
-    <div class="install-panel" id={`${base}-${id}`} data-install-panel={id}>
-      <h3 class="install-fallback-label">{label}</h3>
+    // Until the script picks a method for the visitor's system, only the shell script shows:
+    // the one line that works for most people, and the only one without JavaScript.
+    <div
+      class="install-panel"
+      id={`${base}-${id}`}
+      data-install-panel={id}
+      hidden={id !== 'script'}
+    >
       <div class="install-command">
         <span class="install-prompt" aria-hidden="true">
           {prompt}

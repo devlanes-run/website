@@ -6,7 +6,7 @@ test('generated crawler documents and assets are available', async ({ request })
   const content = await markdown.text();
   expect(content).toContain('Run every worktree at once, each on its own localhost.');
   expect(content).not.toContain('not ready to use');
-  expect(content).toContain('npm install -g devlanes');
+  expect(content).toContain('curl -fsSL https://devlanes.run/install.sh');
   expect(content).toContain('git worktree add ../myapp-checkout -b feat/checkout');
   expect(content).not.toContain('astro-slop: fetch');
   const llms = await request.get('/llms.txt');

@@ -1,9 +1,19 @@
 ---
-// The road's centre stroke runs down the whole page behind the content. Blocks have opaque
-// surfaces, so it only shows in the gaps between them.
+// The road's centre line, fixed behind the whole page: a dashed single stroke, like a lane
+// divider, which the content scrolls over. Blocks have opaque surfaces, so it only shows in
+// the gaps between them. Drawn as an SVG pattern with crisp edges, so the stroke is the same
+// width at any zoom. The sign draws the same dashes over its scene with a fixed-attachment
+// background (see _hero.scss), so the line shows through the fade at its foot in phase.
 ---
 
-<div class="road" aria-hidden="true"></div>
+<svg class="road" aria-hidden="true">
+  <defs>
+    <pattern id="road-dash" width="8" height="112" patternUnits="userSpaceOnUse">
+      <rect x="0" y="0" width="8" height="64" shape-rendering="crispEdges"></rect>
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#road-dash)"></rect>
+</svg>
 
 <script>
   import '../scripts/motion';
@@ -14,14 +24,10 @@
     position: fixed;
     inset: 0 auto 0 50%;
     z-index: 0;
-    width: 10px;
-    margin-left: -5px;
+    width: 8px;
+    height: 100%;
+    margin-left: -4px;
     pointer-events: none;
-    background: linear-gradient(
-      90deg,
-      var(--road-centre) 0 3px,
-      var(--surface) 3px 7px,
-      var(--road-centre) 7px 10px
-    );
+    fill: var(--road-centre);
   }
 </style>
