@@ -70,7 +70,7 @@ function setup(wrapper: HTMLElement) {
   const badge = wrapper.querySelector<HTMLElement>('[data-tui-badge]');
   const badgeText = badge?.querySelector<HTMLElement>('[data-tui-badge-text]');
   if (!staticScreen || !live || !screen?.id) return;
-  const idleLabel = coarse ? 'Live terminal, tap to interact' : 'Live terminal, click to interact';
+  const idleLabel = coarse ? 'Live, tap to interact' : 'Live, click to interact';
 
   const desktopRows = Number(wrapper.dataset.rows) || 34;
   const mobileRows = Number(wrapper.dataset.mobileRows) || 26;
@@ -312,7 +312,7 @@ function setup(wrapper: HTMLElement) {
   if (badgeText) {
     badgeText.textContent = idleLabel;
     screen.addEventListener('focus', () => {
-      badgeText.textContent = 'Live terminal, keys go to it';
+      badgeText.textContent = 'Live, keys go to it';
     });
     screen.addEventListener('blur', () => {
       badgeText.textContent = idleLabel;

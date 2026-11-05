@@ -189,6 +189,13 @@
   font-weight: 700;
 }
 
+// The person's turn in an agent session sits on the right, like a chat.
+.you {
+  display: block;
+  text-align: right;
+  color: #f2f0ea;
+}
+
 .key {
   color: #c0b8ff;
 }

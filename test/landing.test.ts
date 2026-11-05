@@ -32,6 +32,9 @@ test('product content, themes and anchors', async ({ page }) => {
     await expect(page.locator(`#${id} a.more`)).toHaveAttribute('href', href);
   }
   await expect(page.locator('.lane-table')).toContainText('https://myapp1.localhost');
+  // Fold headings link to their fold, so a section can be shared by URL.
+  await expect(page.locator('#lanes h2 a')).toHaveAttribute('href', '#lanes');
+  await expect(page.locator('.site-footer nav a[href="/remote/"]')).toHaveCount(1);
   await expect(page.locator('body')).not.toContainText('myapp-1.localhost');
   await page.locator('#theme').click();
   const theme = await page.locator('html').getAttribute('data-theme');

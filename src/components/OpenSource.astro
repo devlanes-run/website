@@ -1,0 +1,55 @@
+---
+import { Icon } from 'astro-icon/components';
+---
+
+<section id="open-source" class="open-source" aria-labelledby="open-source-title">
+  <div class="open-source-copy">
+    <h2 id="open-source-title">
+      <a class="fold-anchor" href="#open-source">
+        Free and open source
+      </a>
+    </h2>
+    <p>
+      devlanes is Apache-2.0 and will stay free. It is a CLI and a daemon on your own machine: no
+      account, no hosted service, nothing phones home. The source, the issues and the releases are
+      on GitHub.
+    </p>
+    <div class="open-source-actions">
+      <a
+        class="button primary"
+        href="https://github.com/devlanes-run/devlanes"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <Icon name="mdi:github" size={18} aria-hidden="true" />
+        Star on GitHub
+      </a>
+      <a
+        class="button"
+        href="https://github.com/sponsors/arthurfiorette"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Sponsor
+      </a>
+    </div>
+  </div>
+  <dl class="open-source-facts">
+    <div>
+      <dt>Licence</dt>
+      <dd>Apache-2.0</dd>
+    </div>
+    <div>
+      <dt>Written in</dt>
+      <dd>Rust</dd>
+    </div>
+    <div>
+      <dt>Runs on</dt>
+      <dd>macOS, Linux, Windows 11</dd>
+    </div>
+    <div>
+      <dt>Runs</dt>
+      <dd>Node, Bun, Deno, Python, Rust, containers</dd>
+    </div>
+  </dl>
+</section>

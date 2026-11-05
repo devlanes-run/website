@@ -1,8 +1,9 @@
 @use 'tokens';
 
 @media (max-width: tokens.$tablet-width) {
-  footer > span {
-    display: none;
+  .site-footer {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
   }
 }
 
@@ -24,7 +25,21 @@
     padding: 13px 16px;
   }
 
-  footer {
-    gap: 16px;
+  .site-footer {
+    padding-top: 48px;
+  }
+
+  .footer-columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 20px;
+  }
+
+  .open-source {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+
+  .open-source-facts {
+    grid-template-columns: 1fr;
   }
 }

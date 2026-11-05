@@ -1,17 +1,81 @@
 ---
+import { Icon } from 'astro-icon/components';
 import Mark from './Mark.astro';
+
+const columns = [
+  {
+    title: 'Product',
+    links: [
+      { href: '/lanes/', label: 'Lanes' },
+      { href: '/remote/', label: 'Remote boxes' },
+      { href: '/agents/', label: 'Coding agents' },
+      { href: '/#install', label: 'Install' }
+    ]
+  },
+  {
+    title: 'Docs',
+    links: [
+      { href: '/docs/getting-started/', label: 'Getting started' },
+      { href: '/docs/reference/cli/', label: 'CLI reference' },
+      { href: '/docs/reference/config/', label: 'Config reference' },
+      { href: '/docs/examples/', label: 'Examples' },
+      { href: '/docs/security/', label: 'Security' }
+    ]
+  },
+  {
+    title: 'Project',
+    links: [
+      { href: 'https://github.com/devlanes-run/devlanes', label: 'GitHub' },
+      { href: 'https://github.com/devlanes-run/devlanes/releases', label: 'Releases' },
+      { href: 'https://github.com/devlanes-run/devlanes/issues', label: 'Issues' },
+      { href: 'https://github.com/devlanes-run/website', label: 'Website source' },
+      { href: '/assets/', label: 'Brand assets' }
+    ]
+  }
+];
+const external = (href: string) => href.startsWith('http');
 ---
 
-<footer>
-  <a class="brand" href="/" aria-label="devlanes home">
-    <Mark size={24} />
-    devlanes
-  </a>
-  <span>Run every worktree at once, each on its own localhost. Apache-2.0.</span>
-  <button id="motion" type="button" aria-pressed="false" hidden>
-    Pause motion
-  </button>
-  <a href="https://github.com/devlanes-run/website" target="_blank" rel="noopener noreferrer">
-    Website source
-  </a>
+<footer class="site-footer">
+  <div class="footer-brand">
+    <a class="brand" href="/" aria-label="devlanes home">
+      <Mark size={24} />
+      devlanes
+    </a>
+    <p>Run every worktree at once, each on its own localhost.</p>
+    <a
+      class="footer-github"
+      href="https://github.com/devlanes-run/devlanes"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <Icon name="mdi:github" size={18} aria-hidden="true" />
+      devlanes-run/devlanes
+    </a>
+  </div>
+  <nav class="footer-columns" aria-label="Site map">
+    {columns.map(({ title, links }) => (
+      <div>
+        <h3>{title}</h3>
+        <ul>
+          {links.map(({ href, label }) => (
+            <li>
+              <a
+                href={href}
+                {...(external(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              >
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </nav>
+  <div class="footer-foot">
+    <span>Apache-2.0. Built by Arthur Fiorette.</span>
+    <button id="motion" type="button" aria-pressed="false" hidden>
+      Pause motion
+    </button>
+  </div>
 </footer>

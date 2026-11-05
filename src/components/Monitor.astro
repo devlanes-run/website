@@ -16,7 +16,14 @@ import Tui from './Tui.astro';
     per container, with a minute of history, so you can tell which worktree is eating the memory.
     Open a unit to read its output, type into it, stop it or restart it.
   </p>
-  <Terminal slot="visual" title="devlanes" class="terminal-tui">
-    <Tui />
-  </Terminal>
+  <div slot="visual" class="tui-try">
+    <h3 id="tui-try-title">Try the TUI right now</h3>
+    <p>
+      This is the real TUI, compiled to WebAssembly and running on fake data, so you can click
+      around in it before installing anything.
+    </p>
+    <Terminal title="devlanes" class="terminal-tui">
+      <Tui />
+    </Terminal>
+  </div>
 </Section>

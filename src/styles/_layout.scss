@@ -6,32 +6,90 @@
   z-index: 1;
 }
 
-footer {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 28px;
-  padding: 26px 0 40px;
+// The footer: brand and tagline, three columns of links, then the small print.
+.site-footer {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr);
+  gap: 48px 64px;
+  padding: 64px 0 40px;
+  margin-top: 40px;
+  border-top: 1px solid var(--line);
   background: var(--surface);
-  font-size: 12px;
+  font-size: 14px;
   color: var(--muted);
 
   .brand {
-    font-size: 14px;
+    font-size: 15px;
     color: var(--ink);
   }
 
-  > a:last-child {
-    margin-left: auto;
+  a {
+    text-decoration: none;
+
+    &:hover {
+      color: var(--ink);
+      text-decoration: underline;
+    }
   }
 }
 
-footer #motion {
-  border: 0;
-  padding: 4px 0;
-  background: transparent;
-  color: var(--muted);
-  font-size: 12px;
-  text-decoration: underline;
-  text-underline-offset: 4px;
+.footer-brand {
+  p {
+    max-width: 30ch;
+    margin: 14px 0 18px;
+  }
+}
+
+.footer-github {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.footer-columns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
+
+  h3 {
+    margin: 0 0 14px;
+    font-size: 14px;
+    letter-spacing: 0;
+    color: var(--ink);
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li + li {
+    margin-top: 9px;
+  }
+}
+
+.footer-foot {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  align-items: center;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  font-size: 12.5px;
+
+  #motion {
+    margin-left: auto;
+    border: 0;
+    padding: 4px 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: 12.5px;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
 }
