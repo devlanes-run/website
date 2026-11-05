@@ -33,7 +33,8 @@
     "astro": "^7.4.4",
     "astro-compress": "^2.4.3",
     "astro-icon": "^1.2.0",
-    "astro-slop": "^0.1.3",
+    "defuddle": "^0.19.6",
+    "linkedom": "^0.18.15",
     "three": "^0.187.0",
     "yaml": "^2.9.1"
   },

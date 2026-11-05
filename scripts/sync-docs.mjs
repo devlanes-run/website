@@ -5,6 +5,7 @@ import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, extname, join, posix, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { parse as parseYaml } from 'yaml';
 
 const run = promisify(execFile);
 const contentDir = fileURLToPath(new URL('../src/content/docs/', import.meta.url));
@@ -202,7 +203,10 @@ export function toStarlightPage(markdown, file, context) {
     const paragraph = body
       .split(/\n{2,}/)
       .find((block) => /^[\p{L}\p{N}`[*_]/u.test(block.trim()) && !block.startsWith('|'));
-    const sentence = paragraph ? plainText(paragraph).match(/^.+?[.!?](\s|$)/)?.[0] : undefined;
+    const sentences = paragraph ? plainText(paragraph).match(/.+?[.!?](\s|$)/g) : null;
+    let sentence = sentences?.[0];
+    // Error pages open with their status code alone ("503."), which says nothing by itself.
+    if (sentence && !/\p{L}/u.test(sentence)) sentence += sentences?.[1] ?? '';
     if (sentence) fields.push(`description: ${JSON.stringify(sentence.trim())}`);
   }
   // A page outline with only "Overview" wastes the column next to the text.
@@ -216,11 +220,6 @@ export function toStarlightPage(markdown, file, context) {
       `editUrl: https://github.com/${source.repository}/edit/${source.editBranch}/${path}`
     );
   }
-  const index = source.order?.indexOf(file) ?? -1;
-  if (!has('sidebar') && (index >= 0 || routeFor(source, file) === `/${source.target}/`)) {
-    fields.push(`sidebar:\n  order: ${index >= 0 ? index + 1 : 0}`);
-  }
-
   const header = [frontmatter, ...fields].filter(Boolean).join('\n');
   return `---\n${header}\n---\n\n${breakPaths(rewriteLinks(body, file, context)).trimStart()}`;
 }
@@ -264,6 +263,31 @@ export async function historyDates(repositoryRoot, sourcePath) {
   } catch {
     return new Map();
   }
+}
+
+/**
+ * Ids and sidebar orders of the pages in the collection, read from disk so astro.config.mjs can
+ * build the sidebar before Astro loads the collection. Pages Starlight leaves out of the sidebar
+ * are skipped, since naming one there fails the build. Empty before the first sync.
+ */
+export async function importedPages() {
+  const files = await readdir(contentDir, { recursive: true }).catch(() => []);
+  const pages = await Promise.all(
+    files
+      .filter((file) => markdownExtensions.has(extname(file).toLowerCase()))
+      .map(async (file) => {
+        const parts = file.replace(/\.mdx?$/i, '').split(/[\\/]/);
+        // Starlight's loader ignores files whose name starts with an underscore.
+        if (parts.at(-1)?.startsWith('_')) return null;
+        if (parts.at(-1)?.toLowerCase() === 'index') parts.pop();
+        const data = parseYaml(frontmatterOf(await readFile(join(contentDir, file), 'utf8'))) ?? {};
+        if (data.draft === true || data.sidebar?.hidden === true) return null;
+        const id = typeof data.slug === 'string' ? data.slug : parts.map(slugify).join('/');
+        const order = typeof data.sidebar?.order === 'number' ? data.sidebar.order : undefined;
+        return { id, order };
+      })
+  );
+  return pages.filter((page) => page !== null);
 }
 
 /**
