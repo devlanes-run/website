@@ -4,12 +4,7 @@ import Terminal from './Terminal.astro';
 import Tui from './Tui.astro';
 ---
 
-<Section
-  id="monitor"
-  title="See what every lane and unit costs, live."
-  stacked
-  more={{ href: '/docs/getting-started/#tui', label: 'The TUI in the docs' }}
->
+<Section id="monitor" title="See what every lane and unit costs, live." stacked>
   <p>
     Running <code>devlanes</code> opens a terminal view of every lane in the project, with the state
     of each service and its live output. The monitor shows CPU and memory per lane, per service and
@@ -17,13 +12,16 @@ import Tui from './Tui.astro';
     Open a unit to read its output, type into it, stop it or restart it.
   </p>
   <div slot="visual" class="tui-try">
-    <h3 id="tui-try-title">Try the TUI right now</h3>
+    <h3>Try the TUI</h3>
     <p>
-      This is the real TUI, compiled to WebAssembly and running on fake data, so you can click
-      around in it before installing anything.
+      The real TUI, compiled to WebAssembly and running on fake data, so you can click around in it
+      before installing anything.
     </p>
     <Terminal title="devlanes" class="terminal-tui">
       <Tui />
     </Terminal>
+    <a class="more" href="/docs/getting-started/#tui">
+      The TUI in the docs
+    </a>
   </div>
 </Section>

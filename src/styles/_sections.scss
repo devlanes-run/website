@@ -113,13 +113,20 @@
   }
 
   h3 {
-    margin: 0 0 8px;
+    margin: 0;
+    padding-bottom: 8px;
     font-size: 24px;
+  }
+
+  > .more {
+    margin-top: 18px;
+    background: var(--surface);
   }
 
   > p {
     max-width: 62ch;
-    margin: 0 0 22px;
+    margin: 0;
+    padding-bottom: 22px;
     font-size: 16px;
     color: var(--muted);
   }
@@ -131,7 +138,8 @@
   text-decoration: none;
 
   &::after {
-    content: ' #';
+    // Alt text empty, so the hash stays out of the heading's accessible name.
+    content: ' #' / '';
     color: var(--paint);
     opacity: 0;
     transition: opacity 120ms;
@@ -158,56 +166,92 @@
   }
 }
 
-// Free and open source: copy and two buttons beside a short list of facts.
+// Free and open source: one column of copy, then two buttons in GitHub's own style.
 .open-source {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  gap: 64px;
-  align-items: center;
-  margin-top: 170px;
+  max-width: 720px;
+  margin: 170px auto 0;
   padding: 16px 0;
+  text-align: center;
   background: var(--surface);
   scroll-margin-top: 24px;
-}
 
-.open-source-copy p {
-  max-width: 52ch;
-  font-size: 18px;
-  color: var(--muted);
-}
-
-.open-source-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-
-  .button {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-}
-
-.open-source-facts {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px 32px;
-  margin: 0;
-
-  div {
-    padding-top: 12px;
-    border-top: 2px dashed var(--line);
-  }
-
-  dt {
-    font-size: 13px;
+  > p {
+    max-width: 58ch;
+    margin: 0 auto 28px;
+    font-size: 18px;
     color: var(--muted);
   }
+}
 
-  dd {
-    margin: 4px 0 0;
-    font-weight: 600;
-    color: var(--ink);
+.gh-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+// GitHub's default button: Primer's colours, not the page's.
+.gh-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid #3d444d;
+  border-radius: 6px;
+  background: #212830;
+  color: #d1d7e0;
+  font:
+    500 14px/1 -apple-system,
+    'Segoe UI',
+    'Noto Sans',
+    Helvetica,
+    Arial,
+    sans-serif;
+  text-decoration: none;
+
+  &:hover {
+    background: #262c36;
+    border-color: #3d444d;
+  }
+
+  svg {
+    color: #9198a1;
+  }
+}
+
+.gh-sponsor svg {
+  color: #bf4b8a;
+}
+
+.gh-count {
+  padding-left: 8px;
+  border-left: 1px solid #3d444d;
+  color: #9198a1;
+}
+
+[data-theme='light'] {
+  .gh-button {
+    border-color: #d1d9e0;
+    background: #f6f8fa;
+    color: #25292e;
+
+    &:hover {
+      background: #eff2f5;
+    }
+
+    svg {
+      color: #59636e;
+    }
+  }
+
+  .gh-sponsor svg {
+    color: #bf3989;
+  }
+
+  .gh-count {
+    border-color: #d1d9e0;
+    color: #59636e;
   }
 }
 
@@ -276,13 +320,7 @@
   }
 
   .open-source {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 32px;
     margin-top: 96px;
-  }
-
-  .open-source-facts {
-    grid-template-columns: 1fr;
   }
 
   .closing {

@@ -27,24 +27,22 @@
     flex: 1;
   }
 
-  // The page surface comes up at the foot on a slope, about half the road's angle, with a
-  // short fade above it, so the yellow does not end on a flat cut.
   &::after {
     content: '';
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
-    height: 260px;
+    height: 180px;
     z-index: 1;
     pointer-events: none;
-    // A slanted edge, then a fade along the same slant: the yellow dissolves into the page on
-    // the slope rather than ending on it.
+    // Solid surface for the last stretch, so the lines at the foot sit on the page colour.
     background: linear-gradient(
-      172deg,
-      rgba(0, 0, 0, 0) 30%,
-      color-mix(in srgb, var(--surface) 55%, transparent) 55%,
-      var(--surface) 78%
+      to bottom,
+      rgba(0, 0, 0, 0) 0%,
+      color-mix(in srgb, var(--surface) 18%, transparent) 40%,
+      var(--surface) 84%,
+      var(--surface) 100%
     );
   }
 

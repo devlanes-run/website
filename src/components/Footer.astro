@@ -8,8 +8,7 @@ const columns = [
     links: [
       { href: '/lanes/', label: 'Lanes' },
       { href: '/remote/', label: 'Remote boxes' },
-      { href: '/agents/', label: 'Coding agents' },
-      { href: '/#install', label: 'Install' }
+      { href: '/agents/', label: 'Coding agents' }
     ]
   },
   {
@@ -21,19 +20,16 @@ const columns = [
       { href: '/docs/examples/', label: 'Examples' },
       { href: '/docs/security/', label: 'Security' }
     ]
-  },
-  {
-    title: 'Project',
-    links: [
-      { href: 'https://github.com/devlanes-run/devlanes', label: 'GitHub' },
-      { href: 'https://github.com/devlanes-run/devlanes/releases', label: 'Releases' },
-      { href: 'https://github.com/devlanes-run/devlanes/issues', label: 'Issues' },
-      { href: 'https://github.com/devlanes-run/website', label: 'Website source' },
-      { href: '/assets/', label: 'Brand assets' }
-    ]
   }
 ];
-const external = (href: string) => href.startsWith('http');
+const project = [
+  { href: 'https://github.com/devlanes-run/devlanes/releases', label: 'Releases' },
+  { href: 'https://github.com/devlanes-run/devlanes/issues', label: 'Issues' },
+  { href: 'https://github.com/devlanes-run/website', label: 'Website source' },
+  { href: '/assets/', label: 'Brand assets' }
+];
+const external = (href: string) =>
+  href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {};
 ---
 
 <footer class="site-footer">
@@ -60,10 +56,7 @@ const external = (href: string) => href.startsWith('http');
         <ul>
           {links.map(({ href, label }) => (
             <li>
-              <a
-                href={href}
-                {...(external(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-              >
+              <a href={href} {...external(href)}>
                 {label}
               </a>
             </li>
@@ -74,6 +67,15 @@ const external = (href: string) => href.startsWith('http');
   </nav>
   <div class="footer-foot">
     <span>Apache-2.0. Built by Arthur Fiorette.</span>
+    <ul class="footer-project">
+      {project.map(({ href, label }) => (
+        <li>
+          <a href={href} {...external(href)}>
+            {label}
+          </a>
+        </li>
+      ))}
+    </ul>
     <button id="motion" type="button" aria-pressed="false" hidden>
       Pause motion
     </button>

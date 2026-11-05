@@ -1,36 +1,107 @@
 ---
-const files = Object.keys(import.meta.glob('/public/assets/*.{svg,png}'))
-  .map((path) => path.replace('/public', ''))
-  .sort();
+import SiteLayout from '../../layouts/SiteLayout.astro';
+
+// Each asset in public/assets, shown on the ground it was drawn for. The files come from the
+// brand repository; this page only lists them.
+interface Asset {
+  name: string;
+  label: string;
+  ground: 'light' | 'dark' | 'sign' | 'checker' | 'none';
+  /** Two grid columns. */
+  wide?: boolean;
+  /** Shown at its own size, without padding. */
+  full?: boolean;
+}
+const groups: { title: string; note: string; items: Asset[] }[] = [
+  {
+    title: 'Mark',
+    note: 'Three rounded bars, staggered right. The top bar is paint yellow on light and dark grounds and dark on the sign.',
+    items: [
+      { name: 'mark', label: 'Mark', ground: 'light' },
+      { name: 'mark-on-light', label: 'On light', ground: 'light' },
+      { name: 'mark-on-dark', label: 'On dark', ground: 'dark' },
+      { name: 'mark-on-sign', label: 'On the sign', ground: 'sign' }
+    ]
+  },
+  {
+    title: 'Logo',
+    note: 'The mark with the wordmark in JetBrains Mono.',
+    items: [
+      { name: 'logo-on-light', label: 'On light', ground: 'light', wide: true },
+      { name: 'logo-on-dark', label: 'On dark', ground: 'dark', wide: true }
+    ]
+  },
+  {
+    title: 'Badges and favicon',
+    note: 'The sign as a tile: a yellow square with the dark mark. Use the square badge for avatars.',
+    items: [
+      { name: 'favicon', label: 'Favicon', ground: 'checker' },
+      { name: 'logo-badge', label: 'Badge', ground: 'checker' },
+      { name: 'logo-badge-square', label: 'Square badge', ground: 'checker' }
+    ]
+  },
+  {
+    title: 'File icons',
+    note: 'For editors: the yellow bar on a transparent ground, so a devlanes.yaml tab and a file read differently from the app icon.',
+    items: [
+      { name: 'fileicon', label: 'Default', ground: 'checker' },
+      { name: 'fileicon-light', label: 'Light', ground: 'light' },
+      { name: 'fileicon-dark', label: 'Dark', ground: 'dark' },
+      { name: 'fileicon-local-light', label: 'Local, light', ground: 'light' },
+      { name: 'fileicon-local-dark', label: 'Local, dark', ground: 'dark' }
+    ]
+  },
+  {
+    title: 'Banner and social card',
+    note: 'The README banner (1280 by 560) and the social card (1200 by 630).',
+    items: [
+      { name: 'banner', label: 'Banner', ground: 'none', wide: true, full: true },
+      { name: 'og', label: 'Social card', ground: 'none', wide: true, full: true }
+    ]
+  }
+];
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>devlanes brand assets</title>
-    <meta
-      name="description"
-      content="Download devlanes logos, favicons, file icons and banners in SVG and PNG."
-    />
-    <link rel="canonical" href="https://devlanes.run/assets/" />
-    <link rel="icon" href="/favicon.svg" />
-  </head>
-  <body>
-    <main>
-      <h1>devlanes brand assets</h1>
-      <p>
-        <a href="/">Back to devlanes</a>
-      </p>
-      <p>SVG and PNG versions of the current brand assets.</p>
-      <ul>
-        {files.map((file) => (
-          <li>
-            <a href={file}>{file.split('/').pop()}</a>
+<SiteLayout
+  title="Brand assets"
+  description="The devlanes mark, logo, badges, file icons and banners in SVG and PNG."
+  path="/assets/"
+>
+  <section class="assets-head">
+    <h1>Brand assets</h1>
+    <p>
+      The mark, the logo, the badges and the banners, each in SVG and PNG. Keep the mark's
+      proportions; put it on the yellow sign, on light or on dark, and leave space around it.
+    </p>
+  </section>
+  {groups.map(({ title, note, items }) => (
+    <section class="assets-group">
+      <h2>{title}</h2>
+      <p>{note}</p>
+      <ul class:list={['assets-grid', { 'assets-grid-full': items.some((item) => item.full) }]}>
+        {items.map(({ name, label, ground, wide, full }) => (
+          <li class:list={['asset', `asset-${ground}`, { 'asset-wide': wide, 'asset-full': full }]}>
+            <figure>
+              <img
+                src={`/assets/${name}.svg`}
+                alt={`${label} ${title.toLowerCase()}`}
+                loading="lazy"
+              />
+              <figcaption>
+                <span>{label}</span>
+                <span class="asset-links">
+                  <a href={`/assets/${name}.svg`} download>
+                    SVG
+                  </a>
+                  <a href={`/assets/${name}.png`} download>
+                    PNG
+                  </a>
+                </span>
+              </figcaption>
+            </figure>
           </li>
         ))}
       </ul>
-    </main>
-  </body>
-</html>
+    </section>
+  ))}
+</SiteLayout>
