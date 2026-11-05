@@ -196,6 +196,9 @@ importers:
       three:
         specifier: ^0.187.0
         version: 0.187.0
+      yaml:
+        specifier: ^2.9.1
+        version: 2.9.1
     devDependencies:
       '@arthurfiorette/biomejs-config':
         specifier: ^2.0.1
