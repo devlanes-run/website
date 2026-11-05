@@ -189,6 +189,42 @@
   font-weight: 700;
 }
 
+// An agent session as a chat: the person's turn in a bubble on the right, the agent's answer
+// plain on the left, as coding agents draw it.
+.chat {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 22px;
+}
+
+.chat-you {
+  align-self: flex-end;
+  max-width: 85%;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 14px 14px 4px 14px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f2f0ea;
+  font: 13px/1.5 var(--mono);
+}
+
+.chat-agent {
+  max-width: 100%;
+
+  pre {
+    margin: 0 0 14px;
+    padding: 12px 14px;
+    border-left: 2px solid rgba(255, 255, 255, 0.12);
+  }
+
+  p {
+    margin: 0;
+    color: #c5bfae;
+    font: 13px/1.5 var(--mono);
+  }
+}
+
 .key {
   color: #c0b8ff;
 }

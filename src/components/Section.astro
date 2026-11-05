@@ -19,7 +19,11 @@ const { id, title, reverse = false, stacked = false, more } = Astro.props;
   aria-labelledby={`${id}-title`}
 >
   <div class="fold-copy">
-    <h2 id={`${id}-title`}>{title}</h2>
+    <h2 id={`${id}-title`}>
+      <a class="fold-anchor" href={`#${id}`}>
+        {title}
+      </a>
+    </h2>
     <slot />
     {more && (
       <a class="more" href={more.href}>

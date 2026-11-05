@@ -1,8 +1,9 @@
 @use 'tokens';
 
 @media (max-width: tokens.$tablet-width) {
-  footer > span {
-    display: none;
+  .site-footer {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
   }
 }
 
@@ -24,7 +25,11 @@
     padding: 13px 16px;
   }
 
-  footer {
-    gap: 16px;
+  .site-footer {
+    padding-top: 48px;
+  }
+
+  .footer-columns {
+    gap: 28px 20px;
   }
 }

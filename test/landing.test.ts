@@ -13,7 +13,7 @@ test('product content, themes and anchors', async ({ page }) => {
   );
   await expect(page.locator('.hero')).toContainText('Stop fighting over port 3000.');
   await expect(page.locator('.hero strong')).toHaveCount(0);
-  await expect(page.locator('.sign-facts')).toContainText('open source');
+  await expect(page.locator('#open-source')).toContainText('Apache-2.0');
   await expect(page.getByRole('note')).toContainText('not ready for production use');
   await expect(page.locator('.site-header #motion')).toHaveCount(0);
   await expect(page.locator('#theme svg')).toHaveCount(2);
@@ -32,6 +32,9 @@ test('product content, themes and anchors', async ({ page }) => {
     await expect(page.locator(`#${id} a.more`)).toHaveAttribute('href', href);
   }
   await expect(page.locator('.lane-table')).toContainText('https://myapp1.localhost');
+  // Fold headings link to their fold, so a section can be shared by URL.
+  await expect(page.locator('#lanes h2 a')).toHaveAttribute('href', '#lanes');
+  await expect(page.locator('.site-footer nav a[href="/remote/"]')).toHaveCount(1);
   await expect(page.locator('body')).not.toContainText('myapp-1.localhost');
   await page.locator('#theme').click();
   const theme = await page.locator('html').getAttribute('data-theme');
@@ -102,7 +105,9 @@ test('mobile has no page-wide overflow and remains usable without JavaScript', a
   const staticPage = await context.newPage();
   await staticPage.goto('http://127.0.0.1:4321/');
   await expect(staticPage.getByRole('heading', { level: 1 })).toBeVisible();
-  await expect(staticPage.locator('#install-npm')).toContainText('npm install -g devlanes');
+  // Without JavaScript only the shell script shows, the line that works for most people.
+  await expect(staticPage.locator('#install-script')).toContainText('curl -fsSL');
+  await expect(staticPage.locator('#install-npm')).toBeHidden();
   await expect(staticPage.locator('[data-tui-static]')).toBeVisible();
   await expect(staticPage.locator('#motion')).toBeHidden();
   await context.close();

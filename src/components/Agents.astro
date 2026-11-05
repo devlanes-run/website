@@ -18,15 +18,19 @@ import Terminal from './Terminal.astro';
     the background, where nothing supervises it and its logs are lost.
   </p>
   <Terminal slot="visual" title="agent session">
-    <pre class="terminal-content"><span class="who">you</span>    start the stack and give me the URL
-
-<span class="who">agent</span>  <span class="command">devlanes start</span>
-       myapp@3 (agent/perf): 3/3 ready
-       <span class="success">ready</span> api    http://127.0.0.1:20030  <span class="url">https://api.myapp3.localhost</span>
-       <span class="success">ready</span> web    http://127.0.0.1:20031  <span class="url">https://myapp3.localhost</span>
-       <span class="success">ready</span> worker http://127.0.0.1:20032
-
-<span class="who">agent</span>  Up on lane 3, main is untouched on lane 0:
-       <span class="url">https://myapp3.localhost</span></pre>
+    <div class="chat">
+      <p class="chat-you">start the stack and give me the URL</p>
+      <div class="chat-agent">
+        <pre><span class="command">devlanes start</span>
+myapp@3 (agent/perf): 3/3 ready
+<span class="success">ready</span> api    http://127.0.0.1:20030  <span class="url">https://api.myapp3.localhost</span>
+<span class="success">ready</span> web    http://127.0.0.1:20031  <span class="url">https://myapp3.localhost</span>
+<span class="success">ready</span> worker http://127.0.0.1:20032</pre>
+        <p>
+          Up on lane 3, main is untouched on lane 0:{' '}
+          <span class="url">https://myapp3.localhost</span>
+        </p>
+      </div>
+    </div>
   </Terminal>
 </Section>

@@ -7,9 +7,9 @@
   display: flex;
   flex-direction: column;
   z-index: 1;
-  // short windows get a taller sign, so the road keeps room under the copy
-  min-height: max(90vh, 780px);
-  min-height: max(90svh, 780px);
+  // Tall enough that the car sits on the yellow above the 300px fade.
+  min-height: max(100vh, 860px);
+  min-height: max(100svh, 860px);
   background: var(--paint);
   color: #0d0c0a;
   overflow: hidden;
@@ -32,16 +32,18 @@
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 0;
-    height: 180px;
+    // a hair past the floor: the sign's height is fractional and a yellow hairline showed
+    bottom: -1px;
+    height: 301px;
     z-index: 1;
     pointer-events: none;
-    // Solid surface for the last stretch, so the lines at the foot sit on the page colour.
+    // A long fade, with a solid stretch at the end so the lines at the foot sit on the page
+    // colour.
     background: linear-gradient(
       to bottom,
       rgba(0, 0, 0, 0) 0%,
-      color-mix(in srgb, var(--surface) 18%, transparent) 40%,
-      var(--surface) 84%,
+      color-mix(in srgb, var(--surface) 18%, transparent) 38%,
+      var(--surface) 82%,
       var(--surface) 100%
     );
   }
@@ -57,6 +59,12 @@
 
   :focus-visible {
     outline-color: #0d0c0a;
+  }
+
+  // The page's selection is paint yellow, invisible here.
+  ::selection {
+    background: #0d0c0a;
+    color: var(--paint);
   }
 }
 
@@ -104,26 +112,14 @@
   box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.55);
 }
 
-// At the sign's foot, where the yellow fades into the page.
-.sign-facts {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 14px;
-  z-index: 2;
-  margin: 0;
-  text-align: center;
-  font-size: 14px;
-  color: var(--muted);
-}
-
+// In the sign's bottom-left corner, on the yellow above the fade.
 .sign-credit {
   position: absolute;
-  left: max(40px, calc(50% - 560px));
-  bottom: 14px;
+  left: 16px;
+  bottom: 120px;
   z-index: 2;
-  font-size: 11.5px;
-  color: var(--muted);
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.55);
 }
 
 @media (max-width: tokens.$mobile-width) {
@@ -132,7 +128,7 @@
     padding-bottom: 300px;
 
     &::after {
-      height: 150px;
+      height: 200px;
     }
   }
 
@@ -150,13 +146,7 @@
     margin-bottom: 24px;
   }
 
-  .sign-facts {
-    bottom: 36px;
-    padding: 0 20px;
-    font-size: 13px;
-  }
-
   .sign-credit {
-    left: 20px;
+    bottom: 80px;
   }
 }

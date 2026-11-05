@@ -8,18 +8,18 @@ const systems = [
     platform: 'macOS',
     method: '#install-brew',
     shown: ['Homebrew', 'Shell script', 'npm', 'uv', 'cargo binstall'],
-    hidden: ['PowerShell']
+    hidden: ['PowerShell', 'WSL']
   },
   {
     platform: 'Linux',
     method: '#install-script',
     shown: ['Homebrew', 'Shell script', 'npm', 'uv', 'cargo binstall'],
-    hidden: ['PowerShell']
+    hidden: ['PowerShell', 'WSL']
   },
   {
     platform: 'Windows',
     method: '#install-powershell',
-    shown: ['PowerShell', 'npm', 'uv', 'cargo binstall'],
+    shown: ['PowerShell', 'WSL', 'npm', 'uv', 'cargo binstall'],
     hidden: ['Homebrew', 'Shell script']
   }
 ];
@@ -68,12 +68,16 @@ test('switches the install scripts to next builds', async ({ page, context }) =>
   );
   for (const name of ['npm', 'uv', 'cargo binstall'])
     await expect(methods.getByRole('button', { name, exact: true })).toBeHidden();
+  // WSL runs the shell script, which has a next channel too.
+  await methods.getByRole('button', { name: 'WSL', exact: true }).click();
+  await expect(page.locator('#install-wsl code')).toHaveText(next);
 
   await page.locator(control).getByRole('button', { name: 'Switch to stable releases' }).click();
+  await methods.getByRole('button', { name: 'PowerShell', exact: true }).click();
   await expect(page.locator('#install-powershell code')).toHaveText(
     'irm https://devlanes.run/install.ps1 | iex'
   );
-  for (const name of ['PowerShell', 'npm', 'uv', 'cargo binstall'])
+  for (const name of ['PowerShell', 'WSL', 'npm', 'uv', 'cargo binstall'])
     await expect(methods.getByRole('button', { name, exact: true })).toBeVisible();
 });
 

@@ -110,11 +110,11 @@ test('mounts a live TUI of 34 rows that fills a wide window', async ({ page }) =
 
   // The badge in the title bar says where the keys go.
   const badge = page.locator('[data-tui-badge]');
-  await expect(badge).toHaveText('Live terminal, click to interact');
+  await expect(badge).toHaveText('Live, click to interact');
   await page.locator('#tui-demo').focus();
-  await expect(badge).toHaveText('Live terminal, keys go to it');
+  await expect(badge).toHaveText('Live, keys go to it');
   await page.locator('#tui-demo').blur();
-  await expect(badge).toHaveText('Live terminal, click to interact');
+  await expect(badge).toHaveText('Live, click to interact');
 });
 
 test('mounts a smaller font with fewer columns and rows on a phone-sized window', async ({
@@ -287,7 +287,7 @@ test('touch screens tour the pages until they are tapped', async ({ browser }) =
   await openLive(page);
   await page.clock.pauseAt(Date.now() + 60_000);
   const screen = page.locator('#tui-demo');
-  await expect(page.locator('[data-tui-badge]')).toHaveText('Live terminal, tap to interact');
+  await expect(page.locator('[data-tui-badge]')).toHaveText('Live, tap to interact');
   // The jump above already ran some of the tour; only what runFor sends from here on counts.
   const sent = (await calls(page)).keys.length;
   const since = async () => (await calls(page)).keys.slice(sent);

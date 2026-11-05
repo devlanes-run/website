@@ -89,10 +89,8 @@
   gap: 6px;
   padding: 6px 12px;
   border-radius: 999px;
-  // Solid, so the window reads as something to click rather than a recording.
-  background: #6fcf8a;
-  color: #0b1a10;
-  box-shadow: 0 0 0 4px rgba(111, 207, 138, 0.18);
+  background: rgba(111, 207, 138, 0.14);
+  color: #91e0a6;
   font:
     700 12px/1 Overpass,
     sans-serif;
