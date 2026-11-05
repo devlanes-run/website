@@ -6,6 +6,7 @@ import Analytics from '../components/head/Analytics.astro';
 import Fonts from '../components/head/Fonts.astro';
 import ThemeInit from '../components/head/ThemeInit.astro';
 import Road from '../components/Road.astro';
+import { siteDescription, sitePages } from '../lib/site.mjs';
 import '../styles/global.scss';
 
 interface Props {
@@ -18,12 +19,8 @@ interface Props {
 }
 
 const tagline = 'Run every worktree at once, each on its own localhost.';
-const {
-  title,
-  description = 'devlanes is an open source CLI and daemon that runs your dev stack per Git worktree, each with its own ports, hostnames and databases, on your machine or mirrored from a box over ssh.',
-  path = '/',
-  current
-} = Astro.props;
+const { title, description = siteDescription, path = '/', current } = Astro.props;
+const twin = sitePages.find((page) => page.path === path)?.twin;
 const pageTitle = title ? `${title} | devlanes` : `devlanes: ${tagline}`;
 const canonical = `https://devlanes.run${path}`;
 const socialDescription =
@@ -68,7 +65,7 @@ const structuredData = {
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    {path === '/' && <link rel="alternate" type="text/markdown" href="/index.md" />}
+    {twin && <link rel="alternate" type="text/markdown" href={twin} />}
     <link rel="help" type="text/plain" href="/llms.txt" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />

@@ -20,7 +20,7 @@ export const sources = [
     // checkout of the repository.
     refEnv: 'DEVLANES_REF',
     dirEnv: 'DEVLANES_DIR',
-    docs: { path: 'docs', target: 'docs', order: ['getting-started.md'] },
+    docs: { path: 'docs', target: 'docs' },
     files: [
       ['crates/config/schema.json', 'v1/schema.json'],
       ['crates/config/user-schema.json', 'v1/user-schema.json'],

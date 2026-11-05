@@ -13,8 +13,7 @@ const source = {
   repository: 'acme/tool',
   editBranch: 'main',
   path: 'docs',
-  target: 'docs',
-  order: ['getting-started.md']
+  target: 'docs'
 };
 const context = { source, commit: 'abc123', unpublished: new Set(['milestones/m1.md']) };
 const blob = 'https://github.com/acme/tool/blob/abc123';
@@ -113,8 +112,6 @@ test('moves the leading heading and first sentence into Starlight frontmatter', 
       'title: "Getting started"',
       'description: "Install devlanes first."',
       'editUrl: https://github.com/acme/tool/edit/main/docs/getting-started.md',
-      'sidebar:',
-      '  order: 1',
       '---',
       '',
       'Install `devlanes` first. Then add a config.',
@@ -123,6 +120,15 @@ test('moves the leading heading and first sentence into Starlight frontmatter', 
       ''
     ].join('\n')
   );
+});
+
+test('a leading status code joins the next sentence in the description', () => {
+  const page = toStarlightPage(
+    '# DL201 Service not running\n\n`503`. The service is stopped. Start it.\n',
+    'errors/service-idle.md',
+    context
+  );
+  assert.match(page, /^description: "503\. The service is stopped\."$/m);
 });
 
 test('keeps existing frontmatter, minus the importer-only publish key', () => {

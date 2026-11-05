@@ -1,19 +1,26 @@
 import { readFile, writeFile } from 'node:fs/promises';
-import { fromHtml } from 'astro-slop';
+import { Defuddle } from 'defuddle/node';
+import { parseHTML } from 'linkedom';
+import { sitePages } from '../src/lib/site.mjs';
 
-// slop's HTML helper normally fetches a live server. A data URL lets static builds
-// convert their own completed HTML, without fetching the production site.
+// The pages outside the docs have no Markdown source, so their twins are converted from the
+// built HTML: Defuddle keeps the main content and drops the header, footer and other chrome.
 export default function markdown() {
   return {
-    name: 'devlanes:static-markdown',
+    name: 'devlanes:site-markdown',
     hooks: {
       'astro:build:done': async ({ dir }) => {
-        const html = await readFile(new URL('index.html', dir), 'utf8');
-        const source = `data:text/html;base64,${Buffer.from(html).toString('base64')}`;
-        const response = await fromHtml(source)({ request: new Request('https://devlanes.run/') });
-        if (!response.ok) throw new Error(`Markdown conversion failed: ${response.status}`);
-        const title = html.match(/<title>(.*?)<\/title>/s)?.[1] ?? 'devlanes';
-        await writeFile(new URL('index.md', dir), `# ${title}\n\n${await response.text()}`);
+        for (const { path, twin } of sitePages) {
+          const html = await readFile(new URL(`.${path}index.html`, dir), 'utf8');
+          const { document } = parseHTML(html);
+          // The live TUI's fake units and key hints read as page content.
+          for (const element of document.querySelectorAll('.terminal-tui')) element.remove();
+          const url = new URL(path, 'https://devlanes.run').href;
+          const { content } = await Defuddle(document, url, { markdown: true });
+          if (!content.trim()) throw new Error(`Markdown conversion of ${path} is empty`);
+          const title = html.match(/<title>(.*?)<\/title>/s)?.[1] ?? 'devlanes';
+          await writeFile(new URL(`.${twin}`, dir), `# ${title}\n\n${content}`);
+        }
       }
     }
   };

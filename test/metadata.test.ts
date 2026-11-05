@@ -8,11 +8,10 @@ test('generated crawler documents and assets are available', async ({ request })
   expect(content).not.toContain('not ready to use');
   expect(content).toContain('curl -fsSL https://devlanes.run/install.sh');
   expect(content).toContain('git worktree add ../myapp-checkout -b feat/checkout');
-  expect(content).not.toContain('astro-slop: fetch');
   const llms = await request.get('/llms.txt');
-  expect(await llms.text()).toContain('/index.md');
+  expect(await llms.text()).toContain('https://devlanes.run/index.md');
   const full = await request.get('/llms-full.txt');
-  expect(await full.text()).toContain('not a sandbox');
+  expect(await full.text()).toContain('url: https://devlanes.run/docs/getting-started/');
   const sitemap = await request.get('/sitemap-0.xml');
   const urls = await sitemap.text();
   expect(urls).toContain('https://devlanes.run/');

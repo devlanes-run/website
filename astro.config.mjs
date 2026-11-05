@@ -3,12 +3,25 @@ import starlight from '@astrojs/starlight';
 import { defineConfig } from 'astro/config';
 import compress from 'astro-compress';
 import icon from 'astro-icon';
-import slop from 'astro-slop';
 import { pluginConfigDocs } from './integrations/config-docs.mjs';
 import markdown from './integrations/markdown.mjs';
+import { importedPages } from './scripts/sync-docs.mjs';
+import { groupDocs } from './src/lib/docs-nav.mjs';
+import { siteDescription as description } from './src/lib/site.mjs';
 
-const description =
-  'devlanes runs development stacks locally or on remote machines with localhost access.';
+// Read once when the config loads: restart `astro dev` after a sync adds or removes pages.
+const docsGroups = groupDocs(await importedPages());
+const sidebar = docsGroups.map(({ label, collapsed, pages }) => ({
+  label,
+  collapsed,
+  items: pages.map((page) => ({ slug: page.id, label: page.label }))
+}));
+const unfiled = docsGroups.flatMap(({ pages }) => pages.filter((page) => page.unfiled));
+if (unfiled.length) {
+  console.warn(
+    `Docs pages not filed in src/lib/docs-nav.mjs: ${unfiled.map(({ id }) => id).join(', ')}`
+  );
+}
 
 export default defineConfig({
   site: 'https://devlanes.run',
@@ -35,8 +48,9 @@ export default defineConfig({
       description,
       favicon: '/favicon.svg',
       customCss: ['./src/styles/docs.scss'],
-      // Pages come from scripts/sync-docs.mjs, which writes them under src/content/docs/docs/.
-      sidebar: [{ autogenerate: { directory: 'docs' } }],
+      // Pages come from scripts/sync-docs.mjs, which writes them under src/content/docs/docs/;
+      // src/lib/docs-nav.mjs files them into groups.
+      sidebar,
       components: {
         Head: './src/components/docs/Head.astro',
         Header: './src/components/docs/Header.astro',
@@ -102,7 +116,6 @@ export default defineConfig({
       ]
     }),
     markdown(),
-    slop({ siteName: 'devlanes', siteDescription: description, injectAlternateLink: false }),
     compress({ CSS: true, Image: true, JavaScript: true, SVG: true, HTML: true })
   ]
 });

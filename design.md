@@ -63,7 +63,9 @@ The Markdown comes from the source repositories listed in `scripts/sync.mjs` and
 
 Each page shows when it last changed, from the newest commit that touched its source file. A source file with `publish: false` in its frontmatter stays on GitHub only. Other Starlight frontmatter passes through. Images inside the source directory referenced with Markdown image syntax are optimized by Astro; others load from GitHub at the built commit.
 
-Pagefind indexes the docs at build time. Every docs page has a Markdown twin at its URL plus `.md`, which `astro-slop` lists in `llms.txt` and `llms-full.txt` beside the landing page.
+The sidebar groups the pages by what a reader is doing, not by the source repository's folders. `src/lib/docs-nav.mjs` holds the groups and their order; a page it does not name lands in the last group, with a build warning, until it is filed.
+
+Pagefind indexes the docs at build time. Every page has a Markdown twin at its URL plus `.md` (`/index.md` for the landing page). Docs twins come from the source Markdown; the landing and feature pages' twins are converted from their built HTML with Defuddle, without the live terminal. `llms.txt` lists the docs twins under the sidebar's groups, with absolute URLs and each page's description, and the other pages under Optional; `llms-full.txt` holds every docs twin in the same order. Both are built in `src/lib/llms.ts`.
 
 ## Assets
 

@@ -45,8 +45,10 @@ test('every docs page in the sidebar renders with a Markdown twin', async ({ pag
     expect(await markdown.text()).toMatch(/^---\ntitle: /);
   }
   const llms = await (await request.get('/llms.txt')).text();
-  for (const link of links) expect(llms).toContain(`(${link.replace(/\/$/, '')}.md)`);
-  expect(llms).toContain('(/index.md)');
+  for (const link of links) {
+    expect(llms).toContain(`(https://devlanes.run${link.replace(/\/$/, '')}.md)`);
+  }
+  expect(llms).toContain('(https://devlanes.run/index.md)');
 });
 
 test('page actions copy the Markdown twin and prompt assistants with its URL', async ({
