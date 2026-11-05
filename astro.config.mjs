@@ -4,6 +4,7 @@ import { defineConfig } from 'astro/config';
 import compress from 'astro-compress';
 import icon from 'astro-icon';
 import slop from 'astro-slop';
+import { pluginConfigDocs } from './integrations/config-docs.mjs';
 import markdown from './integrations/markdown.mjs';
 
 const description =
@@ -47,6 +48,7 @@ export default defineConfig({
       expressiveCode: {
         themes: ['github-dark-default'],
         useStarlightDarkModeSwitch: false,
+        plugins: [pluginConfigDocs()],
         styleOverrides: {
           borderRadius: '12px',
           borderWidth: '1px',
