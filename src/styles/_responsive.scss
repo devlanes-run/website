@@ -33,13 +33,4 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 28px 20px;
   }
-
-  .open-source {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 32px;
-  }
-
-  .open-source-facts {
-    grid-template-columns: 1fr;
-  }
 }

@@ -275,57 +275,14 @@
     font-size: 17px;
   }
 
-  // Free and open source: copy and two buttons beside a short list of facts.
   .open-source {
-    display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-    gap: 64px;
-    align-items: center;
-    margin-top: 170px;
-    padding: 16px 0;
-    background: var(--surface);
-    scroll-margin-top: 24px;
-  }
-
-  .open-source-copy p {
-    max-width: 52ch;
-    font-size: 18px;
-    color: var(--muted);
-  }
-
-  .open-source-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-
-    .button {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+    margin-top: 96px;
   }
 
   .open-source-facts {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 22px 32px;
-    margin: 0;
-
-    div {
-      padding-top: 12px;
-      border-top: 2px dashed var(--line);
-    }
-
-    dt {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    dd {
-      margin: 4px 0 0;
-      font-weight: 600;
-      color: var(--ink);
-    }
+    grid-template-columns: 1fr;
   }
 
   .closing {
