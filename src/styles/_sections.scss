@@ -190,17 +190,17 @@
   gap: 10px;
 }
 
-// GitHub's default button: Primer's colours, not the page's.
+// GitHub's default button shape and type, on the page's own surface.
 .gh-button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   height: 32px;
   padding: 0 12px;
-  border: 1px solid #3d444d;
+  border: 1px solid var(--line);
   border-radius: 6px;
-  background: #212830;
-  color: #d1d7e0;
+  background: color-mix(in srgb, var(--surface) 92%, var(--ink));
+  color: var(--ink);
   font:
     500 14px/1 -apple-system,
     'Segoe UI',
@@ -211,12 +211,11 @@
   text-decoration: none;
 
   &:hover {
-    background: #262c36;
-    border-color: #3d444d;
+    background: color-mix(in srgb, var(--surface) 86%, var(--ink));
   }
 
   svg {
-    color: #9198a1;
+    color: var(--muted);
   }
 }
 
@@ -226,33 +225,8 @@
 
 .gh-count {
   padding-left: 8px;
-  border-left: 1px solid #3d444d;
-  color: #9198a1;
-}
-
-[data-theme='light'] {
-  .gh-button {
-    border-color: #d1d9e0;
-    background: #f6f8fa;
-    color: #25292e;
-
-    &:hover {
-      background: #eff2f5;
-    }
-
-    svg {
-      color: #59636e;
-    }
-  }
-
-  .gh-sponsor svg {
-    color: #bf3989;
-  }
-
-  .gh-count {
-    border-color: #d1d9e0;
-    color: #59636e;
-  }
+  border-left: 1px solid var(--line);
+  color: var(--muted);
 }
 
 .closing {

@@ -27,21 +27,25 @@
     flex: 1;
   }
 
+  // The same fade as a flat one, on an element tilted a few degrees: the band is even along
+  // its whole edge, lower on the left, and the sign's overflow clips the rest. Wider than the
+  // sign and taller than the drop so no corner ever shows.
   &::after {
     content: '';
     position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 180px;
+    left: -10%;
+    right: -10%;
+    bottom: -140px;
+    height: 360px;
     z-index: 1;
     pointer-events: none;
-    // Solid surface for the last stretch, so the lines at the foot sit on the page colour.
+    transform: rotate(-3deg);
+    transform-origin: 50% 100%;
     background: linear-gradient(
       to bottom,
       rgba(0, 0, 0, 0) 0%,
-      color-mix(in srgb, var(--surface) 18%, transparent) 40%,
-      var(--surface) 84%,
+      color-mix(in srgb, var(--surface) 18%, transparent) 22%,
+      var(--surface) 48%,
       var(--surface) 100%
     );
   }
@@ -138,7 +142,8 @@
     padding-bottom: 300px;
 
     &::after {
-      height: 150px;
+      bottom: -90px;
+      height: 280px;
     }
   }
 
