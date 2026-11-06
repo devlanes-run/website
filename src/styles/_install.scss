@@ -139,9 +139,20 @@
     justify-content: center;
   }
 
+  // Long commands wrap, so the copy button sits under the command instead of squeezing it.
   .install-command {
+    flex-wrap: wrap;
     padding: 12px 14px 8px;
-    gap: 8px;
+    gap: 8px 10px;
+
+    code {
+      flex-basis: calc(100% - 2ch - 10px);
+    }
+
+    .install-copy {
+      flex-basis: 100%;
+      justify-content: center;
+    }
   }
 
   .install-footer {

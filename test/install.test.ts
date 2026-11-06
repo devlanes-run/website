@@ -114,7 +114,12 @@ test('switches install methods and copies only the selected command', async ({ p
     'cargo binstall --git https://github.com/devlanes-run/devlanes devlanes'
   );
   await expect(page.locator('#install-npm')).toBeHidden();
+  // Phones hide the hero's control and keep the one at the end of the page.
   await page.setViewportSize({ width: 375, height: 812 });
-  await page.locator(control).getByRole('button', { name: 'Shell script', exact: true }).click();
+  await expect(page.locator(control)).toBeHidden();
+  const closing = page.locator('#install-again');
+  await closing.getByRole('button', { name: 'Linux', exact: true }).click();
+  await closing.getByRole('button', { name: 'Shell script', exact: true }).click();
+  await expect(page.locator('#install-again-script')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
