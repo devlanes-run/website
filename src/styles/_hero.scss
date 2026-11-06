@@ -7,9 +7,10 @@
   display: flex;
   flex-direction: column;
   z-index: 1;
-  // Tall enough that the car sits on the yellow above the 300px fade.
-  min-height: max(100vh, 860px);
-  min-height: max(100svh, 860px);
+  // Short of the viewport, so the first screen shows the page continuing below; still tall
+  // enough that the car sits on the yellow above the 300px fade.
+  min-height: max(90vh, 820px);
+  min-height: max(90svh, 820px);
   background: var(--paint);
   color: #0d0c0a;
   overflow: hidden;
@@ -125,11 +126,16 @@
 @media (max-width: tokens.$mobile-width) {
   .sign {
     min-height: 0;
-    padding-bottom: 300px;
+    padding-bottom: 340px;
 
     &::after {
       height: 200px;
     }
+  }
+
+  // A phone will not run a shell script; the install control at the end of the page stays.
+  .hero .install {
+    display: none;
   }
 
   .hero {
