@@ -74,14 +74,20 @@ function setup(wrapper: HTMLElement) {
   const idleLabel = coarse ? 'Live, tap to interact' : 'Live, click to interact';
   const hintText = hint?.querySelector('span');
   if (hintText) hintText.textContent = coarse ? 'Tap to interact' : 'Click to interact';
-  // The overlay says the screen is live until the pointer reaches it, then stays away for good.
+  // The overlay sits over the screen while the bundle loads and until the pointer reaches the
+  // live TUI, then stays away for good. Hovering the empty box while loading dismisses nothing.
   let hinted = false;
+  let armed = false;
   const dismissHint = () => {
     hinted = true;
     if (hint) hint.hidden = true;
   };
-  for (const type of ['pointerenter', 'pointerdown', 'focus'] as const)
-    screen.addEventListener(type, dismissHint, { once: true });
+  const armHint = () => {
+    if (armed) return;
+    armed = true;
+    for (const type of ['pointerenter', 'pointerdown', 'focus'] as const)
+      screen.addEventListener(type, dismissHint, { once: true });
+  };
 
   const desktopRows = Number(wrapper.dataset.rows) || 34;
   const mobileRows = Number(wrapper.dataset.mobileRows) || 26;
@@ -243,6 +249,7 @@ function setup(wrapper: HTMLElement) {
     grid = next;
     if (badge) badge.hidden = false;
     if (hint) hint.hidden = hinted;
+    armHint();
     send(view);
     syncTicks();
   };
@@ -360,6 +367,14 @@ function setup(wrapper: HTMLElement) {
     event.preventDefault();
     if (pages.includes(event.key)) view = event.key;
   });
+
+  // With scripting, the static table never shows: an empty window of the live grid's size
+  // holds the place under the hint, and the TUI appears in it already running. The static
+  // table comes back only if the bundle is missing or throws.
+  staticScreen.hidden = true;
+  live.hidden = false;
+  apply(measure(), 0);
+  if (hint) hint.hidden = false;
 
   // Before the demo exists, so this listener runs before the demo's own on every resize.
   window.addEventListener('resize', resized);
