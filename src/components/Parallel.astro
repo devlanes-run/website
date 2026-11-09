@@ -1,0 +1,43 @@
+---
+import Terminal from './Terminal.astro';
+
+// Lane N owns ports from 20000 + 10N; units in alphabetical order, so worker is the third.
+const worktrees = [
+  { title: '~/dev/myapp', lane: 'myapp@0 · main', host: 'myapp.localhost', worker: 20002 },
+  {
+    title: '~/dev/myapp-checkout',
+    lane: 'myapp@1 · feat/checkout',
+    host: 'myapp1.localhost',
+    worker: 20012
+  },
+  {
+    title: 'my-vps:~/myapp-perf',
+    lane: 'myapp@3 · agent/perf',
+    host: 'myapp3.localhost',
+    worker: 20032,
+    remote: true
+  }
+];
+---
+
+<section class="parallel" aria-labelledby="parallel-title">
+  <div class="parallel-copy">
+    <h2 id="parallel-title">Three worktrees up at once. One of them runs on a VPS.</h2>
+    <p>
+      Each is a <strong>lane</strong>: own ports, own hostnames, passed to every process. The VPS
+      one still opens on your laptop.
+    </p>
+  </div>
+  <div class="parallel-terminals">
+    {worktrees.map(({ title, lane, host, worker, remote }) => (
+      <Terminal title={title} class={remote ? 'terminal-remote' : ''}>
+        <pre class="terminal-content"><span class="command">$ devlanes start</span>
+<span class="lane-line">{lane}</span>
+<span class="success">✓</span> services  3 of 3 ready
+  <span class="success">✓</span>  api     <span class="url">https://api.{host}</span>
+  <span class="success">✓</span>  web     <span class="url">https://{host}</span>
+  <span class="success">✓</span>  worker  http://127.0.0.1:{worker}</pre>
+      </Terminal>
+    ))}
+  </div>
+</section>

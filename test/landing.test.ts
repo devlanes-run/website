@@ -13,6 +13,11 @@ test('product content, themes and anchors', async ({ page }) => {
   );
   await expect(page.locator('.hero')).toContainText('Stop fighting over port 3000.');
   await expect(page.locator('.hero strong')).toHaveCount(0);
+  await expect(page.locator('.hero .install-channel')).toHaveCount(0);
+  // The first fold: three worktrees side by side, the remote one marked.
+  await expect(page.locator('#parallel-title')).toContainText('Three worktrees up at once');
+  await expect(page.locator('.parallel-terminals .terminal')).toHaveCount(3);
+  await expect(page.locator('.parallel-terminals .terminal-remote')).toContainText('my-vps');
   await expect(page.locator('#open-source')).toContainText('Apache-2.0');
   await expect(page.getByRole('note')).toContainText('not ready for production use');
   await expect(page.locator('.site-header #motion')).toHaveCount(0);
@@ -31,7 +36,6 @@ test('product content, themes and anchors', async ({ page }) => {
   ] as const) {
     await expect(page.locator(`#${id} a.more`)).toHaveAttribute('href', href);
   }
-  await expect(page.locator('.lane-table')).toContainText('https://myapp1.localhost');
   // Fold headings link to their fold, so a section can be shared by URL.
   await expect(page.locator('#lanes h2 a')).toHaveAttribute('href', '#lanes');
   await expect(page.locator('.site-footer nav a[href="/remote/"]')).toHaveCount(1);
@@ -72,6 +76,8 @@ test('feature pages share the layout and link back', async ({ page }) => {
     await expect(page.locator('.sign')).toHaveCount(0);
     await expect(page.locator('#install')).toHaveCount(1);
   }
+  // The MCP App card lives on the agents page, drawn inside a chat.
+  await expect(page.locator('#mcp .mcp-card')).toContainText('myapp@1');
 });
 
 test('motion pauses and honours reduced motion', async ({ page }) => {

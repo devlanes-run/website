@@ -19,6 +19,7 @@ export const docsGroups = [
       'docs/guides/services',
       'docs/guides/lifecycle',
       'docs/guides/terminals',
+      'docs/guides/mcp',
       'docs/guides/updates'
     ]
   },

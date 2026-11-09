@@ -77,7 +77,7 @@ function watchErrors(page: Page) {
   return errors;
 }
 
-test('keeps the static screen when the TUI web build is missing', async ({ page }) => {
+test('keeps the empty screen when the TUI web build is missing', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.route(module, (route) => route.abort());
@@ -86,7 +86,8 @@ test('keeps the static screen when the TUI web build is missing', async ({ page 
   await request;
   await page.waitForTimeout(300);
   await expect(page.locator('[data-tui-static]')).toBeVisible();
-  await expect(page.locator('[data-tui-static] .monitor-table')).toContainText('api');
+  // The placeholder keeps the live grid's height, so the fold does not collapse.
+  expect((await page.locator('[data-tui-static]').boundingBox())?.height).toBeGreaterThan(500);
   await expect(page.locator('[data-tui-live]')).toBeHidden();
   await expect(page.locator('[data-tui-badge]')).toBeHidden();
   expect(errors).toEqual([]);

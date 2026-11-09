@@ -42,45 +42,6 @@ for (const { platform, method, shown, hidden } of systems) {
   });
 }
 
-test('switches the install scripts to next builds', async ({ page, context }) => {
-  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-  await page.goto('/');
-  await page.locator(control).getByRole('button', { name: 'Linux', exact: true }).click();
-  const methods = page.locator(control).getByRole('group', { name: 'Install method' });
-  // The switch is offered whichever method is selected.
-  await methods.getByRole('button', { name: 'npm', exact: true }).click();
-  await page.locator(control).getByRole('button', { name: 'Switch to next builds' }).click();
-
-  // Package managers only install releases, so only the script remains.
-  const next = 'curl -fsSL https://devlanes.run/install.sh | sh -s -- --channel next';
-  await expect(page.locator('#install-script code')).toHaveText(next);
-  for (const name of ['Homebrew', 'npm', 'uv', 'cargo binstall'])
-    await expect(methods.getByRole('button', { name, exact: true })).toBeHidden();
-  await page
-    .locator(control)
-    .getByRole('button', { name: 'Copy Shell script install command' })
-    .click();
-  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(next);
-
-  await page.locator(control).getByRole('button', { name: 'Windows', exact: true }).click();
-  await expect(page.locator('#install-powershell code')).toHaveText(
-    'iex "& {$(irm https://devlanes.run/install.ps1)} -Channel next"'
-  );
-  for (const name of ['npm', 'uv', 'cargo binstall'])
-    await expect(methods.getByRole('button', { name, exact: true })).toBeHidden();
-  // WSL runs the shell script, which has a next channel too.
-  await methods.getByRole('button', { name: 'WSL', exact: true }).click();
-  await expect(page.locator('#install-wsl code')).toHaveText(next);
-
-  await page.locator(control).getByRole('button', { name: 'Switch to stable releases' }).click();
-  await methods.getByRole('button', { name: 'PowerShell', exact: true }).click();
-  await expect(page.locator('#install-powershell code')).toHaveText(
-    'irm https://devlanes.run/install.ps1 | iex'
-  );
-  for (const name of ['PowerShell', 'WSL', 'npm', 'uv', 'cargo binstall'])
-    await expect(methods.getByRole('button', { name, exact: true })).toBeVisible();
-});
-
 test('switching to Windows shows the PowerShell installer', async ({ page }) => {
   await page.goto('/');
   await page.locator(control).getByRole('button', { name: 'Windows', exact: true }).click();

@@ -1,0 +1,50 @@
+---
+// A chat with an MCP App card, drawn as hosts such as Cursor render the `start` tool.
+import Terminal from './Terminal.astro';
+
+const services = [
+  { name: 'api', host: 'api.myapp1.localhost', port: 20010 },
+  { name: 'web', host: 'myapp1.localhost', port: 20011 },
+  { name: 'worker', port: 20012 }
+];
+---
+
+<Terminal title="Cursor">
+  <div class="chat">
+    <p class="chat-you">start the checkout branch</p>
+    <div class="chat-agent">
+      <div class="mcp-call">
+        <span class="mcp-call-mark" aria-hidden="true">
+          D
+        </span>
+        <span>devlanes</span>
+        <span class="mcp-call-tool">start</span>
+      </div>
+      <div class="mcp-card">
+        <div class="mcp-card-head">
+          <div>
+            <strong>myapp@1</strong> <span class="mcp-branch">feat/checkout</span>
+            <small>started by cursor</small>
+          </div>
+          <span class="mcp-badge">Ready</span>
+        </div>
+        <ul class="mcp-services">
+          {services.map(({ name, host, port }) => (
+            <li>
+              <span class="mcp-dot" aria-hidden="true" />
+              <strong>{name}</strong>
+              {host ? <span class="mcp-host">{host}</span> : <span />}
+              <span class="mcp-port">:{port}</span>
+              <span>ready</span>
+            </li>
+          ))}
+        </ul>
+        <div class="mcp-actions" aria-hidden="true">
+          <span class="mcp-button">Stop lane</span>
+          <span class="mcp-button mcp-button-primary">Open web</span>
+        </div>
+      </div>
+      <p>Up on lane 1; main keeps running on lane 0.</p>
+    </div>
+  </div>
+</Terminal>

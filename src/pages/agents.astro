@@ -4,12 +4,15 @@ import Section from '../components/Section.astro';
 import Terminal from '../components/Terminal.astro';
 import PageHead from '../components/pages/PageHead.astro';
 import PageFoot from '../components/pages/PageFoot.astro';
+import McpChat from '../components/McpChat.astro';
 
 const docs = [
   { href: '/docs/getting-started/#coding-agents', label: 'Coding agents in getting started' },
+  { href: '/docs/guides/mcp/', label: 'Coding agents and devlanes mcp' },
+  { href: '/docs/guides/mcp/', label: 'Coding agents and devlanes mcp' },
   {
-    href: 'https://github.com/devlanes-run/devlanes/tree/main/agent-plugin',
-    label: 'The agent plugin on GitHub'
+    href: 'https://github.com/devlanes-run/devlanes/blob/main/skills/devlanes/SKILL.md',
+    label: 'The devlanes skill on GitHub'
   },
   { href: '/docs/reference/cli/', label: 'CLI reference' },
   { href: '/docs/security/', label: 'Security' }
@@ -18,7 +21,7 @@ const docs = [
 
 <SiteLayout
   title="Coding agents"
-  description="A coding agent starts a lane for its branch with the same devlanes commands you use. The daemon owns the processes, so the agent's shell can end and nothing dies, and the plugin refuses backgrounded dev servers."
+  description="A coding agent starts a lane for its branch with the same devlanes commands you use. The daemon owns the processes, so the agent's shell can end and nothing dies, and devlanes mcp gives chat hosts the same commands as tools."
   path="/agents/"
   current="agents"
 >
@@ -63,24 +66,18 @@ const docs = [
     </Terminal>
   </Section>
 
-  <Section id="plugin" title="The plugin refuses a dev server started in the background." reverse>
+  <Section id="mcp" title="Start the lane from a chat. The card has its URLs and buttons." reverse>
     <p>
-      The Claude Code and Codex plugin teaches the agent the CLI and runs a check before every shell
-      call. A detached command that looks like a dev server, in a repository with a{' '}
-      <code>devlanes.yaml</code>, is blocked, and the message says what to run instead and how to
-      check on it afterwards.
+      <code>devlanes mcp</code> serves the same commands as MCP tools, for hosts without a shell and
+      sandboxes whose shell cannot reach the daemon. Cursor, Copilot in VS Code and Goose draw the
+      result as a card; terminal agents get the same text.
     </p>
-    <Terminal slot="visual" title="agent session · ~/dev/myapp-perf">
-      <pre class="terminal-content terminal-wrap"><span class="command">$ claude plugin marketplace add devlanes-run/devlanes</span>
-<span class="command">$ claude plugin install devlanes@devlanes</span>
-
-<span class="dim">agent&gt;</span> pnpm dev &amp;
-<span class="failure">Blocked by the devlanes plugin:</span> this starts a long-running process in the background, where nothing supervises it and its logs are lost.
-Use instead:
-  devlanes start [UNIT...]               services defined in devlanes.yaml
-  devlanes exec --name NAME -- COMMAND   any other long-running command
-Then check it with `devlanes wait NAME --timeout 180s` and `devlanes logs NAME --tail 100`.</pre>
-    </Terminal>
+    <p>
+      In a terminal, the devlanes skill tells the agent never to background a dev server with{' '}
+      <code>&amp;</code>: anything not in <code>devlanes.yaml</code> runs through{' '}
+      <code>devlanes exec</code>, so the daemon keeps its logs.
+    </p>
+    <McpChat slot="visual" />
   </Section>
 
   <Section id="tests" title="Tests run against the lane, then it is put back.">
@@ -95,11 +92,11 @@ myapp@3 (agent/perf): 3/3 ready
     </Terminal>
   </Section>
 
-  <Section id="box" title="An agent on a box. The URL it prints there opens here." reverse>
+  <Section id="remote" title="An agent on a VPS. The URL it prints there opens here." reverse>
     <p>
       Lanes are not a sandbox: every process runs as you. For an agent you want contained, give it a
-      VPS, a container or a codespace, run devlanes there, and connect to that box from your laptop.
-      The hostname the agent prints is the one you open, with your own certificate.
+      VPS, a container or a codespace, run devlanes there, and connect to it from your laptop. The
+      hostname the agent prints is the one you open, with your own certificate.
     </p>
     <Terminal slot="visual" title="on my-vps">
       <pre class="terminal-content"><span class="command">$ devlanes url print web</span>

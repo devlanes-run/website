@@ -18,7 +18,7 @@
     font:
       600 13px 'Overpass',
       sans-serif;
-    color: #b5b0a3;
+    color: #cfcabd;
     background: transparent;
     border: 1px solid transparent;
     border-radius: 5px;
@@ -27,6 +27,7 @@
 
   button[aria-pressed='true'] {
     color: #f2f0ea;
+    background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.14);
   }
 }
@@ -67,7 +68,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 16px 18px 12px;
+  padding: 14px 18px;
 
   // Specific enough to beat a surrounding section's `code` colour; the window is always dark.
   .install & code {
@@ -95,38 +96,22 @@
   }
 }
 
+// Only takes a line once there is something to say, such as "Command copied."
 .install-footer {
-  display: flex;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 0 12px;
-  min-height: 34px;
-  padding: 0 18px 10px;
+  padding: 0 18px;
 }
 
 .install-status {
   margin: 0;
+  padding-bottom: 10px;
   font-size: 12.5px;
   color: #b5b0a3;
-}
 
-// Also overrides the pressed style of the selector buttons, so it stays a quiet link.
-.install .install-channel[aria-pressed] {
-  margin: 0 0 0 auto;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: #b5b0a3;
-  font-size: 12px;
-  font-weight: 400;
-  white-space: nowrap;
-  text-decoration: underline;
-  text-underline-offset: 4px;
-
-  &:hover,
-  &:focus-visible {
-    color: #f2f0ea;
+  // Stays in the accessibility tree while empty, so the live region announces the copy.
+  &:empty {
+    height: 0;
+    padding: 0;
+    overflow: hidden;
   }
 }
 
@@ -142,7 +127,7 @@
   // Long commands wrap, so the copy button sits under the command instead of squeezing it.
   .install-command {
     flex-wrap: wrap;
-    padding: 12px 14px 8px;
+    padding: 12px 14px;
     gap: 8px 10px;
 
     code {
@@ -156,7 +141,7 @@
   }
 
   .install-footer {
-    padding: 0 14px 10px;
+    padding: 0 14px;
   }
 
   .install button {
@@ -166,13 +151,11 @@
 }
 
 .install-controls[hidden],
-.install-command .install-copy[hidden],
-.install .install-channel[hidden] {
+.install-command .install-copy[hidden] {
   display: flex !important;
   visibility: hidden;
 }
 
-.install-command .install-copy[hidden],
-.install .install-channel[hidden] {
+.install-command .install-copy[hidden] {
   display: inline-flex !important;
 }

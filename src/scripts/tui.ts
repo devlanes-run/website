@@ -1,7 +1,7 @@
-// Swaps the static screen of every `[data-tui]` for the devlanes TUI compiled to WebAssembly.
-// scripts/sync.mjs publishes the module under /tui/ when the release has it; without it, or
-// when the module throws, the static screen stays. The TUI gets as many columns as fit the
-// wrapper and a fixed number of rows, in cells of its own font: it is never scaled.
+// Mounts the devlanes TUI compiled to WebAssembly in every `[data-tui]`. scripts/sync.mjs
+// publishes the module under /tui/ when the release has it; without it, or when the module
+// throws, the empty screen stays. The TUI gets as many columns as fit the wrapper and a fixed
+// number of rows, in cells of its own font: it is never scaled.
 
 /** The `Demo` class exported by the devlanes-tui-web bundle. */
 interface Demo {
@@ -69,8 +69,25 @@ function setup(wrapper: HTMLElement) {
   const screen = live?.querySelector<HTMLElement>('.tui-screen');
   const badge = wrapper.querySelector<HTMLElement>('[data-tui-badge]');
   const badgeText = badge?.querySelector<HTMLElement>('[data-tui-badge-text]');
+  const hint = live?.querySelector<HTMLElement>('[data-tui-hint]');
   if (!staticScreen || !live || !screen?.id) return;
   const idleLabel = coarse ? 'Live, tap to interact' : 'Live, click to interact';
+  const hintText = hint?.querySelector('span');
+  if (hintText) hintText.textContent = coarse ? 'Tap to interact' : 'Click to interact';
+  // The overlay sits over the screen while the bundle loads and until the pointer reaches the
+  // live TUI, then stays away for good. Hovering the empty box while loading dismisses nothing.
+  let hinted = false;
+  let armed = false;
+  const dismissHint = () => {
+    hinted = true;
+    if (hint) hint.hidden = true;
+  };
+  const armHint = () => {
+    if (armed) return;
+    armed = true;
+    for (const type of ['pointerenter', 'pointerdown', 'focus'] as const)
+      screen.addEventListener(type, dismissHint, { once: true });
+  };
 
   const desktopRows = Number(wrapper.dataset.rows) || 34;
   const mobileRows = Number(wrapper.dataset.mobileRows) || 26;
@@ -138,7 +155,7 @@ function setup(wrapper: HTMLElement) {
     return lines.length === next.rows && lines[0]?.childElementCount === next.cols;
   };
 
-  /** Puts the static screen back for good. */
+  /** Puts the empty screen back for good. */
   const stop = (error: unknown) => {
     dead = true;
     unmount();
@@ -148,6 +165,7 @@ function setup(wrapper: HTMLElement) {
     refit = undefined;
     live.hidden = true;
     if (badge) badge.hidden = true;
+    if (hint) hint.hidden = true;
     staticScreen.hidden = false;
     syncTicks();
     console.debug('The live TUI demo is unavailable, showing the static screen.', error);
@@ -230,6 +248,8 @@ function setup(wrapper: HTMLElement) {
     }
     grid = next;
     if (badge) badge.hidden = false;
+    if (hint) hint.hidden = hinted;
+    armHint();
     send(view);
     syncTicks();
   };
@@ -347,6 +367,14 @@ function setup(wrapper: HTMLElement) {
     event.preventDefault();
     if (pages.includes(event.key)) view = event.key;
   });
+
+  // The live screen, sized for the grid, holds the place under the hint while the bundle
+  // loads; the TUI appears in it already running. The placeholder comes back only if the
+  // bundle is missing or throws.
+  staticScreen.hidden = true;
+  live.hidden = false;
+  apply(measure(), 0);
+  if (hint) hint.hidden = false;
 
   // Before the demo exists, so this listener runs before the demo's own on every resize.
   window.addEventListener('resize', resized);

@@ -4,7 +4,7 @@ import Terminal from './Terminal.astro';
 import Tui from './Tui.astro';
 ---
 
-<Section id="monitor" title="See what every lane and unit costs, live." stacked>
+<Section id="monitor" title="See what every lane and service costs, live." stacked>
   <p>
     Running <code>devlanes</code> opens a terminal view of every lane in the project, with the state
     of each service and its live output. The monitor shows CPU and memory per lane, per service and
@@ -12,11 +12,7 @@ import Tui from './Tui.astro';
     Open a unit to read its output, type into it, stop it or restart it.
   </p>
   <div slot="visual" class="tui-try">
-    <h3>Try the TUI</h3>
-    <p>
-      The real TUI, compiled to WebAssembly and running on fake data, so you can click around in it
-      before installing anything.
-    </p>
+    <p>This is the real TUI, running as a WebAssembly bundle on fake data. Click to interact.</p>
     <Terminal title="devlanes" class="terminal-tui">
       <Tui />
     </Terminal>
