@@ -5,10 +5,10 @@ import Terminal from './Terminal.astro';
 
 <section class="status" aria-labelledby="status-title">
   <div class="status-copy">
-    <h2 id="status-title">One repository, four worktrees, three of them running.</h2>
+    <h2 id="status-title">One repository, four worktrees. The idle one keeps its ports and database.</h2>
     <p>
-      Each worktree is a <strong>lane</strong>: a running copy of the stack with its own ports,
-      hostnames and data. Lane 2 is idle, so its ports and database are kept and nothing runs.
+      Each row is a <strong>lane</strong>: a worktree's copy of the stack, with its own ports,
+      hostnames and data. Lane 2 is idle: its ports and database are kept, nothing runs.
     </p>
   </div>
   <Terminal title="devlanes status">

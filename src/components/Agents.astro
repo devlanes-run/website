@@ -5,30 +5,36 @@ import Terminal from './Terminal.astro';
 
 <Section
   id="agents"
-  title="Your agent gets a lane of its own, and the daemon keeps it running."
+  title="Your agent reads the logs of the server you started in another tab."
   more={{ href: '/agents/', label: 'More about agents' }}
 >
   <p>
-    An agent starts a stack for its branch with the same commands you use, hands you a localhost
-    URL, and moves on. Its shell can end; the daemon owns the processes. A second agent on the same
-    machine gets lane 4, not a port conflict.
+    The daemon owns every process, so the stack running in your terminal is reachable from the
+    agent's shell: it tails a service's logs, restarts it and runs the tests against the lane, and
+    the output stays where you can see it too. An agent working on its own branch starts a lane of
+    its own, and its shell can end without the stack dying.
   </p>
   <p>
-    The Claude Code and Codex plugin teaches the agent the CLI and refuses a dev server started in
-    the background, where nothing supervises it and its logs are lost.
+    A skill teaches the agent the commands, and <code>devlanes mcp</code> gives hosts such as Claude
+    Desktop and Cursor the same commands as tools, with a card for the lane.
   </p>
   <Terminal slot="visual" title="agent session">
     <div class="chat">
-      <p class="chat-you">start the stack and give me the URL</p>
+      <p class="chat-you">checkout 500s on lane 1, see what the api says</p>
       <div class="chat-agent">
-        <pre><span class="command">devlanes start</span>
-myapp@3 (agent/perf): 3/3 ready
-<span class="success">ready</span> api    http://127.0.0.1:20030  <span class="url">https://api.myapp3.localhost</span>
-<span class="success">ready</span> web    http://127.0.0.1:20031  <span class="url">https://myapp3.localhost</span>
-<span class="success">ready</span> worker http://127.0.0.1:20032</pre>
+        <pre><span class="command">devlanes logs myapp@1:api --tail 100</span>
+<span class="failure">TypeError: Cannot read properties of undefined (reading 'callbackUrl')</span>
+    at buildRedirect (src/auth/redirect.ts:31:22)
+    at registerAuth (src/routes/auth.ts:12:3)</pre>
         <p>
-          Up on lane 3, main is untouched on lane 0:{' '}
-          <span class="url">https://myapp3.localhost</span>
+          <code>AUTH_REDIRECT_URL</code> is unset in lane 1, so the fallback at{' '}
+          <code>src/auth/redirect.ts:31</code> has no <code>callbackUrl</code>. Fixed the fallback,
+          restarting api.
+        </p>
+        <pre><span class="command">devlanes restart myapp@1:api</span>
+<span class="success">ready</span> api  <span class="url">https://api.myapp1.localhost</span></pre>
+        <p>
+          Checkout answers again on <span class="url">https://myapp1.localhost</span>.
         </p>
       </div>
     </div>

@@ -13,24 +13,21 @@ const methods = [
     id: 'script',
     label: 'Shell script',
     os: ['linux', 'macos'],
-    command: 'curl -fsSL https://devlanes.run/install.sh | sh',
-    next: 'curl -fsSL https://devlanes.run/install.sh | sh -s -- --channel next'
+    command: 'curl -fsSL https://devlanes.run/install.sh | sh'
   },
   {
     id: 'powershell',
     label: 'PowerShell',
     os: ['windows'],
     prompt: 'PS>',
-    command: 'irm https://devlanes.run/install.ps1 | iex',
-    next: 'iex "& {$(irm https://devlanes.run/install.ps1)} -Channel next"'
+    command: 'irm https://devlanes.run/install.ps1 | iex'
   },
   {
     // The same script as on Linux, run inside the distro; devlanes supports WSL as a box too.
     id: 'wsl',
     label: 'WSL',
     os: ['windows'],
-    command: 'curl -fsSL https://devlanes.run/install.sh | sh',
-    next: 'curl -fsSL https://devlanes.run/install.sh | sh -s -- --channel next'
+    command: 'curl -fsSL https://devlanes.run/install.sh | sh'
   },
   {
     id: 'npm',
@@ -93,7 +90,7 @@ const { id: base = 'install' } = Astro.props;
       ))}
     </div>
   </div>
-  {methods.map(({ id, label, command, prompt = '$', next }) => (
+  {methods.map(({ id, label, command, prompt = '$' }) => (
     // Until the script picks a method for the visitor's system, only the shell script shows:
     // the one line that works for most people, and the only one without JavaScript.
     <div
@@ -106,9 +103,7 @@ const { id: base = 'install' } = Astro.props;
         <span class="install-prompt" aria-hidden="true">
           {prompt}
         </span>
-        <code data-stable={next && command} data-next={next}>
-          {command}
-        </code>
+        <code>{command}</code>
         <button
           type="button"
           class="install-copy"
@@ -122,9 +117,6 @@ const { id: base = 'install' } = Astro.props;
   ))}
   <div class="install-footer">
     <p class="install-status" role="status" aria-live="polite"></p>
-    <button type="button" class="install-channel" aria-pressed="false" hidden>
-      Switch to next builds
-    </button>
   </div>
 </div>
 

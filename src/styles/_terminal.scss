@@ -219,10 +219,169 @@
   }
 
   p {
-    margin: 0;
+    margin: 0 0 14px;
     color: #c5bfae;
     font: 13px/1.5 var(--mono);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
+
+  code {
+    font: inherit;
+    color: #f2f0ea;
+  }
+}
+
+// The tool call line above an MCP App card, as Claude Desktop draws it.
+.mcp-call {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  color: #b5b0a3;
+  font:
+    500 13px 'Overpass',
+    sans-serif;
+}
+
+.mcp-call-mark {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+  font-size: 10px;
+  color: #c5bfae;
+}
+
+.mcp-call-tool {
+  color: #f2f0ea;
+}
+
+// The card itself uses the host's sans font, since it is the host's UI, not a terminal.
+.mcp-card {
+  margin: 0 0 16px;
+  padding: 16px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #e7e3d8;
+  font:
+    400 13.5px/1.4 'Overpass',
+    sans-serif;
+
+  strong {
+    color: #f7f5ef;
+    font-weight: 700;
+  }
+
+  a {
+    color: #e7e3d8;
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 255, 255, 0.3);
+    text-underline-offset: 3px;
+  }
+}
+
+.mcp-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+  strong {
+    font-size: 15px;
+  }
+
+  small {
+    display: block;
+    margin-top: 2px;
+    color: #a39e91;
+    font-size: 12px;
+  }
+}
+
+.mcp-branch {
+  color: #b5b0a3;
+}
+
+.mcp-card-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  color: #b5b0a3;
+  font-size: 12.5px;
+}
+
+.mcp-badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(145, 197, 159, 0.16);
+  color: #91c59f;
+  font-weight: 600;
+}
+
+.mcp-services {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+
+  li {
+    display: grid;
+    grid-template-columns: 8px auto 1fr auto auto;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 0;
+    font-size: 13px;
+
+    + li {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    > span:last-child {
+      color: #91c59f;
+    }
+  }
+}
+
+.mcp-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #91c59f;
+}
+
+.mcp-port {
+  color: #a39e91;
+  font: 12px var(--mono);
+}
+
+.mcp-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.mcp-button {
+  padding: 7px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 7px;
+  color: #f2f0ea;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.mcp-button-primary {
+  background: var(--paint);
+  border-color: var(--paint);
+  color: #24231f;
 }
 
 .key {

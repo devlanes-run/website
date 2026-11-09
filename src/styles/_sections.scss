@@ -46,12 +46,28 @@
   }
 }
 
-// The status table right under the sign.
-.status {
+// The first fold under the sign: three terminals in a row, one per worktree.
+.parallel {
   margin: 0 auto;
+}
+
+.parallel-terminals {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+
+  .terminal-content {
+    padding: 18px 20px;
+  }
+}
+
+// The status table.
+.status {
+  margin: 170px auto 0;
   max-width: 980px;
 }
 
+.parallel-copy,
 .status-copy {
   max-width: 640px;
   margin: 0 auto 28px;
@@ -284,6 +300,15 @@
     gap: 40px;
     margin-top: 130px;
   }
+
+  .status {
+    margin-top: 130px;
+  }
+
+  // Two across, the box on its own row.
+  .parallel-terminals {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: tokens.$mobile-width) {
@@ -291,6 +316,14 @@
     grid-template-columns: minmax(0, 1fr);
     gap: 28px;
     margin-top: 96px;
+  }
+
+  .status {
+    margin-top: 96px;
+  }
+
+  .parallel-terminals {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .fold-reverse .fold-copy {

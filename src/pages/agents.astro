@@ -4,9 +4,11 @@ import Section from '../components/Section.astro';
 import Terminal from '../components/Terminal.astro';
 import PageHead from '../components/pages/PageHead.astro';
 import PageFoot from '../components/pages/PageFoot.astro';
+import McpChat from '../components/McpChat.astro';
 
 const docs = [
   { href: '/docs/getting-started/#coding-agents', label: 'Coding agents in getting started' },
+  { href: '/docs/guides/mcp/', label: 'Coding agents and devlanes mcp' },
   {
     href: 'https://github.com/devlanes-run/devlanes/tree/main/agent-plugin',
     label: 'The agent plugin on GitHub'
@@ -63,24 +65,20 @@ const docs = [
     </Terminal>
   </Section>
 
-  <Section id="plugin" title="The plugin refuses a dev server started in the background." reverse>
+  <Section id="mcp" title="Preview the lane in your own AI app." reverse>
     <p>
-      The Claude Code and Codex plugin teaches the agent the CLI and runs a check before every shell
-      call. A detached command that looks like a dev server, in a repository with a{' '}
-      <code>devlanes.yaml</code>, is blocked, and the message says what to run instead and how to
-      check on it afterwards.
+      <code>devlanes mcp</code> offers the same commands as MCP tools, for hosts without a shell and
+      for sandboxes whose shell cannot reach the daemon. Hosts that show MCP Apps, such as Claude
+      Desktop, Copilot in VS Code, Cursor and Goose, render the result as a card with the lane's
+      services, their URLs and buttons to open or stop it. Terminal agents get the same text without
+      the card.
     </p>
-    <Terminal slot="visual" title="agent session · ~/dev/myapp-perf">
-      <pre class="terminal-content terminal-wrap"><span class="command">$ claude plugin marketplace add devlanes-run/devlanes</span>
-<span class="command">$ claude plugin install devlanes@devlanes</span>
-
-<span class="dim">agent&gt;</span> pnpm dev &amp;
-<span class="failure">Blocked by the devlanes plugin:</span> this starts a long-running process in the background, where nothing supervises it and its logs are lost.
-Use instead:
-  devlanes start [UNIT...]               services defined in devlanes.yaml
-  devlanes exec --name NAME -- COMMAND   any other long-running command
-Then check it with `devlanes wait NAME --timeout 180s` and `devlanes logs NAME --tail 100`.</pre>
-    </Terminal>
+    <p>
+      In a terminal, the devlanes skill teaches the agent the commands, and the Claude Code plugin
+      refuses a dev server started in the background with <code>&amp;</code>, where nothing
+      supervises it and its logs are lost.
+    </p>
+    <McpChat slot="visual" />
   </Section>
 
   <Section id="tests" title="Tests run against the lane, then it is put back.">

@@ -5,28 +5,39 @@ import Terminal from './Terminal.astro';
 
 <Section
   id="lanes"
-  title="A second worktree comes up next to main, on its own ports."
+  title="One committed file describes the stack for every worktree."
   more={{ href: '/lanes/', label: 'More about lanes' }}
 >
   <p>
-    Each lane gets a block of ports and its own hostnames, such as <code>myapp1.localhost</code>.
-    Run the checkout branch alongside main without assigning ports in <code>.env</code> files or
-    editing a proxy by hand.
+    <code>devlanes.yaml</code> sits at the root of the repository. <code>lane.domain</code> is{' '}
+    <code>myapp.localhost</code> in lane 0 and <code>myapp1.localhost</code> in lane 1; a service
+    only has to listen on <code>$PORT</code>, and presets for Vite, Next, Wrangler and others pass
+    the right flags.
   </p>
   <p>
-    Heavy infra such as a database server runs once and is shared, with a database per lane inside
-    it, so a migration in one lane leaves main's data alone. Lanes that need their own containers
-    get them. One committed <code>devlanes.yaml</code> describes the stack for every lane.
+    A database server runs once, with a database per lane inside it, so a migration in
+    feat/checkout leaves main's data alone. Lanes that need their own containers get them.
   </p>
-  <Terminal slot="visual" title="~/dev/myapp-checkout">
-    <pre class="terminal-content"><span class="command">$ git worktree add ../myapp-checkout -b feat/checkout</span>
-<span class="dim">Preparing worktree (new branch 'feat/checkout')</span>
-<span class="command">$ cd ../myapp-checkout</span>
-<span class="command">$ devlanes start --no-ui</span>
-myapp@1 · feat/checkout
-<span class="success">✓</span> services  3 of 3 ready
-  <span class="success">✓</span>  api     <span class="url">https://api.myapp1.localhost</span>
-  <span class="success">✓</span>  web     <span class="url">https://myapp1.localhost</span>
-  <span class="success">✓</span>  worker  http://127.0.0.1:20012</pre>
+  <Terminal slot="visual" title="devlanes.yaml">
+    <pre class="terminal-content"><span class="key">services</span>:
+  <span class="key">api</span>:
+    <span class="key">run</span>: pnpm --filter api dev
+    <span class="key">hosts</span>: <span class="string">"api.<span class="expr">${"{{ lane.domain }}"}</span>"</span>
+
+  <span class="key">web</span>:
+    <span class="key">preset</span>: vite
+    <span class="key">env</span>:
+      <span class="key">VITE_API_URL</span>: <span class="string">"<span class="expr">${"{{ services.api.public_url }}"}</span>"</span>
+    <span class="key">hosts</span>: <span class="string">"<span class="expr">${"{{ lane.domain }}"}</span>"</span>
+
+<span class="key">infra</span>:
+  <span class="key">compose</span>: docker-compose.yml
+
+<span class="key">lanes</span>:
+  <span class="key">vars</span>:
+    <span class="key">db_name</span>: <span class="string">"myapp_<span class="expr">${"{{ lane.name }}"}</span>"</span>
+
+<span class="key">global_env</span>:
+  <span class="key">DATABASE_URL</span>: postgres://localhost:<span class="expr">${"{{ infra.postgres.port }}"}</span>/<span class="expr">${"{{ lane.db_name }}"}</span></pre>
   </Terminal>
 </Section>
