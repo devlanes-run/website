@@ -14,27 +14,22 @@ const worktrees = [
     title: 'my-vps:~/myapp-perf',
     lane: 'myapp@3 · agent/perf',
     host: 'myapp3.localhost',
-    worker: 20032
+    worker: 20032,
+    remote: true
   }
 ];
 ---
 
 <section class="parallel" aria-labelledby="parallel-title">
   <div class="parallel-copy">
-    <h2 id="parallel-title">
-      Three worktrees up at once. The third runs on my-vps and still opens on your laptop.
-    </h2>
-    <p>
-      Every process is told its worktree's ports and hostnames through the environment, so
-      feat/checkout's web talks to feat/checkout's api, never main's. The third runs on my-vps; the
-      URL it prints there opens on your laptop.
-    </p>
+    <h2 id="parallel-title">Three worktrees up at once. One of them runs on a VPS.</h2>
+    <p>Own ports, own hostnames, passed to every process. The VPS one still opens on your laptop.</p>
   </div>
   <div class="parallel-terminals">
-    {worktrees.map(({ title, lane, host, worker }) => (
-      <Terminal title={title}>
+    {worktrees.map(({ title, lane, host, worker, remote }) => (
+      <Terminal title={title} class={remote ? 'terminal-remote' : undefined}>
         <pre class="terminal-content"><span class="command">$ devlanes start</span>
-{lane}
+<span class="lane-line">{lane}</span>
 <span class="success">✓</span> services  3 of 3 ready
   <span class="success">✓</span>  api     <span class="url">https://api.{host}</span>
   <span class="success">✓</span>  web     <span class="url">https://{host}</span>

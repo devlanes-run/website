@@ -183,6 +183,16 @@
   color: #6ca8e8;
 }
 
+// The lane and branch a start printed, the one line that differs between windows.
+.lane-line {
+  color: #f2f0ea;
+}
+
+// A window on a box: its title in paint, so the eye finds the remote one among the local ones.
+.terminal-remote .terminal-title {
+  color: var(--paint);
+}
+
 // The speaker in a transcript between a person and an agent.
 .who {
   color: var(--paint);
@@ -277,13 +287,13 @@
     color: #f7f5ef;
     font-weight: 700;
   }
+}
 
-  a {
-    color: #e7e3d8;
-    text-decoration: underline;
-    text-decoration-color: rgba(255, 255, 255, 0.3);
-    text-underline-offset: 3px;
-  }
+// Drawn as the card's link without being one: the host only resolves where devlanes runs.
+.mcp-host {
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.3);
+  text-underline-offset: 3px;
 }
 
 .mcp-card-head {
@@ -310,21 +320,14 @@
   color: #b5b0a3;
 }
 
-.mcp-card-state {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-  color: #b5b0a3;
-  font-size: 12.5px;
-}
-
 .mcp-badge {
   padding: 2px 8px;
   border-radius: 999px;
   background: rgba(145, 197, 159, 0.16);
   color: #91c59f;
+  font-size: 12.5px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .mcp-services {
@@ -334,7 +337,8 @@
 
   li {
     display: grid;
-    grid-template-columns: 8px auto 1fr auto auto;
+    // A fixed state column, so the ports line up whatever the state says.
+    grid-template-columns: 8px auto 1fr auto 56px;
     align-items: center;
     gap: 10px;
     padding: 9px 0;
@@ -346,6 +350,7 @@
 
     > span:last-child {
       color: #91c59f;
+      text-align: right;
     }
   }
 }
@@ -371,7 +376,7 @@
 
 .mcp-button {
   padding: 7px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 7px;
   color: #f2f0ea;
   font-size: 13px;
@@ -440,5 +445,24 @@
     border-radius: 0;
     border-left: 0;
     border-right: 0;
+  }
+
+  .chat {
+    padding: 14px;
+  }
+
+  // Name, host and state only; the port column does not fit a phone.
+  .mcp-services li {
+    grid-template-columns: 8px auto minmax(0, 1fr) 56px;
+
+    .mcp-host {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .mcp-port {
+    display: none;
   }
 }

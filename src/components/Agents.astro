@@ -5,33 +5,28 @@ import Terminal from './Terminal.astro';
 
 <Section
   id="agents"
-  title="Your agent reads the logs of the server you started in another tab."
+  title="Your agent tails the server you started in another terminal."
   more={{ href: '/agents/', label: 'More about agents' }}
 >
   <p>
-    The daemon owns every process, so the stack running in your terminal is reachable from the
-    agent's shell: it tails a service's logs, restarts it and runs the tests against the lane, and
-    the output stays where you can see it too. An agent working on its own branch starts a lane of
-    its own, and its shell can end without the stack dying.
-  </p>
-  <p>
-    A skill teaches the agent the commands, and <code>devlanes mcp</code> gives hosts such as Claude
-    Desktop and Cursor the same commands as tools, with a card for the lane.
+    The daemon owns the processes, so the agent's shell reaches the stack you started in yours: it
+    tails the logs and restarts a service. On its own branch it gets its own lane, and its shell can
+    end without the stack dying.
   </p>
   <Terminal slot="visual" title="agent session">
     <div class="chat">
-      <p class="chat-you">checkout 500s on lane 1, see what the api says</p>
+      <p class="chat-you">checkout 500s on my lane 1, see what the api says</p>
       <div class="chat-agent">
         <pre><span class="command">devlanes logs myapp@1:api --tail 100</span>
-<span class="failure">TypeError: Cannot read properties of undefined (reading 'callbackUrl')</span>
-    at buildRedirect (src/auth/redirect.ts:31:22)
-    at registerAuth (src/routes/auth.ts:12:3)</pre>
+<span class="failure">TypeError: Cannot read properties of undefined (reading 'id')</span>
+    at createOrder (src/checkout/order.ts:48:31)
+    at POST /checkout (src/routes/checkout.ts:19:5)</pre>
         <p>
-          <code>AUTH_REDIRECT_URL</code> is unset in lane 1, so the fallback at{' '}
-          <code>src/auth/redirect.ts:31</code> has no <code>callbackUrl</code>. Fixed the fallback,
-          restarting api.
+          Guest checkout has no <code>cart.customer</code>, and <code>order.ts:48</code> reads{' '}
+          <code>.id</code> off it. Added the guard, restarting api.
         </p>
-        <pre><span class="command">devlanes restart myapp@1:api</span>
+        <pre><span class="dim">edited src/checkout/order.ts</span>
+<span class="command">devlanes restart myapp@1:api</span>
 <span class="success">ready</span> api  <span class="url">https://api.myapp1.localhost</span></pre>
         <p>
           Checkout answers again on <span class="url">https://myapp1.localhost</span>.

@@ -14,7 +14,9 @@ const services = [
     <p class="chat-you">start the checkout branch</p>
     <div class="chat-agent">
       <div class="mcp-call">
-        <span class="mcp-call-mark" aria-hidden="true">D</span>
+        <span class="mcp-call-mark" aria-hidden="true">
+          D
+        </span>
         <span>devlanes</span>
         <span class="mcp-call-tool">start</span>
       </div>
@@ -24,9 +26,7 @@ const services = [
             <strong>myapp@1</strong> <span class="mcp-branch">feat/checkout</span>
             <small>started by cursor</small>
           </div>
-          <div class="mcp-card-state">
-            3/3 ready <span class="mcp-badge">Ready</span>
-          </div>
+          <span class="mcp-badge">Ready</span>
         </div>
         <ul class="mcp-services">
           {services.map(({ name, host, port }) => (

@@ -46,11 +46,8 @@
   }
 }
 
-// The first fold under the sign: three terminals in a row, one per worktree.
-.parallel {
-  margin: 0 auto;
-}
-
+// The first fold under the sign: three terminals in a row, one per worktree. The lines never
+// wrap, so a URL is never broken in two; a narrow window scrolls instead.
 .parallel-terminals {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -59,11 +56,28 @@
   .terminal-content {
     padding: 18px 20px;
   }
+
+  pre {
+    white-space: pre;
+    overflow-x: auto;
+  }
 }
 
-// The status table.
+// Two across once three no longer fit, the remote one centred on its own row.
+@media (max-width: 1120px) {
+  .parallel-terminals {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    > :last-child {
+      grid-column: 1 / -1;
+      justify-self: center;
+      width: calc(50% - 11px);
+    }
+  }
+}
+
 .status {
-  margin: 170px auto 0;
+  margin: 0 auto;
   max-width: 980px;
 }
 
@@ -89,13 +103,18 @@
   }
 }
 
-// Folds: copy beside a visual, each roughly a screen tall.
+// Folds: copy beside a visual, each roughly a screen tall. The status table keeps the same
+// rhythm now that it is no longer first.
+.fold,
+.status {
+  margin-top: 170px;
+}
+
 .fold {
   display: grid;
   grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
   gap: 72px;
   align-items: center;
-  margin-top: 170px;
   scroll-margin-top: 24px;
 }
 
@@ -296,34 +315,46 @@
 }
 
 @media (max-width: tokens.$tablet-width) {
-  .fold {
-    gap: 40px;
-    margin-top: 130px;
-  }
-
+  .fold,
   .status {
     margin-top: 130px;
   }
 
-  // Two across, the box on its own row.
-  .parallel-terminals {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .fold {
+    gap: 40px;
   }
 }
 
 @media (max-width: tokens.$mobile-width) {
-  .fold {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 28px;
-    margin-top: 96px;
-  }
-
+  .fold,
   .status {
     margin-top: 96px;
   }
 
-  .parallel-terminals {
+  .fold {
     grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+
+  // One window tall, swiped sideways: three stacked windows would push the next idea more
+  // than a screen down. The peeking edge of the next window says there are more.
+  .parallel-terminals {
+    display: flex;
+    gap: 12px;
+    margin: 0 -20px;
+    padding: 0 20px 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+
+    > .terminal {
+      flex: 0 0 88%;
+      scroll-snap-align: start;
+    }
+
+    .terminal-content {
+      padding: 14px 16px;
+    }
   }
 
   .fold-reverse .fold-copy {

@@ -18,7 +18,7 @@
     font:
       600 13px 'Overpass',
       sans-serif;
-    color: #b5b0a3;
+    color: #cfcabd;
     background: transparent;
     border: 1px solid transparent;
     border-radius: 5px;
@@ -27,6 +27,7 @@
 
   button[aria-pressed='true'] {
     color: #f2f0ea;
+    background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.14);
   }
 }
@@ -106,8 +107,11 @@
   font-size: 12.5px;
   color: #b5b0a3;
 
+  // Stays in the accessibility tree while empty, so the live region announces the copy.
   &:empty {
-    display: none;
+    height: 0;
+    padding: 0;
+    overflow: hidden;
   }
 }
 

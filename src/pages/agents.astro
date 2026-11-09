@@ -9,9 +9,10 @@ import McpChat from '../components/McpChat.astro';
 const docs = [
   { href: '/docs/getting-started/#coding-agents', label: 'Coding agents in getting started' },
   { href: '/docs/guides/mcp/', label: 'Coding agents and devlanes mcp' },
+  { href: '/docs/guides/mcp/', label: 'Coding agents and devlanes mcp' },
   {
-    href: 'https://github.com/devlanes-run/devlanes/tree/main/agent-plugin',
-    label: 'The agent plugin on GitHub'
+    href: 'https://github.com/devlanes-run/devlanes/blob/main/skills/devlanes/SKILL.md',
+    label: 'The devlanes skill on GitHub'
   },
   { href: '/docs/reference/cli/', label: 'CLI reference' },
   { href: '/docs/security/', label: 'Security' }
@@ -20,7 +21,7 @@ const docs = [
 
 <SiteLayout
   title="Coding agents"
-  description="A coding agent starts a lane for its branch with the same devlanes commands you use. The daemon owns the processes, so the agent's shell can end and nothing dies, and the plugin refuses backgrounded dev servers."
+  description="A coding agent starts a lane for its branch with the same devlanes commands you use. The daemon owns the processes, so the agent's shell can end and nothing dies, and devlanes mcp gives chat hosts the same commands as tools."
   path="/agents/"
   current="agents"
 >
@@ -65,18 +66,16 @@ const docs = [
     </Terminal>
   </Section>
 
-  <Section id="mcp" title="Preview the lane in your own AI app." reverse>
+  <Section id="mcp" title="Start the lane from a chat. The card has its URLs and buttons." reverse>
     <p>
-      <code>devlanes mcp</code> offers the same commands as MCP tools, for hosts without a shell and
-      for sandboxes whose shell cannot reach the daemon. Hosts that show MCP Apps, such as Claude
-      Desktop, Copilot in VS Code, Cursor and Goose, render the result as a card with the lane's
-      services, their URLs and buttons to open or stop it. Terminal agents get the same text without
-      the card.
+      <code>devlanes mcp</code> serves the same commands as MCP tools, for hosts without a shell and
+      sandboxes whose shell cannot reach the daemon. Cursor, Copilot in VS Code and Goose draw the
+      result as a card; terminal agents get the same text.
     </p>
     <p>
-      In a terminal, the devlanes skill teaches the agent the commands, and the Claude Code plugin
-      refuses a dev server started in the background with <code>&amp;</code>, where nothing
-      supervises it and its logs are lost.
+      In a terminal, the devlanes skill tells the agent never to background a dev server with{' '}
+      <code>&amp;</code>: anything not in <code>devlanes.yaml</code> runs through{' '}
+      <code>devlanes exec</code>, so the daemon keeps its logs.
     </p>
     <McpChat slot="visual" />
   </Section>
