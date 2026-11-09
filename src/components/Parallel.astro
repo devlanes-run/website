@@ -23,7 +23,10 @@ const worktrees = [
 <section class="parallel" aria-labelledby="parallel-title">
   <div class="parallel-copy">
     <h2 id="parallel-title">Three worktrees up at once. One of them runs on a VPS.</h2>
-    <p>Own ports, own hostnames, passed to every process. The VPS one still opens on your laptop.</p>
+    <p>
+      Each is a <strong>lane</strong>: own ports, own hostnames, passed to every process. The VPS
+      one still opens on your laptop.
+    </p>
   </div>
   <div class="parallel-terminals">
     {worktrees.map(({ title, lane, host, worker, remote }) => (
