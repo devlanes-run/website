@@ -1,7 +1,7 @@
-// Swaps the static screen of every `[data-tui]` for the devlanes TUI compiled to WebAssembly.
-// scripts/sync.mjs publishes the module under /tui/ when the release has it; without it, or
-// when the module throws, the static screen stays. The TUI gets as many columns as fit the
-// wrapper and a fixed number of rows, in cells of its own font: it is never scaled.
+// Mounts the devlanes TUI compiled to WebAssembly in every `[data-tui]`. scripts/sync.mjs
+// publishes the module under /tui/ when the release has it; without it, or when the module
+// throws, the empty screen stays. The TUI gets as many columns as fit the wrapper and a fixed
+// number of rows, in cells of its own font: it is never scaled.
 
 /** The `Demo` class exported by the devlanes-tui-web bundle. */
 interface Demo {
@@ -155,7 +155,7 @@ function setup(wrapper: HTMLElement) {
     return lines.length === next.rows && lines[0]?.childElementCount === next.cols;
   };
 
-  /** Puts the static screen back for good. */
+  /** Puts the empty screen back for good. */
   const stop = (error: unknown) => {
     dead = true;
     unmount();
@@ -368,9 +368,9 @@ function setup(wrapper: HTMLElement) {
     if (pages.includes(event.key)) view = event.key;
   });
 
-  // With scripting, the static table never shows: an empty window of the live grid's size
-  // holds the place under the hint, and the TUI appears in it already running. The static
-  // table comes back only if the bundle is missing or throws.
+  // The live screen, sized for the grid, holds the place under the hint while the bundle
+  // loads; the TUI appears in it already running. The placeholder comes back only if the
+  // bundle is missing or throws.
   staticScreen.hidden = true;
   live.hidden = false;
   apply(measure(), 0);

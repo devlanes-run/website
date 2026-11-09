@@ -30,7 +30,7 @@ const worktrees = [
   </div>
   <div class="parallel-terminals">
     {worktrees.map(({ title, lane, host, worker, remote }) => (
-      <Terminal title={title} class={remote ? 'terminal-remote' : undefined}>
+      <Terminal title={title} class={remote ? 'terminal-remote' : ''}>
         <pre class="terminal-content"><span class="command">$ devlanes start</span>
 <span class="lane-line">{lane}</span>
 <span class="success">✓</span> services  3 of 3 ready
