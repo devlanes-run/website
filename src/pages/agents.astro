@@ -92,11 +92,11 @@ myapp@3 (agent/perf): 3/3 ready
     </Terminal>
   </Section>
 
-  <Section id="box" title="An agent on a box. The URL it prints there opens here." reverse>
+  <Section id="remote" title="An agent on a VPS. The URL it prints there opens here." reverse>
     <p>
       Lanes are not a sandbox: every process runs as you. For an agent you want contained, give it a
-      VPS, a container or a codespace, run devlanes there, and connect to that box from your laptop.
-      The hostname the agent prints is the one you open, with your own certificate.
+      VPS, a container or a codespace, run devlanes there, and connect to it from your laptop. The
+      hostname the agent prints is the one you open, with your own certificate.
     </p>
     <Terminal slot="visual" title="on my-vps">
       <pre class="terminal-content"><span class="command">$ devlanes url print web</span>

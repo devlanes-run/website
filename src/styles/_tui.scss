@@ -64,8 +64,37 @@
 }
 
 .tui-live {
+  position: relative;
   padding: 6px 0;
   overflow: hidden;
+}
+
+// Over the live screen until the pointer reaches it. Lets events through, so the hover that
+// dismisses it is the screen's own.
+.tui-hint {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  background: rgba(26, 25, 23, 0.45);
+  pointer-events: none;
+
+  span {
+    padding: 12px 20px;
+    border-radius: 999px;
+    background: var(--paint);
+    color: #0d0c0a;
+    font:
+      700 15px/1 Overpass,
+      sans-serif;
+    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.6);
+  }
+
+  &[hidden] {
+    display: none;
+  }
 }
 
 @media (max-width: tokens.$mobile-width) {

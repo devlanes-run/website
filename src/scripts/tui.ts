@@ -69,8 +69,19 @@ function setup(wrapper: HTMLElement) {
   const screen = live?.querySelector<HTMLElement>('.tui-screen');
   const badge = wrapper.querySelector<HTMLElement>('[data-tui-badge]');
   const badgeText = badge?.querySelector<HTMLElement>('[data-tui-badge-text]');
+  const hint = live?.querySelector<HTMLElement>('[data-tui-hint]');
   if (!staticScreen || !live || !screen?.id) return;
   const idleLabel = coarse ? 'Live, tap to interact' : 'Live, click to interact';
+  const hintText = hint?.querySelector('span');
+  if (hintText) hintText.textContent = coarse ? 'Tap to interact' : 'Click to interact';
+  // The overlay says the screen is live until the pointer reaches it, then stays away for good.
+  let hinted = false;
+  const dismissHint = () => {
+    hinted = true;
+    if (hint) hint.hidden = true;
+  };
+  for (const type of ['pointerenter', 'pointerdown', 'focus'] as const)
+    screen.addEventListener(type, dismissHint, { once: true });
 
   const desktopRows = Number(wrapper.dataset.rows) || 34;
   const mobileRows = Number(wrapper.dataset.mobileRows) || 26;
@@ -148,6 +159,7 @@ function setup(wrapper: HTMLElement) {
     refit = undefined;
     live.hidden = true;
     if (badge) badge.hidden = true;
+    if (hint) hint.hidden = true;
     staticScreen.hidden = false;
     syncTicks();
     console.debug('The live TUI demo is unavailable, showing the static screen.', error);
@@ -230,6 +242,7 @@ function setup(wrapper: HTMLElement) {
     }
     grid = next;
     if (badge) badge.hidden = false;
+    if (hint) hint.hidden = hinted;
     send(view);
     syncTicks();
   };
