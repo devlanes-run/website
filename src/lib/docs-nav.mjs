@@ -1,104 +1,123 @@
-// Groups of the docs sidebar and of llms.txt, in order. Items are entry ids, which are also the
-// page paths; `dir/*` takes the pages under `dir/` that no item names, by sidebar order. A label
-// on an item renames it in the sidebar only. Pages no group takes join the last group, so a page
-// added in the source repository shows up before it is filed here.
-export const docsGroups = [
-  {
-    label: 'Introduction',
-    items: [{ id: 'docs', label: 'Overview' }, 'docs/getting-started']
-  },
-  {
-    label: 'Guides',
-    items: [
-      'docs/guides/run-scripts',
-      'docs/guides/languages',
-      'docs/guides/presets',
-      'docs/guides/ports-and-env',
-      'docs/guides/https',
-      'docs/guides/infra',
-      'docs/guides/services',
-      'docs/guides/lifecycle',
-      'docs/guides/terminals',
-      'docs/guides/mcp',
-      'docs/guides/updates'
-    ]
-  },
-  {
-    label: 'Remote',
-    items: [
-      'docs/remote',
-      'docs/guides/remote-setup',
-      'docs/guides/remote-tailscale',
-      'docs/guides/remote-cloudflare',
-      'docs/guides/remote-multiple-boxes',
-      'docs/guides/remote-command'
-    ]
-  },
-  { label: 'Platforms', items: ['docs/guides/windows', 'docs/guides/wsl'] },
-  {
-    label: 'Reference',
-    // Renamed here so "Examples" means the runnable ones at /examples/.
-    items: [
-      'docs/reference/cli',
-      'docs/reference/config',
-      { id: 'docs/examples', label: 'Config files' }
-    ]
-  },
-  {
-    label: 'Proxy errors',
-    collapsed: true,
-    items: [{ id: 'docs/errors', label: 'Overview' }, 'docs/errors/*']
-  },
-  {
-    label: 'More',
-    items: ['docs/design', 'docs/security', 'docs/observability', 'docs/milestones/*']
-  }
-];
+// Groups of the docs sidebar and of llms.txt, read from `docs/nav.yaml` in the source repository,
+// so a new page needs no change here. Items are page paths relative to `docs/` without the
+// extension (`index` is the README), `dir/*` for the pages under `dir/` that no item names, by
+// sidebar order, or a group one level down. Pages no item takes join the last group.
+import { parse } from 'yaml';
 
-/** @param {string | { id: string, label: string }} item */
-const itemId = (item) => (typeof item === 'string' ? item : item.id);
+/**
+ * @typedef {{ label: string, collapsed?: boolean, sequence?: boolean, items: (string | NavGroup)[] }} NavGroup
+ * @typedef {{ id: string, order?: number | undefined }} PageLike
+ */
+
+/** @param {string} where @param {unknown} value @returns {asserts value is NavGroup} */
+function checkGroup(where, value, depth) {
+  const group = /** @type {Record<string, unknown>} */ (value);
+  if (typeof value !== 'object' || value === null || typeof group.label !== 'string') {
+    throw new Error(`${where}: a group needs a label`);
+  }
+  if (!Array.isArray(group.items))
+    throw new Error(`${where} (${group.label}): items must be a list`);
+  for (const key of ['collapsed', 'sequence']) {
+    if (key in group && typeof group[key] !== 'boolean') {
+      throw new Error(`${where} (${group.label}): ${key} must be true or false`);
+    }
+  }
+  for (const key of Object.keys(group)) {
+    if (!['label', 'items', 'collapsed', 'sequence'].includes(key)) {
+      throw new Error(`${where} (${group.label}): unknown key ${key}`);
+    }
+  }
+  for (const item of group.items) {
+    if (typeof item === 'string') continue;
+    if (depth > 0) throw new Error(`${where} (${group.label}): groups nest one level only`);
+    checkGroup(where, item, depth + 1);
+  }
+}
+
+/** Parses and checks the text of `docs/nav.yaml`. */
+export function parseNav(text, where = 'docs/nav.yaml') {
+  const nav = parse(text);
+  if (!Array.isArray(nav)) throw new Error(`${where} must be a list of groups`);
+  for (const group of nav) checkGroup(where, group, 0);
+  return /** @type {NavGroup[]} */ (nav);
+}
+
+/** Entry id of a nav path: `index` is the docs root, anything else sits under `docs/`. */
+export const idOf = (/** @type {string} */ path) => (path === 'index' ? 'docs' : `docs/${path}`);
 
 /** Starlight's order within a directory: `sidebar.order` first, then the id. */
-const byOrder = (
-  /** @type {{ id: string, order?: number | undefined }} */ a,
-  /** @type {{ id: string, order?: number | undefined }} */ b
-) =>
+const byOrder = (/** @type {PageLike} */ a, /** @type {PageLike} */ b) =>
   (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER) ||
   a.id.localeCompare(b.id);
 
 /**
- * Files the published pages into `docsGroups`. Items naming a page that does not exist are
- * skipped, and groups left empty are dropped. Pages no item takes are marked `unfiled`.
- * @template {{ id: string, order?: number | undefined }} Page
- * @param {Page[]} pages
- * @returns {{ label: string, collapsed: boolean, pages: (Page & { label?: string, unfiled?: boolean })[] }[]}
+ * @template {PageLike} Page
+ * @typedef {{ label: string, collapsed: boolean, sequence: boolean, items: (Page | Group<Page>)[] }} Group
  */
-export function groupDocs(pages) {
+
+/** @template {PageLike} Page @param {Page | Group<Page>} item @returns {item is Group<Page>} */
+export const isGroup = (item) => 'items' in item;
+
+/** Pages of a group and of its subgroups, in order. */
+export function pagesOf(/** @type {Group<any>} */ group) {
+  return group.items.flatMap((item) => (isGroup(item) ? pagesOf(item) : [item]));
+}
+
+/**
+ * Files the published pages into the groups of `nav`. Without a nav file every page goes into
+ * one group. `missing` lists the paths that name no page, `unfiled` the pages no item took.
+ * Groups left empty are dropped.
+ * @template {PageLike} Page
+ * @param {Page[]} pages
+ * @param {NavGroup[] | null} nav
+ */
+export function groupDocs(pages, nav) {
+  if (!nav) {
+    const all = [...pages].sort(byOrder);
+    return {
+      groups: [{ label: 'Docs', collapsed: false, sequence: false, items: all }],
+      missing: [],
+      unfiled: all
+    };
+  }
   const byId = new Map(pages.map((page) => [page.id, page]));
-  const named = new Set(docsGroups.flatMap(({ items }) => items.map(itemId)));
+  /** @param {(string | NavGroup)[]} items @returns {string[]} */
+  const namedIn = (items) =>
+    items.flatMap((item) =>
+      typeof item === 'string' ? (item.endsWith('/*') ? [] : [idOf(item)]) : namedIn(item.items)
+    );
+  const named = new Set(namedIn(nav));
   const taken = new Set();
-  /** @param {(Page & { label?: string, unfiled?: boolean })[]} list */
-  const take = (list) => {
+  /** @type {string[]} */
+  const missing = [];
+  const take = (/** @type {Page[]} */ list) => {
     const fresh = list.filter((page) => !taken.has(page.id));
     for (const page of fresh) taken.add(page.id);
     return fresh;
   };
-  const groups = docsGroups.map(({ label, collapsed = false, items }) => ({
+  /** @param {NavGroup} group @returns {Group<Page>} */
+  const build = ({ label, collapsed = false, sequence = false, items }) => ({
     label,
     collapsed,
-    pages: items.flatMap((item) => {
-      const id = itemId(item);
-      if (id.endsWith('/*')) {
-        const prefix = id.slice(0, -1);
-        const matches = pages.filter((page) => page.id.startsWith(prefix) && !named.has(page.id));
-        return take(matches.sort(byOrder));
+    sequence,
+    items: items.flatMap((item) => {
+      if (typeof item !== 'string') {
+        const sub = build(item);
+        return sub.items.length ? [sub] : [];
       }
-      const page = byId.get(id);
-      if (!page) return [];
-      return take([typeof item === 'string' ? page : { ...page, label: item.label }]);
+      if (item.endsWith('/*')) {
+        const prefix = `${idOf(item.slice(0, -2))}/`;
+        return take(
+          pages.filter((page) => page.id.startsWith(prefix) && !named.has(page.id)).sort(byOrder)
+        );
+      }
+      const page = byId.get(idOf(item));
+      if (!page) missing.push(item);
+      return page ? take([page]) : [];
     })
-  }));
-  const unfiled = [...pages].sort(byOrder).map((page) => ({ ...page, unfiled: true }));
-  groups.at(-1)?.pages.push(...take(unfiled));
-  return groups.filter((group) => group.pages.length > 0);
+  });
+  const groups = nav.map(build);
+  const unfiled = take([...pages].sort(byOrder));
+  groups.at(-1)?.items.push(...unfiled);
+  return { groups: groups.filter((group) => group.items.length > 0), missing, unfiled };
 }

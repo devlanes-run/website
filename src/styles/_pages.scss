@@ -1,4 +1,5 @@
 @use 'tokens';
+@use 'ledger';
 
 // Feature pages: the title block, the box diagram, the ledger and the docs list at the foot.
 // Copy blocks keep an opaque surface like the landing folds.
@@ -192,36 +193,12 @@
   color: var(--muted);
 }
 
-// Two columns of short items with dashed rules, as the old lane details had.
 .ledger {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 48px;
-  padding: 8px 0;
+  @include ledger.columns;
   background: var(--surface);
 
   h3 {
     margin-bottom: 4px;
-  }
-
-  ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  li {
-    padding: 16px 0 18px;
-    border-top: 2px dashed var(--line);
-  }
-
-  code {
-    display: block;
-    margin-bottom: 6px;
-    font: 13px/1.5 var(--mono);
-    font-variant-ligatures: none;
-    color: var(--ink);
-    overflow-wrap: anywhere;
   }
 
   span {
@@ -283,10 +260,6 @@
   .diagram-link {
     min-width: 96px;
   }
-
-  .ledger {
-    gap: 32px;
-  }
 }
 
 @media (max-width: tokens.$mobile-width) {
@@ -336,11 +309,6 @@
       margin: 0 0 0 -5px;
       transform: rotate(135deg);
     }
-  }
-
-  .ledger {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
   }
 
   .page-docs {
