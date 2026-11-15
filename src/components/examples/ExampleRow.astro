@@ -1,6 +1,6 @@
 ---
 import { featureGroups } from '../../lib/example-taxonomy.mjs';
-import type { Example } from '../../lib/examples';
+import { type Example, groupOf } from '../../lib/examples';
 import ToolIcon from './ToolIcon.astro';
 
 // One example in the index: the icon that stands for it, its title and description, the
@@ -11,8 +11,6 @@ interface Props {
 }
 const { example } = Astro.props;
 const shown = 6;
-const groupOf = (feature: string) =>
-  featureGroups.find(({ match }) => match.some((pattern) => pattern.test(feature)))?.id ?? 'cli';
 const listed = example.features.slice(0, shown);
 const rest = example.features.length - listed.length;
 const icons = [...example.tools, ...example.langs];

@@ -52,7 +52,8 @@ const tool = ({ id, label, icon, color }: Tool): Tool => ({
   ...(color ? { color } : {})
 });
 
-const groupOf = (feature: string) =>
+/** Id of the feature group a catalogue feature belongs to. */
+export const groupOf = (feature: string) =>
   featureGroups.find(({ match }) => match.some((pattern) => pattern.test(feature)))?.id ?? 'cli';
 
 // The data file is written by the sync and not committed. A glob finds nothing before the first
