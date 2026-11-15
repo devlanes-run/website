@@ -181,10 +181,16 @@
     font-size: 17px;
   }
 
-  // Keeps the five navigation links on one line on 320px screens.
+  // Keeps the navigation on one line on narrow screens: a tighter gap, then GitHub as its icon.
   @media (max-width: 400px) {
     .site-header nav {
       gap: 12px;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .github-label {
+      display: none;
     }
   }
 

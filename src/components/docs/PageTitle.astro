@@ -1,8 +1,11 @@
 ---
 import Default from '@astrojs/starlight/components/PageTitle.astro';
 import { Icon } from 'astro-icon/components';
+import { bySlug } from '../../lib/examples';
+import ExampleFacts from '../examples/ExampleFacts.astro';
 
 const { id } = Astro.locals.starlightRoute;
+const example = id.startsWith('examples/') ? bySlug(id.slice('examples/'.length)) : undefined;
 const markdown = id === '404' ? undefined : `/${id}.md`;
 const markdownUrl = markdown && new URL(markdown, Astro.site).href;
 const prompt = markdownUrl && `Read ${markdownUrl} and answer my questions about devlanes.`;
@@ -36,6 +39,8 @@ const assistants = prompt
     ))}
   </div>
 )}
+
+{example && <ExampleFacts example={example} />}
 
 <script>
   import '../../scripts/page-actions';

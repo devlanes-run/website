@@ -2,9 +2,12 @@
 import Search from '@astrojs/starlight/components/Search.astro';
 import BetaBanner from '../BetaBanner.astro';
 import Header from '../Header.astro';
+
+// The examples' pages are Starlight pages too, under their own navigation link.
+const current = Astro.locals.starlightRoute.id.startsWith('examples/') ? 'examples' : 'docs';
 ---
 
 <BetaBanner />
-<Header current="docs">
+<Header current={current}>
   <Search slot="search" />
 </Header>

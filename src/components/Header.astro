@@ -3,7 +3,7 @@ import { Icon } from 'astro-icon/components';
 import Mark from './Mark.astro';
 
 interface Props {
-  current?: 'docs' | 'lanes' | 'remote' | 'agents';
+  current?: 'docs' | 'lanes' | 'remote' | 'agents' | 'examples';
 }
 const { current } = Astro.props;
 const page = (name: Props['current']) => (current === name ? 'page' : undefined);
@@ -24,17 +24,21 @@ const page = (name: Props['current']) => (current === name ? 'page' : undefined)
     <a href="/agents/" aria-current={page('agents')}>
       Agents
     </a>
+    <a href="/examples/" aria-current={page('examples')}>
+      Examples
+    </a>
     <a href="/docs/" aria-current={page('docs')}>
       Docs
     </a>
     <a
       class="github-link"
+      aria-label="GitHub"
       href="https://github.com/devlanes-run/devlanes"
       target="_blank"
       rel="noopener noreferrer"
     >
       <Icon name="mdi:github" size={18} aria-hidden="true" />
-      GitHub
+      <span class="github-label">GitHub</span>
     </a>
   </nav>
   <div class="preferences">

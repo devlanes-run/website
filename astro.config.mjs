@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import sitemap from '@astrojs/sitemap';
 import starlight from '@astrojs/starlight';
 import { defineConfig } from 'astro/config';
@@ -7,15 +8,37 @@ import { pluginConfigDocs } from './integrations/config-docs.mjs';
 import markdown from './integrations/markdown.mjs';
 import { importedPages } from './scripts/sync-docs.mjs';
 import { groupDocs } from './src/lib/docs-nav.mjs';
+import { categories, examplesGroup, taxonomyIcons } from './src/lib/example-taxonomy.mjs';
 import { siteDescription as description } from './src/lib/site.mjs';
 
 // Read once when the config loads: restart `astro dev` after a sync adds or removes pages.
-const docsGroups = groupDocs(await importedPages());
-const sidebar = docsGroups.map(({ label, collapsed, pages }) => ({
+const pages = await importedPages();
+const docsGroups = groupDocs(pages.filter(({ id }) => !id.startsWith('examples/')));
+const docsSidebar = docsGroups.map(({ label, collapsed, pages }) => ({
   label,
   collapsed,
   items: pages.map((page) => ({ slug: page.id, label: page.label }))
 }));
+
+// The examples have their own sidebar, by category. Starlight takes one sidebar for the whole
+// site, so they sit in one group that src/lib/route-data.ts shows on their pages only.
+const catalog = JSON.parse(
+  await readFile(new URL('./src/data/examples.json', import.meta.url), 'utf8').catch(
+    () => '{"examples":[]}'
+  )
+);
+const examplesSidebar = categories
+  .map(({ id, label }) => ({
+    label,
+    items: catalog.examples
+      .filter((example) => example.category === id)
+      .map((example) => ({ slug: `examples/${example.slug}`, label: example.title }))
+  }))
+  .filter(({ items }) => items.length > 0);
+const sidebar = examplesSidebar.length
+  ? [...docsSidebar, { label: examplesGroup, items: examplesSidebar }]
+  : docsSidebar;
+const examplesIcons = taxonomyIcons();
 const unfiled = docsGroups.flatMap(({ pages }) => pages.filter((page) => page.unfiled));
 if (unfiled.length) {
   console.warn(
@@ -38,8 +61,12 @@ export default defineConfig({
           'open-in-new',
           'apple',
           'linux',
-          'microsoft-windows'
-        ]
+          'microsoft-windows',
+          'magnify',
+          ...(examplesIcons.mdi ?? [])
+        ],
+        'simple-icons': examplesIcons['simple-icons'] ?? [],
+        logos: examplesIcons.logos ?? []
       }
     }),
     sitemap(),
@@ -51,6 +78,7 @@ export default defineConfig({
       // Pages come from scripts/sync-docs.mjs, which writes them under src/content/docs/docs/;
       // src/lib/docs-nav.mjs files them into groups.
       sidebar,
+      routeMiddleware: './src/lib/route-data.ts',
       components: {
         Head: './src/components/docs/Head.astro',
         Header: './src/components/docs/Header.astro',

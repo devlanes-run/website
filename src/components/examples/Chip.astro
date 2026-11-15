@@ -1,0 +1,20 @@
+---
+import type { Facet } from '../../lib/examples';
+import ToolIcon from './ToolIcon.astro';
+
+// A filter of the examples index, as a toggle button. src/scripts/examples.ts keeps
+// `aria-pressed` and the count in step with the other filters.
+interface Props {
+  facet: 'category' | 'language' | 'stack' | 'feature';
+  item: Facet;
+}
+const { facet, item } = Astro.props;
+---
+
+<button type="button" class="chip" data-facet={facet} data-value={item.id} aria-pressed="false">
+  {item.icon && <ToolIcon icon={item.icon} color={item.color} size={16} />}
+  <span class="chip-label">{item.label}</span>
+  <span class="chip-count" data-facet-count>
+    {item.count}
+  </span>
+</button>

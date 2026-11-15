@@ -1,0 +1,29 @@
+---
+import { Icon } from 'astro-icon/components';
+
+// A language's or tool's icon. Logos carry their own colours; a single-colour glyph takes the
+// brand's colour when src/lib/example-taxonomy.mjs gives one, and the text colour otherwise.
+interface Props {
+  icon: string;
+  color?: string | undefined;
+  size: number;
+}
+const { icon, color, size } = Astro.props;
+---
+
+<Icon
+  class="tool-icon"
+  name={icon}
+  size={size}
+  aria-hidden="true"
+  style={color ? `--brand: ${color}` : undefined}
+/>
+
+<style is:global>
+  .tool-icon {
+    color: var(--brand, currentColor);
+    /* A logo's unfilled shapes are its black parts (Turborepo's inner ring, the Postgres
+       outline); they follow the text colour so they do not vanish on the dark surface. */
+    fill: currentColor;
+  }
+</style>

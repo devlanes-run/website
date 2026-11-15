@@ -1,0 +1,69 @@
+---
+import { featureGroups } from '../../lib/example-taxonomy.mjs';
+import type { Example } from '../../lib/examples';
+import ToolIcon from './ToolIcon.astro';
+
+// One example in the index: the icon that stands for it, its title and description, the
+// config keys it teaches, and everything it is built with on the right. The data attributes
+// are what src/scripts/examples.ts filters and searches on.
+interface Props {
+  example: Example;
+}
+const { example } = Astro.props;
+const shown = 6;
+const groupOf = (feature: string) =>
+  featureGroups.find(({ match }) => match.some((pattern) => pattern.test(feature)))?.id ?? 'cli';
+const listed = example.features.slice(0, shown);
+const rest = example.features.length - listed.length;
+const icons = [...example.tools, ...example.langs];
+---
+
+<li
+  class="example"
+  data-example
+  data-category={example.category}
+  data-language={example.languages.join(' ')}
+  data-stack={example.tools.map(({ id }) => id).join(' ')}
+  data-feature={example.groups.join(' ')}
+  data-title={example.title}
+  data-text={example.description}
+  data-terms={[
+    // the folder name often has the word a reader types ("monorepo", "ci")
+    ...example.slug.split('-'),
+    ...example.frameworks,
+    ...example.languages,
+    ...example.features,
+    ...example.requires,
+    ...example.tools.map(({ label }) => label),
+    ...featureGroups.filter(({ id }) => example.groups.includes(id)).map(({ label }) => label)
+  ].join(' ')}
+>
+  <span class="example-lead" aria-hidden="true">
+    <ToolIcon icon={example.lead.icon} color={example.lead.color} size={26} />
+  </span>
+  <div class="example-body">
+    <h3>
+      <a href={example.href}>{example.title}</a>
+    </h3>
+    <p>{example.description}</p>
+    <ul class="example-features" aria-label="Teaches">
+      {listed.map((feature) => (
+        <li data-group={groupOf(feature)}>
+          <code>{feature}</code>
+        </li>
+      ))}
+      {rest > 0 && <li class="example-more">and {rest} more</li>}
+    </ul>
+  </div>
+  <div class="example-meta">
+    <ul class="example-tools" aria-label="Built with">
+      {icons.map(({ label, icon, color }) => (
+        <li title={label}>
+          <ToolIcon icon={icon} color={color} size={18} />
+          <span class="visually-hidden">{label}</span>
+        </li>
+      ))}
+    </ul>
+    <span class="example-requires">needs {example.requires.join(', ')}</span>
+  </div>
+</li>

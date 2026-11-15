@@ -1,0 +1,451 @@
+@use 'tokens';
+@use 'sections';
+
+// The examples index: the title, the filters and a section per category. Each is a block of
+// its own with a surface that dissolves at the edges, so the road's centre line shows between
+// them down the whole page.
+$tint: color-mix(in srgb, var(--ink) 7%, var(--surface));
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+// The clone commands beside the title.
+.examples-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 56px;
+  align-items: center;
+  padding: 64px 0 8px;
+}
+
+.examples-intro-copy {
+  padding: 16px 0;
+  background: var(--surface);
+
+  // The feature pages' title (.page-head h1).
+  h1 {
+    max-width: 14ch;
+    margin: 0 0 20px;
+    font:
+      900 clamp(34px, 4vw, 52px) / 1.05 'Overpass',
+      sans-serif;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
+  p {
+    margin: 0;
+    font-size: 19px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+}
+
+.examples-filters {
+  margin-top: 72px;
+  padding: 36px 0;
+  @include sections.soft-surface(36px);
+}
+
+// The filters only work with the script, so they keep their box and stay hidden until it runs.
+[data-examples]:not([data-ready]) .examples-filters {
+  visibility: hidden;
+}
+
+.examples-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+  margin-bottom: 26px;
+}
+
+// Search field. The label is the box, so a click anywhere in it focuses the input.
+.examples-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 320px;
+  margin-right: auto;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: text;
+
+  &:focus-within {
+    border-color: var(--ink);
+    color: var(--ink);
+    outline: 3px solid #a77900;
+    outline-offset: 3px;
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    padding: 11px 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--ink);
+    font: 14px var(--mono);
+
+    &::placeholder {
+      color: var(--muted);
+      opacity: 0.8;
+    }
+  }
+
+  kbd {
+    padding: 2px 7px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font: 11px var(--mono);
+  }
+
+  &:focus-within kbd {
+    visibility: hidden;
+  }
+}
+
+.examples-status {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  p {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+}
+
+.examples-status button,
+.filters-toggle {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--paint);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+
+// Phones only: the filters open on demand there, so the list starts near the top.
+.filters-toggle {
+  display: none;
+}
+
+.filter-rows {
+  display: grid;
+  gap: 16px;
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 16px;
+
+  h2 {
+    margin: 0;
+    padding-top: 5px;
+    font:
+      600 14px/1.3 'Overpass',
+      sans-serif;
+    letter-spacing: 0;
+    color: var(--muted);
+  }
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 22px;
+}
+
+// A filter is plain text with its icon and count; the chosen ones are marked in paint.
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font:
+    600 14px/1.3 'Overpass',
+    sans-serif;
+
+  &:hover .chip-label {
+    text-decoration: underline;
+    text-decoration-color: var(--paint);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 5px;
+  }
+
+  &[aria-pressed='true'] .chip-label {
+    background: var(--paint);
+    box-shadow: 0 0 0 4px var(--paint);
+    color: #1a1917;
+    text-decoration: none;
+  }
+
+  // Would leave no example with the other filters as they are.
+  &[data-none] {
+    opacity: 0.38;
+  }
+}
+
+.chip-count {
+  font: 11.5px/1 var(--mono);
+  color: var(--muted);
+}
+
+// A category. The gap above each one is where the road shows.
+.shelf {
+  margin-top: 110px;
+  padding: 40px 0 12px;
+  scroll-margin-top: 24px;
+  @include sections.soft-surface(40px);
+}
+
+.shelf-head {
+  margin-bottom: 26px;
+
+  h2 {
+    margin: 0 0 8px;
+  }
+
+  p {
+    margin: 0;
+    color: var(--muted);
+  }
+}
+
+.examples-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// One example: a full-width line between dashed rules, with the icon that stands for it, the
+// text, then everything it is built with on the right. The title's link covers the whole line.
+.example {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 22px;
+  padding: 24px 0 26px;
+  border-top: 2px dashed var(--line);
+
+  &:last-child {
+    padding-bottom: 30px;
+  }
+
+  h3 {
+    margin: 0 0 6px;
+    font-size: 20px;
+    line-height: 1.2;
+
+    a {
+      text-decoration: none;
+
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+      }
+
+      &:focus-visible {
+        outline: 0;
+
+        &::after {
+          outline: 3px solid #a77900;
+          outline-offset: 3px;
+        }
+      }
+    }
+  }
+
+  &:hover h3 a {
+    text-decoration: underline;
+    text-decoration-color: var(--paint);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 5px;
+  }
+
+  p {
+    max-width: 70ch;
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+}
+
+.example-lead {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  background: $tint;
+}
+
+// The config keys and commands an example teaches, as small paint-coloured code. Paint is
+// unreadable as text on the light surface, so it darkens there as in the docs.
+.example-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  color: #8a6600;
+  font: 12.5px/1.5 var(--mono);
+  font-variant-ligatures: none;
+
+  [data-theme='dark'] & {
+    color: var(--paint);
+  }
+
+  code {
+    font: inherit;
+  }
+
+  // A key the current filter or search asked for.
+  li[data-hit] {
+    background: var(--paint);
+    box-shadow: 0 0 0 3px var(--paint);
+    color: #1a1917;
+  }
+
+  .example-more {
+    color: var(--muted);
+  }
+}
+
+.example-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  min-width: 132px;
+  padding-top: 3px;
+  text-align: right;
+}
+
+.example-tools {
+  display: flex;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: grid;
+  }
+}
+
+.example-requires {
+  font: 12px/1.3 var(--mono);
+  color: var(--muted);
+}
+
+.examples-empty {
+  margin-top: 72px;
+  padding: 64px 0;
+  text-align: center;
+  @include sections.soft-surface(40px);
+
+  p {
+    margin: 0 0 10px;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+  }
+
+  a {
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration-color: var(--paint);
+    text-decoration-thickness: 2px;
+  }
+}
+
+@media (max-width: tokens.$tablet-width) {
+  .examples-intro {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+}
+
+@media (max-width: tokens.$mobile-width) {
+  .examples-intro {
+    padding-top: 36px;
+  }
+
+  .examples-filters {
+    margin-top: 48px;
+  }
+
+  .examples-bar {
+    margin-bottom: 0;
+  }
+
+  .examples-search {
+    width: 100%;
+
+    kbd {
+      display: none;
+    }
+  }
+
+  .filters-toggle {
+    display: block;
+    margin-right: auto;
+  }
+
+  .filter-rows {
+    margin-top: 22px;
+  }
+
+  .examples-filters:not([data-open]) .filter-rows {
+    display: none;
+  }
+
+  .filter-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  .shelf {
+    margin-top: 72px;
+  }
+
+  .example {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 14px 16px;
+    padding: 20px 0;
+  }
+
+  .example-meta {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    min-width: 0;
+    padding-top: 0;
+  }
+}

@@ -19,3 +19,4 @@ coverage/
 /public/install.ps1
 /public/tui/
 /src/content/docs/
+/src/data/examples.json

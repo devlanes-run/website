@@ -1,0 +1,17 @@
+---
+// How many examples are shown and a way back to all of them. src/scripts/examples.ts fills
+// it in.
+interface Props {
+  total: number;
+}
+const { total } = Astro.props;
+---
+
+<div class="examples-status">
+  <p data-examples-count aria-live="polite">
+    {total} examples
+  </p>
+  <button type="button" data-examples-clear hidden>
+    Clear filters
+  </button>
+</div>
