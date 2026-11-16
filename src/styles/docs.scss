@@ -471,6 +471,13 @@ h1#_top {
     color: var(--ink);
   }
 
+  // XY chart series after the first get fixed blues from the renderer, which cannot derive
+  // shades from a variable; this rule outranks the diagram's own.
+  svg.dl-mermaid {
+    --xychart-color-1: var(--dl-mermaid-fg);
+    --xychart-color-2: var(--dl-mermaid-muted);
+  }
+
   // The live TUI in a page: the landing page's terminal window and TUI styles, scoped.
   .dl-tui {
     @include meta.load-css('terminal');
