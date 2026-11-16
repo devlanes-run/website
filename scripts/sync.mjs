@@ -7,6 +7,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { gunzipSync } from 'node:zlib';
+import { configReference } from '../integrations/config-reference.mjs';
 import { historyDates, importDocs } from './sync-docs.mjs';
 import { syncExamples } from './sync-examples.mjs';
 
@@ -22,6 +23,12 @@ export const sources = [
     refEnv: 'DEVLANES_REF',
     dirEnv: 'DEVLANES_DIR',
     docs: { path: 'docs', target: 'docs' },
+    // The config reference, built from the schemas below once they are in public/v1/.
+    generate: async () => {
+      const read = async (name) => JSON.parse(await readFile(join(publicDir, 'v1', name), 'utf8'));
+      const schemas = { project: await read('schema.json'), user: await read('user-schema.json') };
+      return configReference(schemas).pages;
+    },
     files: [
       ['crates/config/schema.json', 'v1/schema.json'],
       ['crates/config/user-schema.json', 'v1/user-schema.json'],
@@ -252,12 +259,17 @@ async function syncSource(source) {
       await publishAsset(join(publicDir, to), files);
     }
     const { repository, editBranch, docs } = source;
-    const { published, skipped } = await importDocs(join(root, docs.path), {
+    const { published, skipped, generated, replaced } = await importDocs(join(root, docs.path), {
       source: { repository, editBranch, ...docs },
       commit,
-      updated: await historyDates(root, docs.path)
+      updated: await historyDates(root, docs.path),
+      generated: source.generate ? await source.generate() : []
     });
-    const hidden = skipped ? `, ${skipped} with publish: false skipped` : '';
+    if (replaced.length) {
+      console.warn(`Replaced by generated pages: ${replaced.join(', ')}`);
+    }
+    const made = generated ? `, ${generated} generated` : '';
+    const hidden = `${made}${skipped ? `, ${skipped} with publish: false skipped` : ''}`;
     const copied = source.files.length + assets.length - missing.length;
     const absent = missing.length ? ` (not in this ref: ${missing.join(', ')})` : '';
     console.log(

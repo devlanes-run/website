@@ -1,0 +1,47 @@
+---
+// Previous and next links only between the pages of a `sequence: true` group of docs/nav.yaml,
+// such as Learn, with the page's position in it. Other pages are read on their own and get none.
+import Default from '@astrojs/starlight/components/Pagination.astro';
+import type { NavGroup } from '../../lib/docs-nav.mjs';
+import { nav } from '../../lib/nav';
+
+type Entry = (typeof Astro.locals.starlightRoute.sidebar)[number];
+type Link = Extract<Entry, { type: 'link' }>;
+
+/** Label paths of the sequence groups: `['Learn']`, or `['Guides', 'Basics']` one level down. */
+const sequences = (nav ?? []).flatMap((group: NavGroup) => [
+  ...(group.sequence ? [[group.label]] : []),
+  ...group.items.flatMap((item) =>
+    typeof item !== 'string' && item.sequence ? [[group.label, item.label]] : []
+  )
+]);
+
+const route = Astro.locals.starlightRoute;
+// The examples keep the links src/lib/route-data.ts leaves them, between examples.
+const isExample = route.id.startsWith('examples/');
+let links: Link[] = [];
+for (const path of sequences) {
+  let entries: Entry[] = route.sidebar;
+  for (const label of path) {
+    const group = entries.find((entry) => entry.type === 'group' && entry.label === label);
+    entries = group?.type === 'group' ? group.entries : [];
+  }
+  const pages = entries.filter((entry): entry is Link => entry.type === 'link');
+  if (pages.some((page) => page.isCurrent)) {
+    links = pages;
+    break;
+  }
+}
+const index = links.findIndex((link) => link.isCurrent);
+if (!isExample) route.pagination = { prev: links[index - 1], next: links[index + 1] };
+---
+
+{isExample && <Default />}
+{!isExample && index >= 0 && (
+  <>
+    <p class="pagination-position">
+      {index + 1} of {links.length}
+    </p>
+    <Default />
+  </>
+)}

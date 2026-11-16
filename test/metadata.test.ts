@@ -15,7 +15,7 @@ test('generated crawler documents and assets are available', async ({ request })
   expect(examples.length).toBeGreaterThan(1);
   for (const [, path = ''] of examples) expect((await request.get(path)).ok(), path).toBe(true);
   const full = await request.get('/llms-full.txt');
-  expect(await full.text()).toContain('url: https://devlanes.run/docs/getting-started/');
+  expect(await full.text()).toContain('url: https://devlanes.run/docs/reference/config/');
   const sitemap = await request.get('/sitemap-0.xml');
   const urls = await sitemap.text();
   expect(urls).toContain('https://devlanes.run/');

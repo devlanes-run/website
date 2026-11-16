@@ -5,20 +5,28 @@ import { defineConfig } from 'astro/config';
 import compress from 'astro-compress';
 import icon from 'astro-icon';
 import { pluginConfigDocs } from './integrations/config-docs.mjs';
+import { pluginConsole } from './integrations/console-blocks.mjs';
+import directives from './integrations/directives.mjs';
 import markdown from './integrations/markdown.mjs';
-import { importedPages } from './scripts/sync-docs.mjs';
-import { groupDocs } from './src/lib/docs-nav.mjs';
+import { importedNav, importedPages } from './scripts/sync-docs.mjs';
+import { groupDocs, isGroup } from './src/lib/docs-nav.mjs';
 import { categories, examplesGroup, taxonomyIcons } from './src/lib/example-taxonomy.mjs';
 import { siteDescription as description } from './src/lib/site.mjs';
 
 // Read once when the config loads: restart `astro dev` after a sync adds or removes pages.
+const nav = await importedNav();
 const pages = await importedPages();
-const docsGroups = groupDocs(pages.filter(({ id }) => !id.startsWith('examples/')));
-const docsSidebar = docsGroups.map(({ label, collapsed, pages }) => ({
+const docs = groupDocs(
+  pages.filter(({ id }) => !id.startsWith('examples/')),
+  nav
+);
+/** @param {import('./src/lib/docs-nav.mjs').Group<{ id: string }>} group @returns {any} */
+const toSidebar = ({ label, collapsed, items }) => ({
   label,
   collapsed,
-  items: pages.map((page) => ({ slug: page.id, label: page.label }))
-}));
+  items: items.map((item) => (isGroup(item) ? toSidebar(item) : item.id))
+});
+const docsSidebar = docs.groups.map(toSidebar);
 
 // The examples have their own sidebar, by category. Starlight takes one sidebar for the whole
 // site, so they sit in one group that src/lib/route-data.ts shows on their pages only.
@@ -39,11 +47,24 @@ const sidebar = examplesSidebar.length
   ? [...docsSidebar, { label: examplesGroup, items: examplesSidebar }]
   : docsSidebar;
 const examplesIcons = taxonomyIcons();
-const unfiled = docsGroups.flatMap(({ pages }) => pages.filter((page) => page.unfiled));
-if (unfiled.length) {
-  console.warn(
-    `Docs pages not filed in src/lib/docs-nav.mjs: ${unfiled.map(({ id }) => id).join(', ')}`
-  );
+if (!nav) console.warn('The docs source has no nav.yaml: every page is in one sidebar group.');
+if (nav && docs.unfiled.length) {
+  console.warn(`Docs pages not in nav.yaml: ${docs.unfiled.map(({ id }) => id).join(', ')}`);
+}
+
+/** Paths in nav.yaml without a page fail a build, and only warn in `astro dev` while writing. */
+function checkNav() {
+  return {
+    name: 'devlanes:docs-nav',
+    hooks: {
+      'astro:config:setup': ({ command, logger }) => {
+        if (!docs.missing.length) return;
+        const message = `docs/nav.yaml names pages that do not exist: ${docs.missing.join(', ')}`;
+        if (command === 'build') throw new Error(message);
+        logger.warn(message);
+      }
+    }
+  };
 }
 
 export default defineConfig({
@@ -70,19 +91,23 @@ export default defineConfig({
       }
     }),
     sitemap(),
+    checkNav(),
+    // Before Starlight, whose catch-all for unknown directives runs right after it.
+    directives(),
     starlight({
       title: 'devlanes',
       description,
       favicon: '/favicon.svg',
       customCss: ['./src/styles/docs.scss'],
       // Pages come from scripts/sync-docs.mjs, which writes them under src/content/docs/docs/;
-      // src/lib/docs-nav.mjs files them into groups.
+      // src/lib/docs-nav.mjs files them into the groups of docs/nav.yaml.
       sidebar,
       routeMiddleware: './src/lib/route-data.ts',
       components: {
         Head: './src/components/docs/Head.astro',
         Header: './src/components/docs/Header.astro',
         PageTitle: './src/components/docs/PageTitle.astro',
+        Pagination: './src/components/docs/Pagination.astro',
         ThemeProvider: './src/components/docs/ThemeProvider.astro',
         ThemeSelect: './src/components/docs/ThemeSelect.astro'
       },
@@ -90,7 +115,7 @@ export default defineConfig({
       expressiveCode: {
         themes: ['github-dark-default'],
         useStarlightDarkModeSwitch: false,
-        plugins: [pluginConfigDocs()],
+        plugins: [pluginConfigDocs(), pluginConsole()],
         styleOverrides: {
           borderRadius: '12px',
           borderWidth: '1px',

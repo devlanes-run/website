@@ -1,0 +1,39 @@
+@use 'tokens';
+
+// Two columns of short items with dashed rules, each a command over what it does: the ledger on
+// /remote/ (src/components/pages/Ledger.astro) and `::::compare` in the docs. One column on phones.
+@mixin columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 48px;
+  padding: 8px 0;
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    padding: 16px 0 18px;
+    border-top: 2px dashed var(--line);
+  }
+
+  li code {
+    display: block;
+    margin-bottom: 6px;
+    font: 13px/1.5 var(--mono);
+    font-variant-ligatures: none;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: tokens.$tablet-width) {
+    gap: 32px;
+  }
+
+  @media (max-width: tokens.$mobile-width) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+}

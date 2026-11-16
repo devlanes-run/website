@@ -14,3 +14,10 @@ const markdown = id === '404' ? undefined : `/${id}.md`;
 <link rel="help" type="text/plain" href="/llms.txt" />
 <Analytics />
 <Fonts />
+
+<script>
+  import '../../scripts/docs-tabs';
+
+  // Only pages with a `::tui` embed load the TUI script and its bundle.
+  if (document.querySelector('[data-tui]')) void import('../../scripts/tui');
+</script>

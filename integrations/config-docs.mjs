@@ -5,16 +5,19 @@
 import { readFileSync } from 'node:fs';
 import { definePlugin, ExpressiveCodeAnnotation } from '@astrojs/starlight/expressive-code';
 import { h } from '@astrojs/starlight/expressive-code/hast';
+import { configReference } from './config-reference.mjs';
 import { describeKeys } from './config-schema.mjs';
 
 const kinds = {
-  devlanes: { schema: 'v1/schema.json', title: 'devlanes.yaml' },
-  'devlanes-user': { schema: 'v1/user-schema.json', title: '~/.devlanes/config.yaml' }
+  devlanes: { schema: 'v1/schema.json', title: 'devlanes.yaml', reference: 'project' },
+  'devlanes-user': {
+    schema: 'v1/user-schema.json',
+    title: '~/.devlanes/config.yaml',
+    reference: 'user'
+  }
 };
 
 const publicDir = new URL('../public/', import.meta.url);
-const referenceRoute = '/docs/reference/config/';
-const referenceFile = new URL('../src/content/docs/docs/reference/config.md', import.meta.url);
 const clientScript = readFileSync(new URL('./config-docs.client.js', import.meta.url), 'utf8');
 
 // Both are written by `pnpm sync`, so they are read on first use rather than at config load.
@@ -26,41 +29,14 @@ function schemaFor(kind) {
   return schemas.get(kind.schema);
 }
 
-let headings;
-/**
- * Anchors of the reference's top-level key sections, as Astro slugs them. The project config
- * comes before the user config there, so a name both have (`lanes`) is the first heading for
- * the project and the last, `lanes-1`, for the user config.
- */
-function anchorFor(kindName, key) {
-  if (!headings) {
-    headings = new Map();
-    const seen = new Map();
-    let markdown = '';
-    try {
-      markdown = readFileSync(referenceFile, 'utf8');
-    } catch {
-      // Without the reference page the hovers link to the route alone.
-    }
-    let fence = null;
-    for (const line of markdown.split('\n')) {
-      const marker = line.match(/^\s*(`{3,}|~{3,})/)?.[1];
-      if (marker && (!fence || marker.startsWith(fence))) fence = fence ? null : marker;
-      const text = !fence && !marker && line.match(/^#{2,6}\s+(.+?)\s*$/)?.[1];
-      if (!text) continue;
-      const base = text
-        .toLowerCase()
-        .replace(/[^\p{L}\p{N}\s_-]/gu, '')
-        .replace(/\s/g, '-');
-      const count = seen.get(base) ?? 0;
-      seen.set(base, count + 1);
-      const slug = count ? `${base}-${count}` : base;
-      headings.set(text, [...(headings.get(text) ?? []), slug]);
-    }
-  }
-  const slugs = headings.get(key);
-  if (!slugs) return referenceRoute;
-  return `${referenceRoute}#${kindName === 'devlanes' ? slugs[0] : slugs.at(-1)}`;
+let reference;
+/** The entry of the generated config reference (scripts/sync.mjs) that documents `path`. */
+function linkFor(kind, path) {
+  reference ??= configReference({
+    project: schemaFor(kinds.devlanes),
+    user: schemaFor(kinds['devlanes-user'])
+  });
+  return reference.linkFor(kind.reference, path) ?? `/docs/reference/config/${kind.reference}/`;
 }
 
 function kindOf(codeBlock) {
@@ -164,11 +140,7 @@ export function pluginConfigDocs() {
               h('div', { 'data-doc': index }, [
                 h('code', { className: 'path' }, doc.path),
                 h('p', inlineMarkdown(doc.description)),
-                h(
-                  'a',
-                  { href: anchorFor(entry.kind.name, doc.path.split(/[.[]/)[0]) },
-                  'Config reference'
-                )
+                h('a', { href: linkFor(entry.kind, doc.path) }, 'Config reference')
               ])
             )
           )

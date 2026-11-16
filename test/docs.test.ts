@@ -72,6 +72,69 @@ test('page actions copy the Markdown twin and prompt assistants with its URL', a
   );
 });
 
+test('the config reference is generated from the schemas, with anchors the hovers use', async ({
+  page,
+  request
+}) => {
+  const twin = await request.get('/docs/reference/config/project/services.md');
+  expect(twin.ok()).toBe(true);
+  const markdown = await twin.text();
+  expect(markdown).toContain('### `services.<name>.ready`');
+  expect(markdown).not.toMatch(/^\|/m);
+  await page.goto('/docs/reference/config/project/services/');
+  await expect(page.locator('h3#services-name-ready')).toBeVisible();
+  const links = await page
+    .locator('.devlanes-config-docs a')
+    .evaluateAll((anchors) => anchors.map((anchor) => anchor.getAttribute('href') ?? ''));
+  expect(links.length).toBeGreaterThan(0);
+  for (const link of links.slice(0, 20)) {
+    expect(link).toMatch(/^\/docs\/reference\/config\/(project|user)\/[\w-]+\/#[\w-]+$/);
+  }
+});
+
+// The pages below come from the docs of the release being built; each test skips without them.
+test('Learn pages link their neighbours with their position; other pages do not', async ({
+  page
+}) => {
+  const response = await page.goto('/docs/learn/worktrees/');
+  test.skip(!response?.ok(), 'the docs have no Learn sequence');
+  await expect(page.locator('.pagination-position')).toHaveText(/^2 of \d+$/);
+  await expect(page.locator('.pagination-links a[rel="prev"]')).toHaveAttribute(
+    'href',
+    '/docs/learn/first-service/'
+  );
+  await expect(page.locator('.pagination-links a[rel="next"]')).toHaveCount(1);
+  await page.goto('/docs/install/');
+  await expect(page.locator('.pagination-links a')).toHaveCount(0);
+});
+
+test('synced tabs switch together and are kept; console blocks copy their commands', async ({
+  page
+}) => {
+  const response = await page.goto('/docs/install/');
+  const tabs = page.locator('.dl-tabs[data-sync="os"]').first();
+  test.skip(!response?.ok() || !(await tabs.count()), 'the install page has no tabs');
+  const last = tabs.getByRole('tab').last();
+  const label = await last.textContent();
+  await last.click();
+  await expect(last).toHaveAttribute('aria-selected', 'true');
+  await expect(tabs.locator('.dl-tab:not([hidden])')).toHaveCount(1);
+  await page.reload();
+  await expect(tabs.getByRole('tab', { name: label ?? '' })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  );
+
+  // The copy script copies `data-code`, with \x7F for line breaks. Reading it instead of the
+  // clipboard keeps this test apart from the others that copy, which run in parallel.
+  const block = page.locator('.dl-console').filter({ has: page.locator('.dl-command') });
+  const copied = (await block.first().locator('.copy button').getAttribute('data-code')) ?? '';
+  expect(copied.length).toBeGreaterThan(0);
+  expect(copied.replaceAll('\x7F', '\n')).not.toMatch(/^(\$|PS>) /m);
+  const output = page.locator('.dl-console').filter({ hasNot: page.locator('.dl-command') });
+  if (await output.count()) await expect(output.first().locator('.copy')).toHaveCount(0);
+});
+
 test('search finds docs content', async ({ page }) => {
   await page.goto('/docs/');
   await page.getByRole('button', { name: 'Search' }).click();

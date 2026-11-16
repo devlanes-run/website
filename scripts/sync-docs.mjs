@@ -6,6 +6,7 @@ import { dirname, extname, join, posix, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { parse as parseYaml } from 'yaml';
+import { parseNav } from '../src/lib/docs-nav.mjs';
 
 const run = promisify(execFile);
 const contentDir = fileURLToPath(new URL('../src/content/docs/', import.meta.url));
@@ -290,12 +291,24 @@ export async function importedPages() {
   return pages.filter((page) => page !== null);
 }
 
+/** The sidebar file at the root of a source's docs, copied for src/lib/docs-nav.mjs. */
+const navFileName = 'nav.yaml';
+
+/** The synced sidebar of the `docs` source, or null when the source has none. */
+export async function importedNav() {
+  const file = join(contentDir, 'docs', navFileName);
+  const text = await readFile(file, 'utf8').catch(() => null);
+  return text === null ? null : parseNav(text);
+}
+
 /**
  * Writes the docs found in `root` (the source's docs directory) into the Starlight collection.
- * `context` holds the `source` options, the built `commit` and the `updated` dates.
+ * `context` holds the `source` options, the built `commit`, the `updated` dates and the
+ * `generated` pages (`{ file, markdown }`, paths inside the target) the website builds itself.
+ * A source page with the route of a generated one is left out: the generated page replaces it.
  */
 export async function importDocs(root, context) {
-  const { source } = context;
+  const { source, generated = [] } = context;
   const target = join(contentDir, source.target);
   await rm(target, { recursive: true, force: true });
   const files = await listFiles(root);
@@ -308,17 +321,39 @@ export async function importDocs(root, context) {
   // Collected first, so links from published pages can point unpublished ones at GitHub.
   const unpublished = new Set([...pages].filter(([, text]) => !isPublished(text)).map(([f]) => f));
   const pageContext = { ...context, unpublished };
+  const generatedRoutes = new Set(generated.map(({ file }) => routeFor(source, file)));
+  const replaced = [];
 
   for (const file of files) {
     const markdown = pages.get(file);
-    if (markdown !== undefined && !unpublished.has(file)) {
+    if (
+      markdown !== undefined &&
+      !unpublished.has(file) &&
+      generatedRoutes.has(routeFor(source, file))
+    ) {
+      replaced.push(file);
+    } else if (markdown !== undefined && !unpublished.has(file)) {
       const destination = join(target, outputPath(file));
       await mkdir(dirname(destination), { recursive: true });
       await writeFile(destination, toStarlightPage(markdown, file, pageContext));
-    } else if (imageExtensions.has(extname(file).toLowerCase())) {
+    } else if (imageExtensions.has(extname(file).toLowerCase()) || file === navFileName) {
       await mkdir(dirname(join(target, file)), { recursive: true });
       await cp(join(root, file), join(target, file));
     }
   }
-  return { published: pages.size - unpublished.size, skipped: unpublished.size };
+  for (const { file, markdown } of generated) {
+    const destination = join(target, file);
+    await mkdir(dirname(destination), { recursive: true });
+    // Generated pages have no source file to edit.
+    const page = /^---\n[\s\S]*?^editUrl:/m.test(markdown)
+      ? markdown
+      : markdown.replace(/^---\n/, '---\neditUrl: false\n');
+    await writeFile(destination, page);
+  }
+  return {
+    published: pages.size - unpublished.size - replaced.length,
+    skipped: unpublished.size,
+    generated: generated.length,
+    replaced
+  };
 }

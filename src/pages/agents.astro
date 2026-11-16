@@ -7,15 +7,15 @@ import PageFoot from '../components/pages/PageFoot.astro';
 import McpChat from '../components/McpChat.astro';
 
 const docs = [
-  { href: '/docs/getting-started/#coding-agents', label: 'Coding agents in getting started' },
-  { href: '/docs/guides/mcp/', label: 'Coding agents and devlanes mcp' },
-  { href: '/docs/guides/mcp/', label: 'Coding agents and devlanes mcp' },
+  { href: '/docs/learn/coding-agents/', label: 'Coding agents, step by step' },
+  { href: '/docs/how-to/agents/set-up/', label: 'Set up your agent' },
   {
     href: 'https://github.com/devlanes-run/devlanes/blob/main/skills/devlanes/SKILL.md',
     label: 'The devlanes skill on GitHub'
   },
+  { href: '/docs/reference/mcp-tools/', label: 'MCP tools' },
   { href: '/docs/reference/cli/', label: 'CLI reference' },
-  { href: '/docs/security/', label: 'Security' }
+  { href: '/docs/concepts/security/', label: 'Security' }
 ];
 ---
 
@@ -73,9 +73,10 @@ const docs = [
       result as a card; terminal agents get the same text.
     </p>
     <p>
-      In a terminal, the devlanes skill tells the agent never to background a dev server with{' '}
-      <code>&amp;</code>: anything not in <code>devlanes.yaml</code> runs through{' '}
-      <code>devlanes exec</code>, so the daemon keeps its logs.
+      Agents with a shell use the devlanes skill instead, installed with{' '}
+      <code>npx skills add devlanes-run/devlanes --skill devlanes</code>. It tells the agent never
+      to background a dev server with <code>&amp;</code>: anything not in <code>devlanes.yaml</code>{' '}
+      runs through <code>devlanes exec</code>, so the daemon keeps its logs.
     </p>
     <McpChat slot="visual" />
   </Section>

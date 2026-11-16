@@ -21,7 +21,7 @@
     "lint-fix": "biome check --write --unsafe . && prettier --write \"src/**/*.{astro,scss}\"",
     "preview": "astro preview",
     "sync": "node scripts/sync.mjs",
-    "test": "node --test scripts/*.test.mjs integrations/*.test.mjs && playwright test",
+    "test": "node --test scripts/*.test.mjs integrations/*.test.mjs src/lib/*.test.mjs && playwright test",
     "test-types": "astro check"
   },
   "dependencies": {
@@ -50,6 +50,7 @@
     "prettier": "^3.9.10",
     "prettier-plugin-astro": "^1.1.2",
     "sass": "^1.107.1",
+    "satteri": "0.10.5",
     "typescript": "^6.0.3",
     "wrangler": "^4.156.0"
   },

@@ -2,9 +2,11 @@
 // index, in the sidebar's groups) and /llms-full.txt (every docs twin in the same order). The
 // twins of the other pages are converted from their HTML by integrations/markdown.mjs.
 import { type CollectionEntry, getCollection } from 'astro:content';
-import { groupDocs } from './docs-nav.mjs';
+import { groupDocs, pagesOf } from './docs-nav.mjs';
+import { twinMarkdown } from './docs-twin.mjs';
 import { categories } from './example-taxonomy.mjs';
 import { examples, inCategory, repository } from './examples';
+import { nav } from './nav';
 import { siteDescription, sitePages } from './site.mjs';
 
 const examplesTwin = '/examples.md';
@@ -16,15 +18,20 @@ const textHeaders = { 'Content-Type': 'text/plain; charset=utf-8' };
 
 const docsEntries = () => getCollection('docs', ({ data }) => !data.draft);
 
-/** Published docs pages filed into the sidebar's groups, without those it hides. */
+/**
+ * Published docs pages filed into the sidebar's top-level groups, without those it hides.
+ * Subgroups are flattened: llms.txt has one level of sections.
+ */
 async function groupedEntries() {
   // The examples' pages are in the collection too; they are not docs.
   const entries = (await docsEntries()).filter(
     ({ id, data }) => !data.sidebar.hidden && !id.startsWith('examples/')
   );
-  return groupDocs(
-    entries.map((entry) => ({ id: entry.id, order: entry.data.sidebar.order, entry }))
-  );
+  const pages = entries.map((entry) => ({ id: entry.id, order: entry.data.sidebar.order, entry }));
+  return groupDocs(pages, nav).groups.map((group) => ({
+    label: group.label,
+    pages: pagesOf(group) as typeof pages
+  }));
 }
 
 /** Paths of the docs twins: each page's URL plus `.md`, so `/docs/` has `/docs.md`. */
@@ -37,7 +44,7 @@ function twinText(entry: Entry, site: URL | undefined) {
   const frontmatter = [`title: ${JSON.stringify(title)}`, `url: ${new URL(`/${entry.id}/`, site)}`];
   if (description) frontmatter.push(`description: ${JSON.stringify(description)}`);
   if (lastUpdated instanceof Date) frontmatter.push(`updated: ${lastUpdated.toISOString()}`);
-  const body = [`# ${title}`, entry.body?.trim()].filter(Boolean).join('\n\n');
+  const body = [`# ${title}`, twinMarkdown(entry.body ?? '').trim()].filter(Boolean).join('\n\n');
   return `---\n${frontmatter.join('\n')}\n---\n\n${body}\n`;
 }
 

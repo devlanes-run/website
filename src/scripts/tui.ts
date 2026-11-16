@@ -13,7 +13,17 @@ interface Demo {
   resize(): void;
   /** Unmounts the TUI and empties its element. */
   free(): void;
+  /** Opens a view by name; throws on an unknown one. Missing from older bundles. */
+  open?(view: View): void;
+  /** The name of the open view. Missing from older bundles. */
+  view?(): View;
 }
+
+type View = 'lanes' | 'monitor' | 'daemon' | 'boxes';
+
+/** The key that opens each view, for bundles without `open`. */
+const viewKeys: Record<View, string> = { lanes: 'Escape', monitor: 'M', daemon: 'D', boxes: 'B' };
+const isView = (name: string | undefined): name is View => !!name && Object.hasOwn(viewKeys, name);
 
 /** The wasm-bindgen module at /tui/devlanes_tui_web.js. */
 interface TuiModule {
@@ -32,13 +42,11 @@ interface Grid {
 
 const minimumCols = 40;
 const maximumCols = 140;
-/** Keys that open another page, replayed after a remount so the same page is open. */
-const pages = ['M', 'D', 'B', 'Escape'];
 /**
- * The pages a touch screen cycles through until it is tapped: taps reach the TUI, but without
+ * The views a touch screen cycles through until it is tapped: taps reach the TUI, but without
  * a keyboard nothing invites one.
  */
-const tour = ['M', 'Escape', 'D'];
+const tour: View[] = ['monitor', 'lanes', 'daemon'];
 
 const coarse = window.matchMedia('(pointer: coarse)').matches;
 const mobile = window.matchMedia('(max-width: 720px)');
@@ -70,6 +78,7 @@ function setup(wrapper: HTMLElement) {
   const badge = wrapper.querySelector<HTMLElement>('[data-tui-badge]');
   const badgeText = badge?.querySelector<HTMLElement>('[data-tui-badge-text]');
   const hint = live?.querySelector<HTMLElement>('[data-tui-hint]');
+  const optional = wrapper.closest<HTMLElement>('[data-tui-optional]');
   if (!staticScreen || !live || !screen?.id) return;
   const idleLabel = coarse ? 'Live, tap to interact' : 'Live, click to interact';
   const hintText = hint?.querySelector('span');
@@ -91,7 +100,8 @@ function setup(wrapper: HTMLElement) {
 
   const desktopRows = Number(wrapper.dataset.rows) || 34;
   const mobileRows = Number(wrapper.dataset.mobileRows) || 26;
-  let view = wrapper.dataset.view || 'M';
+  // Reopened after a remount, so the same view is open.
+  let view: View = isView(wrapper.dataset.view) ? wrapper.dataset.view : 'monitor';
   let demo: Demo | undefined;
   let module: TuiModule | undefined;
   let grid: Grid | undefined;
@@ -167,6 +177,8 @@ function setup(wrapper: HTMLElement) {
     if (badge) badge.hidden = true;
     if (hint) hint.hidden = true;
     staticScreen.hidden = false;
+    // A docs embed shows nothing rather than an empty screen.
+    optional?.setAttribute('hidden', '');
     syncTicks();
     console.debug('The live TUI demo is unavailable, showing the static screen.', error);
   };
@@ -205,11 +217,21 @@ function setup(wrapper: HTMLElement) {
     }
   };
 
-  /** Sends a key, remembering the page it opens for the next remount. */
-  const send = (key: string, shift = shifted(key)) => {
-    const used = guard((demo) => demo.key(key, false, false, shift, false));
-    if (used && pages.includes(key)) view = key;
-    return used;
+  /**
+   * Remembers the view a key opened. Without `view()` the key is assumed to open its view, which
+   * misses the toggle back to lanes on pressing the open view's key again.
+   */
+  const track = (key: string) => {
+    const name = demo?.view ? guard((demo) => demo.view?.()) : undefined;
+    const opened = (Object.keys(viewKeys) as View[]).find((each) => viewKeys[each] === key);
+    view = name ?? opened ?? view;
+  };
+
+  /** Opens a view by name, or by its key on bundles without `open`. */
+  const open = (next: View) => {
+    if (demo?.open) guard((demo) => demo.open?.(next));
+    else guard((demo) => demo.key(viewKeys[next], false, false, shifted(viewKeys[next]), false));
+    view = next;
   };
 
   /** Mounts the TUI at the grid that fits now and opens the page that was open. */
@@ -250,7 +272,7 @@ function setup(wrapper: HTMLElement) {
     if (badge) badge.hidden = false;
     if (hint) hint.hidden = hinted;
     armHint();
-    send(view);
+    open(view);
     syncTicks();
   };
 
@@ -308,7 +330,7 @@ function setup(wrapper: HTMLElement) {
       if (touring) {
         tourTimer = window.setInterval(() => {
           tourStep = (tourStep + 1) % tour.length;
-          send(tour[tourStep] ?? 'M');
+          open(tour[tourStep] ?? 'monitor');
         }, 6000);
       }
     } else if (!running && ticker !== undefined) {
@@ -365,7 +387,7 @@ function setup(wrapper: HTMLElement) {
     );
     if (!used) return;
     event.preventDefault();
-    if (pages.includes(event.key)) view = event.key;
+    track(event.key);
   });
 
   // The live screen, sized for the grid, holds the place under the hint while the bundle
@@ -403,5 +425,21 @@ function setup(wrapper: HTMLElement) {
 }
 
 if (typeof WebAssembly === 'object' && 'IntersectionObserver' in window) {
-  for (const wrapper of wrappers) setup(wrapper);
+  for (const wrapper of wrappers) {
+    // Embeds in the docs (`::tui`) stay hidden until the bundle has loaded.
+    const optional = wrapper.closest<HTMLElement>('[data-tui-optional]');
+    if (!optional) setup(wrapper);
+    else {
+      load().then(
+        () => {
+          optional.hidden = false;
+          setup(wrapper);
+        },
+        (error: unknown) => console.debug('The live TUI is unavailable.', error)
+      );
+    }
+  }
 }
+
+// Loaded on demand by the docs pages, which import it only when they have an embed.
+export {};

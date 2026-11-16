@@ -8,14 +8,14 @@ interface Props {
   rows?: number;
   /** Rows of the live grid under 720px. */
   mobileRows?: number;
-  /** The `KeyboardEvent.key` sent once mounted; uppercase letters are sent with Shift. */
-  view?: string;
+  /** The view opened once mounted: `lanes`, `monitor`, `daemon` or `boxes`. */
+  view?: 'lanes' | 'monitor' | 'daemon' | 'boxes';
   /** Unused by the markup: the window title belongs to the surrounding Terminal. */
   title?: string;
   id?: string;
 }
 
-const { rows = 34, mobileRows = 26, view = 'M', id = 'tui-demo' } = Astro.props;
+const { rows = 34, mobileRows = 26, view = 'monitor', id = 'tui-demo' } = Astro.props;
 ---
 
 <div class="tui" data-tui data-rows={rows} data-mobile-rows={mobileRows} data-view={view}>
