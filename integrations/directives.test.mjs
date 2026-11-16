@@ -70,6 +70,26 @@ test('diagrams are inlined with their alt text as the label', async () => {
   assert.doesNotMatch(html, /<\?xml/);
 });
 
+test('mermaid fences become labelled SVGs whose styles stay inside the diagram', async () => {
+  const html = await render(
+    '```mermaid\nflowchart LR\n  accTitle: The CLI talks to the daemon\n  cli --> daemon\n```'
+  );
+  assert.match(
+    html,
+    /^<svg class="dl-diagram dl-mermaid" [^>]*role="img" aria-label="The CLI talks to the daemon">/
+  );
+  assert.match(html, />daemon<\/text>/);
+  assert.doesNotMatch(html, /accTitle|@import|fonts\.googleapis/);
+  assert.match(html, /marker-end="url\(#d1-arrowhead\)"/);
+  // Rules that reached the whole page would restyle every other SVG and its text.
+  const css = html.match(/<style>([\s\S]*?)<\/style>/)?.[1] ?? '';
+  const selectors = [...css.matchAll(/([^{}]+)\{/g)].flatMap((m) => m[1].split(','));
+  assert.ok(selectors.some((selector) => selector.trim() === 'svg.dl-mermaid text'));
+  for (const selector of selectors) {
+    assert.match(selector.trim(), /^svg\.dl-mermaid(\s+[\w.-]+)?$/);
+  }
+});
+
 test('other images are left to Astro', async () => {
   assert.match(await render('![A photo](photo.png)'), /<img src="photo.png" alt="A photo"/);
 });
@@ -86,7 +106,9 @@ test('mistakes fail with the file and line', async () => {
     ['::::tabs\nText.\n::::', /holds only :::tab blocks/],
     ['::::tabs\n:::tab\nText.\n:::\n::::', /:::tab needs a label/],
     [':::steps\n- Unordered.\n:::', /one numbered list/],
-    [':::side[A]\nText.\n:::', /:::side belongs inside ::::compare/]
+    [':::side[A]\nText.\n:::', /:::side belongs inside ::::compare/],
+    ['```mermaid\nflowchart LR\n  a --> b\n```', /page\.md:1: the mermaid diagram needs a label/],
+    ['```mermaid\naccTitle: Pie\npie\n  "a": 1\n```', /mermaid diagram cannot be rendered/]
   ];
   for (const [markdown, error] of cases) await assert.rejects(render(markdown), error);
 });

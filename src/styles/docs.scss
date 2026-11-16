@@ -484,6 +484,16 @@ h1#_top {
   --dl-diagram-line: var(--ink);
   --dl-diagram-fill: color-mix(in srgb, var(--ink) 6%, var(--surface));
   --dl-diagram-accent: var(--paint);
+
+  // The colour roles of mermaid diagrams (integrations/mermaid.mjs). The tokens they use switch
+  // with the theme, so one render serves both; arrowheads take the darker paint on light.
+  --dl-mermaid-bg: var(--surface);
+  --dl-mermaid-fg: var(--ink);
+  --dl-mermaid-muted: var(--muted);
+  --dl-mermaid-line: var(--muted);
+  --dl-mermaid-border: color-mix(in srgb, var(--ink) 35%, var(--surface));
+  --dl-mermaid-surface: var(--dl-diagram-fill);
+  --dl-mermaid-accent: var(--doc-current);
 }
 
 .pagination-position {
