@@ -8,7 +8,7 @@ export const examplesGroup = 'Examples';
 /** Categories in the catalogue's order, with the line shown under each heading. */
 export const categories = [
   { id: 'basics', label: 'Basics', text: 'Start here if devlanes is new to you.' },
-  { id: 'languages', label: 'Languages', text: 'Services written in Python and Rust.' },
+  { id: 'languages', label: 'Languages', text: 'Services written in Python, Rust, Java and Go.' },
   { id: 'web', label: 'Web', text: 'Browser apps and the APIs they call, behind the HTTPS proxy.' },
   {
     id: 'frameworks',
@@ -38,6 +38,8 @@ export const languages = [
   { id: 'typescript', label: 'TypeScript', icon: 'logos:typescript-icon' },
   { id: 'python', label: 'Python', icon: 'logos:python' },
   { id: 'rust', label: 'Rust', icon: 'simple-icons:rust' },
+  { id: 'java', label: 'Java', icon: 'logos:java' },
+  { id: 'go', label: 'Go', icon: 'logos:go' },
   { id: 'shell', label: 'Shell', icon: 'simple-icons:gnubash', color: '#4eaa25' },
   { id: 'deno', label: 'Deno', icon: 'simple-icons:deno' }
 ];
