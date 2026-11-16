@@ -47,11 +47,11 @@ The docs are not written here. Each build takes them from the latest release of 
 
 `pnpm sync` runs before every build and brings in what this repository does not hold. Nothing it writes is committed.
 
-| Source | Taken from | Becomes |
-| --- | --- | --- |
+| Source                                                            | Taken from                    | Becomes                                                                                                                                                                   |
+| ----------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [devlanes-run/devlanes](https://github.com/devlanes-run/devlanes) | The latest stable release tag | `docs/` at `/docs/`, the config reference generated from the two JSON Schemas, the schemas at `/v1/`, `/install.sh` and `/install.ps1`, and the TUI built for the browser |
-| [devlanes-run/examples](https://github.com/devlanes-run/examples) | The `main` branch | `catalog.json` and each example's README at `/examples/` |
-| This repository | | The landing page, `/lanes/`, `/remote/`, `/agents/`, the layout, the styles and the Markdown plugins the docs render with |
+| [devlanes-run/examples](https://github.com/devlanes-run/examples) | The `main` branch             | `catalog.json` and each example's README at `/examples/`                                                                                                                  |
+| This repository                                                   |                               | The landing page, `/lanes/`, `/remote/`, `/agents/`, the layout, the styles and the Markdown plugins the docs render with                                                 |
 
 A docs change reaches the site with the next devlanes release, and an example with the next push to the examples' `main`. Both repositories send this one a `source-release` dispatch, which rebuilds and deploys.
 
@@ -68,12 +68,12 @@ pnpm dev
 
 To build with content that is not released yet, point the sync somewhere else:
 
-| Variable | Use |
-| --- | --- |
-| `DEVLANES_REF` | A branch or tag of devlanes to build instead of the latest release |
-| `DEVLANES_DIR` | A local checkout of devlanes |
+| Variable           | Use                                                                                        |
+| ------------------ | ------------------------------------------------------------------------------------------ |
+| `DEVLANES_REF`     | A branch or tag of devlanes to build instead of the latest release                         |
+| `DEVLANES_DIR`     | A local checkout of devlanes                                                               |
 | `DEVLANES_TUI_DIR` | A local build of the browser TUI, the output of `packaging/scripts/tui-web.sh` in devlanes |
-| `EXAMPLES_DIR` | A local checkout of the examples |
+| `EXAMPLES_DIR`     | A local checkout of the examples                                                           |
 
 ```sh
 DEVLANES_DIR=../devlanes pnpm dev
@@ -98,15 +98,15 @@ CI runs the checks on every pull request and comments a preview URL on pull requ
 
 ## Layout
 
-| Path | Holds |
-| --- | --- |
-| `src/pages/` | The landing page, the feature pages, `llms.txt` and the Markdown twin of every page |
-| `src/components/`, `src/layouts/`, `src/styles/` | The parts the pages and the docs share |
-| `src/scripts/` | Code that runs in the browser: the road scene, the live TUI, synced tabs, the install control |
-| `integrations/` | The Markdown plugins of the docs: directives, config blocks with hovers, the config reference, Mermaid and terminal blocks |
-| `scripts/` | The sync of the docs and the examples |
-| `test/` | Playwright tests |
-| [`design.md`](https://github.com/devlanes-run/website/blob/main/design.md) | The copy rules, colours, layout and how each part of the site works |
+| Path                                                                       | Holds                                                                                                                      |
+| -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `src/pages/`                                                               | The landing page, the feature pages, `llms.txt` and the Markdown twin of every page                                        |
+| `src/components/`, `src/layouts/`, `src/styles/`                           | The parts the pages and the docs share                                                                                     |
+| `src/scripts/`                                                             | Code that runs in the browser: the road scene, the live TUI, synced tabs, the install control                              |
+| `integrations/`                                                            | The Markdown plugins of the docs: directives, config blocks with hovers, the config reference, Mermaid and terminal blocks |
+| `scripts/`                                                                 | The sync of the docs and the examples                                                                                      |
+| `test/`                                                                    | Playwright tests                                                                                                           |
+| [`design.md`](https://github.com/devlanes-run/website/blob/main/design.md) | The copy rules, colours, layout and how each part of the site works                                                        |
 
 ## Contributing
 
