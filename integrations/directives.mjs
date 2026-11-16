@@ -7,11 +7,13 @@
 //   ::::compare with :::side[Title] children           two columns, like the ledger on /remote/
 //   ::tui{view="monitor"}                              the live TUI, opened on a view
 //   ![Alt](diagram.svg)                                the SVG inlined, so it follows the theme
+//   ```mermaid with an accTitle line                   rendered to an inline SVG the same way
 //
 // Headings of the generated config reference also get their anchors here.
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { anchorFor } from './config-reference.mjs';
+import { renderMermaid } from './mermaid.mjs';
 
 // Lowercased, since Windows paths reach plugins with either case of the drive letter. Only the
 // docs: the examples' READMEs (src/content/docs/examples/) are written for GitHub.
@@ -208,6 +210,20 @@ export function docsDirectives(fileURL) {
       } catch (error) {
         fail(node, `the diagram ${url} cannot be inlined: ${error.message}`);
       }
+    },
+    code(node) {
+      if (node.lang !== 'mermaid') return undefined;
+      let diagram;
+      try {
+        diagram = renderMermaid(node.value);
+      } catch (error) {
+        fail(node, `the mermaid diagram cannot be rendered: ${error.message}`);
+      }
+      if (!diagram.label) {
+        fail(node, 'the mermaid diagram needs a label: add `accTitle: What it shows` to it');
+      }
+      diagrams += 1;
+      return { type: 'html', value: inlineSvg(diagram.svg, diagram.label, `d${diagrams}-`) };
     },
     heading(node, ctx) {
       if (!isConfigReference) return undefined;
