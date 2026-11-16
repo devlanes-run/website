@@ -70,6 +70,8 @@ function checkNav() {
 export default defineConfig({
   site: 'https://devlanes.run',
   output: 'static',
+  // Starlight forced this until 0.43; the styles were written against its zero specificity.
+  scopedStyleStrategy: 'where',
   integrations: [
     icon({
       include: {
