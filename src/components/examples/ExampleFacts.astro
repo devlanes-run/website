@@ -1,0 +1,67 @@
+---
+import { Icon } from 'astro-icon/components';
+import { featureGroups } from '../../lib/example-taxonomy.mjs';
+import { type Example, featuresIn } from '../../lib/examples';
+import ToolIcon from './ToolIcon.astro';
+
+// The catalogue's entry for an example, shown above its README: how to run it, what it is
+// built with, what it needs and which devlanes features it teaches. Feature groups link back
+// to the index filtered by them.
+interface Props {
+  example: Example;
+}
+const { example } = Astro.props;
+const groups = featureGroups
+  .filter(({ id }) => example.groups.includes(id))
+  .map(({ id, label }) => ({ id, label, features: featuresIn(example, id) }));
+const built = [...example.langs, ...example.tools];
+---
+
+<aside class="example-facts" aria-label="About this example" data-pagefind-ignore>
+  <div class="example-run">
+    <pre><span class="example-prompt">$</span> git clone https://github.com/devlanes-run/examples
+<span class="example-prompt">$</span> cd examples/{example.slug}
+<span class="example-prompt">$</span> devlanes start</pre>
+    <a class="example-code" href={example.code}>
+      <Icon name="mdi:github" size={16} aria-hidden="true" />
+      Browse the code
+    </a>
+  </div>
+  <dl>
+    <div>
+      <dt>Built with</dt>
+      <dd>
+        <ul class="example-built">
+          {built.map(({ label, icon, color }) => (
+            <li>
+              <ToolIcon icon={icon} color={color} size={16} />
+              {label}
+            </li>
+          ))}
+          {example.others.map((name) => (
+            <li>{name}</li>
+          ))}
+        </ul>
+      </dd>
+    </div>
+    <div>
+      <dt>Needs</dt>
+      <dd>devlanes, Git, {example.requires.join(', ')}</dd>
+    </div>
+    <div>
+      <dt>Teaches</dt>
+      <dd>
+        <ul class="example-teaches">
+          {groups.map(({ id, label, features }) => (
+            <li>
+              <a href={`/examples/?feature=${id}`}>{label}</a>
+              {features.map((feature) => (
+                <code>{feature}</code>
+              ))}
+            </li>
+          ))}
+        </ul>
+      </dd>
+    </div>
+  </dl>
+</aside>

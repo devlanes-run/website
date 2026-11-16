@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { gunzipSync } from 'node:zlib';
 import { historyDates, importDocs } from './sync-docs.mjs';
+import { syncExamples } from './sync-examples.mjs';
 
 const run = promisify(execFile);
 const publicDir = fileURLToPath(new URL('../public/', import.meta.url));
@@ -269,4 +270,5 @@ async function syncSource(source) {
 
 if (import.meta.main) {
   for (const source of sources) await syncSource(source);
+  await syncExamples();
 }

@@ -1,0 +1,99 @@
+---
+import Chip from '../../components/examples/Chip.astro';
+import Empty from '../../components/examples/Empty.astro';
+import ExampleRow from '../../components/examples/ExampleRow.astro';
+import Search from '../../components/examples/Search.astro';
+import Status from '../../components/examples/Status.astro';
+import Terminal from '../../components/Terminal.astro';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { categoryText, examples, type Facet, facets, inCategory } from '../../lib/examples';
+
+// The examples index: the clone commands beside the title, the filters, then a section per
+// category. The sections are separate blocks, so the road's centre line shows between them
+// all the way down.
+const of = (facet: 'category' | 'language' | 'stack' | 'feature', items: Facet[]) =>
+  items.map((item) => ({ facet, item }));
+const filters = [
+  { label: 'Category', items: of('category', facets.category) },
+  {
+    label: 'Built with',
+    items: [...of('language', facets.language), ...of('stack', facets.stack)]
+  },
+  { label: 'Teaches', items: of('feature', facets.feature) }
+];
+---
+
+<SiteLayout
+  title="Examples"
+  description="Runnable devlanes projects to clone and start, such as Postgres per lane, a Next.js app, Cloudflare Workers and a remote box."
+  path="/examples/"
+  current="examples"
+>
+  <header class="examples-intro">
+    <div class="examples-intro-copy">
+      <h1>Examples you can clone and start.</h1>
+      <p>
+        Each one is a small app that shows a few devlanes features working. Its README walks through
+        what happens when it starts.
+      </p>
+    </div>
+    <Terminal title="examples">
+      <pre class="terminal-content terminal-scroll"><span class="command">$ git clone https://github.com/devlanes-run/examples</span>
+<span class="command">$ cd examples/basics-hello-node</span>
+<span class="command">$ devlanes start</span></pre>
+    </Terminal>
+  </header>
+
+  <div data-examples data-single="category language">
+    <div class="examples-filters">
+      <div class="examples-bar">
+        <Search />
+        <button
+          type="button"
+          class="filters-toggle"
+          data-examples-toggle
+          aria-expanded="false"
+          aria-controls="examples-filter-rows"
+        >
+          Filters
+        </button>
+        <Status total={examples.length} />
+      </div>
+      <div class="filter-rows" id="examples-filter-rows">
+        {filters.map(({ label, items }) => (
+          <div class="filter-row">
+            <h2>{label}</h2>
+            <div class="chips">
+              {items.map(({ facet, item }) => (
+                <Chip facet={facet} item={item} />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {facets.category.map(({ id, label }) => (
+      <section class="shelf" id={id} aria-labelledby={`${id}-title`} data-examples-group>
+        <div class="shelf-head">
+          <h2 id={`${id}-title`}>
+            <a class="fold-anchor" href={`#${id}`}>
+              {label}
+            </a>
+          </h2>
+          <p>{categoryText(id)}</p>
+        </div>
+        <ul class="examples-list">
+          {inCategory(id).map((example) => (
+            <ExampleRow example={example} />
+          ))}
+        </ul>
+      </section>
+    ))}
+    <Empty />
+  </div>
+</SiteLayout>
+
+<script>
+  import '../../scripts/examples';
+</script>

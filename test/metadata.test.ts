@@ -8,8 +8,12 @@ test('generated crawler documents and assets are available', async ({ request })
   expect(content).not.toContain('not ready to use');
   expect(content).toContain('curl -fsSL https://devlanes.run/install.sh');
   expect(content).toContain('https://api.myapp1.localhost');
-  const llms = await request.get('/llms.txt');
-  expect(await llms.text()).toContain('https://devlanes.run/index.md');
+  const llms = await (await request.get('/llms.txt')).text();
+  expect(llms).toContain('https://devlanes.run/index.md');
+  // llms.txt lists the examples from the catalogue; their twins come from the synced READMEs.
+  const examples = [...llms.matchAll(/\(https:\/\/devlanes\.run(\/examples[\w/-]*\.md)\)/g)];
+  expect(examples.length).toBeGreaterThan(1);
+  for (const [, path = ''] of examples) expect((await request.get(path)).ok(), path).toBe(true);
   const full = await request.get('/llms-full.txt');
   expect(await full.text()).toContain('url: https://devlanes.run/docs/getting-started/');
   const sitemap = await request.get('/sitemap-0.xml');

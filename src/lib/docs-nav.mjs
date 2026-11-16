@@ -35,7 +35,15 @@ export const docsGroups = [
     ]
   },
   { label: 'Platforms', items: ['docs/guides/windows', 'docs/guides/wsl'] },
-  { label: 'Reference', items: ['docs/reference/cli', 'docs/reference/config', 'docs/examples'] },
+  {
+    label: 'Reference',
+    // Renamed here so "Examples" means the runnable ones at /examples/.
+    items: [
+      'docs/reference/cli',
+      'docs/reference/config',
+      { id: 'docs/examples', label: 'Config files' }
+    ]
+  },
   {
     label: 'Proxy errors',
     collapsed: true,

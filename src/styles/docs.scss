@@ -466,6 +466,146 @@ mobile-starlight-toc {
   }
 }
 
+// An example's page opens with its catalogue entry: the commands in a terminal block, then
+// what it is built with, what it needs and what it teaches.
+.example-facts {
+  margin-top: 28px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+
+  dl {
+    margin: 0;
+    padding: 4px 20px 8px;
+  }
+
+  dl > div {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 16px;
+    padding: 12px 0;
+
+    + div {
+      border-top: 1px dashed var(--line);
+    }
+  }
+
+  dt {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+
+  dd {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  // The keys as on the index: small code in the current-page colour, without a chip.
+  code {
+    padding: 0;
+    background: none;
+    font: 12.5px/1.5 var(--mono);
+    font-variant-ligatures: none;
+    color: var(--doc-current);
+  }
+}
+
+.example-run {
+  position: relative;
+  background: var(--terminal);
+  color: #b3ada0;
+
+  pre {
+    margin: 0;
+    padding: 18px 22px;
+    overflow-x: auto;
+    font: 13px/1.65 var(--mono);
+    font-variant-ligatures: none;
+    color: #fdfcf8;
+  }
+}
+
+.example-prompt {
+  color: #8f897b;
+  user-select: none;
+}
+
+.example-code {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  background: var(--terminal-raised);
+  color: var(--terminal-ink);
+  font:
+    600 13px/1.4 'Overpass',
+    sans-serif;
+  text-decoration: none;
+
+  &:hover {
+    border-color: var(--paint);
+  }
+}
+
+.example-built {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+}
+
+.example-teaches li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 14px;
+
+  + li {
+    margin-top: 8px;
+  }
+
+  a {
+    margin-right: 4px;
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration-color: var(--paint);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+}
+
+@media (max-width: tokens.$mobile-width) {
+  .example-facts dl > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+
+  // Under the commands rather than over them.
+  .example-code {
+    position: static;
+    margin: 0 22px 16px;
+  }
+}
+
 footer.sl-flex .meta {
   margin-top: 56px;
   font-size: 14px;

@@ -3,7 +3,11 @@
 // twins of the other pages are converted from their HTML by integrations/markdown.mjs.
 import { type CollectionEntry, getCollection } from 'astro:content';
 import { groupDocs } from './docs-nav.mjs';
+import { categories } from './example-taxonomy.mjs';
+import { examples, inCategory, repository } from './examples';
 import { siteDescription, sitePages } from './site.mjs';
+
+const examplesTwin = '/examples.md';
 
 type Entry = CollectionEntry<'docs'>;
 
@@ -14,7 +18,10 @@ const docsEntries = () => getCollection('docs', ({ data }) => !data.draft);
 
 /** Published docs pages filed into the sidebar's groups, without those it hides. */
 async function groupedEntries() {
-  const entries = (await docsEntries()).filter(({ data }) => !data.sidebar.hidden);
+  // The examples' pages are in the collection too; they are not docs.
+  const entries = (await docsEntries()).filter(
+    ({ id, data }) => !data.sidebar.hidden && !id.startsWith('examples/')
+  );
   return groupDocs(
     entries.map((entry) => ({ id: entry.id, order: entry.data.sidebar.order, entry }))
   );
@@ -50,7 +57,19 @@ export async function llmsTxt(site: URL | undefined) {
     );
     return `## ${label}\n\n${links.join('\n')}`;
   });
-  const pages = sitePages.map(({ title, twin }) => link(title, twin));
+  // The examples: their index, then each README's twin in the index's order.
+  if (examples.length) {
+    const links = categories.flatMap(({ id }) =>
+      inCategory(id).map(({ slug, title, description }) =>
+        link(title, `/examples/${slug}.md`, description)
+      )
+    );
+    const index = link('All examples', examplesTwin, 'Every example, by category.');
+    sections.push(`## Examples\n\n${[index, ...links].join('\n')}`);
+  }
+  const pages = sitePages
+    .filter(({ twin }) => twin !== examplesTwin)
+    .map(({ title, twin }) => link(title, twin));
   const body = [
     ...header,
     `Every page below is Markdown. ${new URL('/llms-full.txt', site)} has all the docs in one file.`,
@@ -58,6 +77,36 @@ export async function llmsTxt(site: URL | undefined) {
     `## Optional\n\n${pages.join('\n')}`
   ];
   return new Response(`${body.join('\n\n')}\n`, { headers: textHeaders });
+}
+
+/**
+ * The Markdown twin of the examples index: the same sections and examples as the page, each
+ * linked to its README's twin with what it is built with, what it needs and what it teaches.
+ */
+export function examplesIndex(site: URL | undefined) {
+  const sections = categories.flatMap(({ id, label, text }) => {
+    const items = inCategory(id).map((example) => {
+      const built = [...example.langs, ...example.tools].map(({ label }) => label);
+      return [
+        `### [${example.title}](${new URL(`/examples/${example.slug}.md`, site)})`,
+        example.description,
+        [
+          `- Built with: ${[...built, ...example.others].join(', ')}`,
+          `- Needs: devlanes, Git, ${example.requires.join(', ')}`,
+          `- Teaches: ${example.features.map((feature) => `\`${feature}\``).join(', ')}`,
+          `- Code: ${example.code}`
+        ].join('\n')
+      ].join('\n\n');
+    });
+    return items.length ? [`## ${label}\n\n${text}`, ...items] : [];
+  });
+  const body = [
+    '# devlanes examples',
+    `> Small apps to clone and start, each a devlanes project with a README that walks through its start. Source: https://github.com/${repository}`,
+    `\`\`\`sh\ngit clone https://github.com/${repository}\ncd examples/basics-hello-node\ndevlanes start\n\`\`\``,
+    ...sections
+  ];
+  return new Response(`${body.join('\n\n')}\n`, { headers: markdownHeaders });
 }
 
 export async function llmsFullTxt(site: URL | undefined) {

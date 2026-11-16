@@ -1,0 +1,18 @@
+---
+import { Icon } from 'astro-icon/components';
+
+// The search field of the examples index; src/scripts/examples.ts reads it.
+---
+
+<label class="examples-search">
+  <Icon name="mdi:magnify" size={20} aria-hidden="true" />
+  <span class="visually-hidden">Search the examples</span>
+  <input
+    type="search"
+    data-examples-search
+    placeholder="postgres, next, websockets"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <kbd aria-hidden="true">/</kbd>
+</label>

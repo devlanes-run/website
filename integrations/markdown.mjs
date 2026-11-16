@@ -10,7 +10,7 @@ export default function markdown() {
     name: 'devlanes:site-markdown',
     hooks: {
       'astro:build:done': async ({ dir }) => {
-        for (const { path, twin } of sitePages) {
+        for (const { path, twin } of sitePages.filter((page) => !page.endpoint)) {
           const html = await readFile(new URL(`.${path}index.html`, dir), 'utf8');
           const { document } = parseHTML(html);
           // The live TUI's fake units and key hints read as page content.
