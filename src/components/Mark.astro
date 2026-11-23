@@ -1,9 +1,12 @@
 ---
-import { Icon } from 'astro-icon/components';
+// Inlined as an SVG component rather than an astro-icon: that renders through <use>, where the
+// header's override for the yellow bar (src/styles/_header.scss) cannot reach the rects.
+import Devlanes from '../icons/devlanes.svg';
+
 interface Props {
   size?: number;
 }
 const { size = 32 } = Astro.props;
 ---
 
-<Icon name="devlanes" size={size} aria-hidden="true" />
+<Devlanes width={size} height={size} aria-hidden="true" />
