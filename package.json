@@ -44,7 +44,7 @@
   "devDependencies": {
     "@arthurfiorette/biomejs-config": "^2.0.1",
     "@astrojs/check": "^0.9.12",
-    "@biomejs/biome": "^2.6.7",
+    "@biomejs/biome": "^2.6.8",
     "@playwright/test": "^1.65.1",
     "@types/node": "^26.6.6",
     "@types/three": "^0.187.0",
