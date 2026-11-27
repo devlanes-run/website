@@ -1,0 +1,16 @@
+---
+import PageHead from '../components/pages/PageHead.astro';
+import { Content } from '../data/privacy.md';
+import SiteLayout from '../layouts/SiteLayout.astro';
+---
+
+<SiteLayout
+  title="Privacy policy"
+  description="The network requests and stored data of the devlanes program, its browser extension, its GitHub Action and the devlanes.run website."
+  path="/privacy/"
+>
+  <PageHead title="Privacy policy" />
+  <article class="policy">
+    <Content />
+  </article>
+</SiteLayout>
