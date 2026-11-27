@@ -327,6 +327,49 @@
   }
 }
 
+// The privacy policy: the feature page title, then the Markdown from src/data/privacy.md in one
+// opaque column. Its first paragraph is the lede.
+.policy {
+  max-width: 760px;
+  margin: 22px 0 120px;
+  padding-bottom: 8px;
+  background: var(--surface);
+
+  > p:first-child {
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+
+  h2 {
+    font-size: clamp(24px, 2.4vw, 30px);
+    margin: 48px 0 16px;
+  }
+
+  ul {
+    margin: 0 0 20px;
+    padding-left: 24px;
+  }
+
+  li + li {
+    margin-top: 6px;
+  }
+
+  code {
+    font-size: 0.88em;
+  }
+}
+
+@media (max-width: tokens.$mobile-width) {
+  .policy {
+    margin-bottom: 80px;
+
+    > p:first-child {
+      font-size: 18px;
+    }
+  }
+}
+
 // Brand assets: each file on the ground it was drawn for, with its downloads under it.
 .assets-head {
   max-width: 640px;
