@@ -20,6 +20,7 @@
     "lint-ci": "biome ci . && prettier --check \"src/**/*.{astro,scss}\"",
     "lint-fix": "biome check --write --unsafe . && prettier --write \"src/**/*.{astro,scss}\"",
     "preview": "astro preview",
+    "store-images": "node scripts/store-images.mjs",
     "sync": "node scripts/sync.mjs",
     "test": "node --test scripts/*.test.mjs integrations/*.test.mjs src/lib/*.test.mjs && playwright test",
     "test-types": "astro check"

@@ -1,0 +1,401 @@
+<!doctype html>
+<!--
+  The Chrome Web Store images for the devlanes browser extension. Each section is one output file,
+  named by its id. `pnpm store-images` renders them into public/assets/chrome-web-store/.
+  The popup images in img/ come from `pnpm -C packages/extension screenshots` in devlanes-run/browser.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>devlanes Chrome Web Store images</title>
+    <style>
+      @font-face {
+        font-family: Overpass;
+        font-weight: 400;
+        src: url("../../node_modules/@fontsource/overpass/files/overpass-latin-400-normal.woff2");
+      }
+      @font-face {
+        font-family: Overpass;
+        font-weight: 600;
+        src: url("../../node_modules/@fontsource/overpass/files/overpass-latin-600-normal.woff2");
+      }
+      @font-face {
+        font-family: Overpass;
+        font-weight: 900;
+        src: url("../../node_modules/@fontsource/overpass/files/overpass-latin-900-normal.woff2");
+      }
+      @font-face {
+        font-family: "JetBrains Mono";
+        font-weight: 700;
+        src: url("../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-700-normal.woff2");
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 24px;
+        font-family: Overpass, sans-serif;
+      }
+      section {
+        flex: none;
+        overflow: hidden;
+      }
+
+      /* Google's icon guideline: 96px artwork with 16px of transparent padding on each side. */
+      #icon {
+        display: flex;
+        width: 128px;
+        height: 128px;
+        padding: 16px;
+      }
+
+      .slide {
+        width: 1280px;
+        height: 800px;
+        display: flex;
+        align-items: center;
+        gap: 80px;
+        padding: 0 96px 0 104px;
+      }
+      .light {
+        background: #f2f2ef;
+        color: #24231f;
+      }
+      .dark {
+        background: #22211e;
+        color: #f2f0ea;
+      }
+      .text {
+        flex: 1;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font: 700 28px "JetBrains Mono", monospace;
+        margin-bottom: 56px;
+      }
+      .brand img {
+        width: 48px;
+        height: 48px;
+      }
+      h1 {
+        font-size: 52px;
+        line-height: 1.1;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        margin-bottom: 28px;
+      }
+      p {
+        font-size: 24px;
+        line-height: 1.5;
+      }
+      .light p {
+        color: #63615a;
+      }
+      .dark p {
+        color: #b0ada3;
+      }
+      .popup {
+        flex: none;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .popup img {
+        display: block;
+        width: 456px;
+      }
+      .light .popup {
+        border: 1px solid #d1cfc7;
+        box-shadow:
+          0 2px 6px rgb(0 0 0 / 0.08),
+          0 18px 48px rgb(0 0 0 / 0.14);
+      }
+      .dark .popup {
+        border: 1px solid #4c4941;
+        box-shadow: 0 18px 48px rgb(0 0 0 / 0.45);
+      }
+      /* Ends the popup after acme@1, before the fixture's idle lane and its orange hint. */
+      #boxes .popup {
+        height: 442px;
+      }
+
+      /* A browser window on a lane's sign-in page, with the login menu open under the email field. */
+      .window {
+        position: relative;
+        flex: none;
+        width: 540px;
+        height: 500px;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #fff;
+        border: 1px solid #d1cfc7;
+        box-shadow:
+          0 2px 6px rgb(0 0 0 / 0.08),
+          0 18px 48px rgb(0 0 0 / 0.14);
+        font-family: system-ui, "Segoe UI", sans-serif;
+      }
+      .chrome {
+        height: 56px;
+        background: #dedcd5;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 16px;
+      }
+      .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 6px;
+        background: #bdbab1;
+      }
+      .url {
+        margin: 0 8px 0 12px;
+        flex: 1;
+        height: 34px;
+        border-radius: 17px;
+        background: #f7f6f3;
+        font-size: 16px;
+        color: #63615a;
+        display: flex;
+        align-items: center;
+        padding: 0 16px;
+      }
+      .url b {
+        color: #24231f;
+        font-weight: 400;
+      }
+      /* The toolbar button with the lane number in its badge, in the colours the extension sets. */
+      .action {
+        position: relative;
+        width: 24px;
+        height: 24px;
+        margin-right: 6px;
+      }
+      .action img {
+        display: block;
+        width: 24px;
+        height: 24px;
+      }
+      .badge {
+        position: absolute;
+        right: -7px;
+        bottom: -5px;
+        min-width: 16px;
+        height: 16px;
+        padding: 0 4px;
+        border-radius: 8px;
+        background: #f5c542;
+        color: #24231f;
+        box-shadow: 0 0 0 2px #dedcd5;
+        font: 700 11px/16px system-ui, sans-serif;
+        text-align: center;
+      }
+      .page {
+        padding: 44px 64px;
+      }
+      #logins {
+        gap: 64px;
+      }
+      .page h2 {
+        font-size: 30px;
+        font-weight: 600;
+        color: #24231f;
+        margin-bottom: 28px;
+      }
+      .field {
+        font-size: 15px;
+        color: #63615a;
+        margin-bottom: 6px;
+      }
+      .input {
+        height: 46px;
+        border-radius: 6px;
+        border: 1px solid #c9c6bd;
+        margin-bottom: 20px;
+      }
+      .input.focus {
+        border: 2px solid #a77900;
+      }
+      .button {
+        height: 46px;
+        border-radius: 6px;
+        background: #24231f;
+        color: #fff;
+        font-size: 17px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 8px;
+      }
+      .menu {
+        position: absolute;
+        left: 64px;
+        width: 412px;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgb(0 0 0 / 0.2);
+      }
+      .menu img {
+        display: block;
+        width: 412px;
+      }
+
+      /* The sign: paint yellow with the dark mark, as on the website's header. */
+      .sign {
+        background: #f5c542;
+        color: #24231f;
+      }
+      #tile {
+        width: 440px;
+        height: 280px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 0 44px;
+      }
+      #tile .brand {
+        font-size: 40px;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      #tile .brand img {
+        width: 68px;
+        height: 68px;
+        margin-left: -6px;
+      }
+      #tile p {
+        font-size: 30px;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+      }
+      #marquee {
+        width: 1400px;
+        height: 560px;
+        display: flex;
+        gap: 80px;
+        padding: 0 104px;
+      }
+      #marquee .text {
+        align-self: center;
+      }
+      #marquee .brand {
+        font-size: 44px;
+        gap: 12px;
+        margin-bottom: 40px;
+      }
+      #marquee .brand img {
+        width: 76px;
+        height: 76px;
+        margin-left: -8px;
+      }
+      #marquee h1 {
+        font-size: 56px;
+        margin-bottom: 24px;
+      }
+      #marquee p {
+        font-size: 26px;
+        color: #24231f;
+      }
+      /* The popup runs off the bottom edge, so it can stay at the screenshots' size. The edge
+         falls on the gap after acme@2, so no line of text is cut in half. */
+      #marquee .popup {
+        margin-top: 104px;
+        border: 1px solid #d9ad2e;
+        box-shadow: 0 18px 48px rgb(0 0 0 / 0.2);
+      }
+    </style>
+  </head>
+  <body>
+    <section id="lanes" class="slide light">
+      <div class="text">
+        <div class="brand"><img src="../../public/assets/mark-on-light.svg" alt="" />devlanes</div>
+        <h1>Every lane of every project, with its URLs</h1>
+        <p>
+          The popup lists the lanes devlanes runs. Open the page you are on in another lane, with
+          the same path, query and hash.
+        </p>
+      </div>
+      <div class="popup"><img src="img/local-light.png" alt="" /></div>
+    </section>
+
+    <section id="boxes" class="slide dark">
+      <div class="text">
+        <div class="brand"><img src="../../public/assets/mark-on-dark.svg" alt="" />devlanes</div>
+        <h1>Pick the machine that serves a lane</h1>
+        <p>When remote boxes run a lane too, switch between them and this machine from the popup.</p>
+      </div>
+      <div class="popup"><img src="img/boxes-dark.png" alt="" /></div>
+    </section>
+
+    <section id="logins" class="slide light">
+      <div class="text">
+        <div class="brand"><img src="../../public/assets/mark-on-light.svg" alt="" />devlanes</div>
+        <h1>Sign in once, use it on every lane</h1>
+        <p>
+          A test login saved on one lane shows in a menu on every lane of the same project. The
+          toolbar badge shows the tab's lane number.
+        </p>
+      </div>
+      <div class="window">
+        <div class="chrome">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <div class="url">https://<b>app.acme1.localhost</b>/login</div>
+          <div class="action"><img src="../../public/favicon.svg" alt="" /><span class="badge">1</span></div>
+        </div>
+        <div class="page">
+          <h2>Sign in to acme</h2>
+          <div class="field">Email</div>
+          <div class="input focus" id="email"></div>
+          <div class="field">Password</div>
+          <div class="input"></div>
+          <div class="button">Sign in</div>
+        </div>
+        <div class="menu"><img src="img/menu-logins-light.png" alt="" /></div>
+      </div>
+    </section>
+
+    <section id="settings" class="slide light">
+      <div class="text">
+        <div class="brand"><img src="../../public/assets/mark-on-light.svg" alt="" />devlanes</div>
+        <h1>Logins and settings stay in this browser</h1>
+        <p>
+          Passwords are stored unencrypted, so use the fill for test accounts only. The extension
+          talks only to devlanes on this machine and makes no network requests of its own.
+        </p>
+      </div>
+      <div class="popup"><img src="img/settings-light.png" alt="" /></div>
+    </section>
+
+    <section id="tile" class="sign">
+      <div class="brand"><img src="../../public/assets/mark-on-sign.svg" alt="" />devlanes</div>
+      <p>Your lanes in the browser</p>
+    </section>
+
+    <section id="marquee" class="sign">
+      <div class="text">
+        <div class="brand"><img src="../../public/assets/mark-on-sign.svg" alt="" />devlanes</div>
+        <h1>Your lanes in the browser</h1>
+        <p>
+          Open the page you are on in another lane, and fill the test logins you saved on one lane.
+        </p>
+      </div>
+      <div class="popup"><img src="img/local-light.png" alt="" /></div>
+    </section>
+
+    <section id="icon"><img src="../../public/favicon.svg" width="96" height="96" alt="" /></section>
+
+    <script>
+      // Opens the login menu right under the email field, as the content script places it.
+      const email = document.getElementById('email');
+      const menu = document.querySelector('.menu');
+      const window_ = email.closest('.window');
+      menu.style.top = `${email.getBoundingClientRect().bottom - window_.getBoundingClientRect().top + 4}px`;
+    </script>
+  </body>
+</html>
