@@ -2,9 +2,9 @@ devlanes is an open source program that runs on your computer. It has no account
 
 ## The devlanes program
 
-devlanes sends no telemetry, usage data or crash reports. It connects to the services in your own lanes and to the machines you add as remote boxes.
+devlanes sends no telemetry, usage data or crash reports. It connects to the services in your own lanes and to the machines you add as remote boxes. When a lane's infra image is missing, Docker pulls it from that image's registry.
 
-Its other requests are release checks. The daemon checks 30 seconds after it starts, then every 4 hours and when the TUI opens. It asks the source you installed devlanes from for the latest version.
+Its other requests are release checks. The daemon checks 30 seconds after it starts, then every 4 hours and when the TUI opens if the last check is more than an hour old. It asks the source you installed devlanes from for the latest version.
 
 - GitHub releases of devlanes-run/devlanes, for `install.sh`, `install.ps1` and cargo installs.
 - `registry.npmjs.org`, for npm, pnpm, Bun and Yarn installs.
@@ -29,7 +29,7 @@ It reads the URLs of `https://*.localhost` tabs to know which lane a tab shows. 
 
 From devlanes it receives projects, lanes, URLs, branch names, lane states and box names. It never receives environments, secrets or logs.
 
-When "Remember passwords" is on and you sign in on a lane, the extension saves that username and password in `chrome.storage.local` in that browser. They are stored unencrypted, so use the fill for test accounts only. Nothing is synced. Settings also live in `chrome.storage.local`. Recent lane-switch notices live in `chrome.storage.session`, which the browser clears when it closes.
+When "Remember passwords" is on and you sign in on a lane, the extension saves that username and password in `chrome.storage.local` in that browser. They are stored unencrypted, so use the fill for test accounts only. Nothing is synced. Settings also live in `chrome.storage.local`. The last list of projects and lanes, and recent lane-switch notices, live in `chrome.storage.session`, which the browser clears when it closes.
 
 In the popup's settings you can turn off the fill and saved passwords, and delete a project's saved logins. Removing the extension deletes all of its stored data.
 
@@ -37,13 +37,13 @@ The extension's data is not sold or transferred. It is not used for anything out
 
 ## The GitHub Action
 
-devlanes-run/action downloads devlanes from GitHub releases. It reads the jobs of the current workflow run from the GitHub API with the job's token. When a job fails, it uploads the lane's logs as an artifact of that run in your repository.
+devlanes-run/action downloads devlanes from GitHub releases. By default, when a step of the job or a unit of the lane fails, it uploads the lane's logs as an artifact of that run in your repository. To tell whether a step failed, it reads the jobs of the run from the GitHub API with the job's token. `upload-logs` can make the upload always or never, and `cleanup: keep` uploads no logs.
 
 ## The devlanes.run website
 
 Cloudflare serves the site. Every request reaches Cloudflare with your IP address, your browser's user agent and the page you ask for. Cloudflare handles it under the [Cloudflare privacy policy](https://www.cloudflare.com/privacypolicy/).
 
-Each page loads a Plausible Analytics script from `metrics.arthur.one`. It reports page views, time on the page, scroll depth, outbound link clicks, file downloads and form submissions. Each report sends the event and the page address to `metrics.arthur.one`, with the referrer on page views. The request also carries your IP address and user agent. Blocking that address stops the analytics, and the site still works.
+Each page loads a Plausible Analytics script from `metrics.arthur.one`. It reports page views, time on the page, scroll depth, outbound link clicks, file downloads and form submissions. Each report sends the event, the page address and the referrer to `metrics.arthur.one`. Outbound link and download reports also send the link's address. The request also carries your IP address and user agent. Blocking that address stops the analytics, and the site still works.
 
 The home page asks `api.github.com` for the star count of devlanes-run/devlanes, so GitHub receives that request. The "Ask ChatGPT" and "Ask Claude" links on docs pages send the page's address to those services when you click them.
 
@@ -51,7 +51,7 @@ The fonts come from devlanes.run. The site sets no cookies. It keeps your theme 
 
 ## Changes
 
-This policy's source is in [devlanes-run/website](https://github.com/devlanes-run/website). A change to the policy is a commit there and updates the effective date.
+This policy's source is in [devlanes-run/website](https://github.com/devlanes-run/website). Each change is a commit there and updates the effective date.
 
 ## Contact
 
