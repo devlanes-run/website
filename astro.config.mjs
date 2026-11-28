@@ -171,6 +171,14 @@ export default defineConfig({
       ]
     }),
     markdown(),
-    compress({ CSS: true, Image: true, JavaScript: true, SVG: true, HTML: true })
+    compress({
+      CSS: true,
+      Image: true,
+      JavaScript: true,
+      SVG: true,
+      HTML: true,
+      // The store wants 24-bit PNGs, and the image pass would turn them into palette PNGs.
+      Exclude: ['chrome-web-store']
+    })
   ]
 });

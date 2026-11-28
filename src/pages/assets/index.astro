@@ -1,8 +1,9 @@
 ---
 import SiteLayout from '../../layouts/SiteLayout.astro';
 
-// Each asset in public/assets, shown on the ground it was drawn for. The files come from the
-// brand repository; this page only lists them.
+// Each asset in public/assets, shown on the ground it was drawn for. Most come from the brand
+// repository as an SVG and a PNG. The Chrome Web Store art is rendered in this repository by
+// `pnpm store-images` and has a PNG only. This page only lists them.
 interface Asset {
   name: string;
   label: string;
@@ -11,6 +12,8 @@ interface Asset {
   wide?: boolean;
   /** Shown at its own size, without padding. */
   full?: boolean;
+  /** Path of a PNG-only asset, shown and linked instead of `/assets/<name>.svg|png`. */
+  png?: string;
 }
 const groups: { title: string; note: string; items: Asset[] }[] = [
   {
@@ -58,6 +61,34 @@ const groups: { title: string; note: string; items: Asset[] }[] = [
       { name: 'banner', label: 'Banner', ground: 'none', wide: true, full: true },
       { name: 'og', label: 'Social card', ground: 'none', wide: true, full: true }
     ]
+  },
+  {
+    title: 'Chrome Web Store',
+    note: "The browser extension's listing art, at the exact sizes the store accepts.",
+    items: [
+      {
+        name: 'store-icon',
+        label: 'Store icon, 128 by 128',
+        ground: 'checker',
+        png: '/assets/chrome-web-store/icon-128.png'
+      },
+      {
+        name: 'store-tile',
+        label: 'Small promo tile, 440 by 280',
+        ground: 'none',
+        wide: true,
+        full: true,
+        png: '/assets/chrome-web-store/promo-small-440x280.png'
+      },
+      {
+        name: 'store-marquee',
+        label: 'Marquee, 1400 by 560',
+        ground: 'none',
+        wide: true,
+        full: true,
+        png: '/assets/chrome-web-store/promo-marquee-1400x560.png'
+      }
+    ]
   }
 ];
 ---
@@ -70,30 +101,33 @@ const groups: { title: string; note: string; items: Asset[] }[] = [
   <section class="assets-head">
     <h1>Brand assets</h1>
     <p>
-      The mark, the logo, the badges and the banners, each in SVG and PNG. Keep the mark's
-      proportions; put it on the yellow sign, on light or on dark, and leave space around it.
+      The mark, the logo, the badges and the banners, each in SVG and PNG, and the Chrome Web Store
+      art in PNG. Keep the mark's proportions; put it on the yellow sign, on light or on dark, and
+      leave space around it.
     </p>
   </section>
   {groups.map(({ title, note, items }) => (
     <section class="assets-group">
       <h2>{title}</h2>
       <p>{note}</p>
-      <ul class:list={['assets-grid', { 'assets-grid-full': items.some((item) => item.full) }]}>
-        {items.map(({ name, label, ground, wide, full }) => (
+      <ul class:list={['assets-grid', { 'assets-grid-full': items.every((item) => item.full) }]}>
+        {items.map(({ name, label, ground, wide, full, png }) => (
           <li class:list={['asset', `asset-${ground}`, { 'asset-wide': wide, 'asset-full': full }]}>
             <figure>
               <img
-                src={`/assets/${name}.svg`}
+                src={png ?? `/assets/${name}.svg`}
                 alt={`${label} ${title.toLowerCase()}`}
                 loading="lazy"
               />
               <figcaption>
                 <span>{label}</span>
                 <span class="asset-links">
-                  <a href={`/assets/${name}.svg`} download>
-                    SVG
-                  </a>
-                  <a href={`/assets/${name}.png`} download>
+                  {!png && (
+                    <a href={`/assets/${name}.svg`} download>
+                      SVG
+                    </a>
+                  )}
+                  <a href={png ?? `/assets/${name}.png`} download>
                     PNG
                   </a>
                 </span>
